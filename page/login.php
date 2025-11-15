@@ -1,10 +1,6 @@
 <?php
 session_start();
 
-// 手動定義 get/post
-function get($key, $default = null) { return $_GET[$key] ?? $default; }
-function post($key, $default = null) { return $_POST[$key] ?? $default; }
-
 $_title = 'Login';
 include '../_head.php';
 ?>

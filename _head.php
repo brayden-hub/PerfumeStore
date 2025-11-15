@@ -16,11 +16,11 @@
 
     <nav>
         <a href="/">Index</a>
-        <a href="/page/demo1.php">Demo 1</a>
-        <a href="/page/demo2.php">Demo 2</a>
-        <a href="/page/demo3.php">Demo 3</a>
-        <a href="/page/demo4.php">Demo 4</a>
-        <a href="/page/demo5.php">Demo 5</a>
+        <a href="/page/about.php">Demo 1</a>
+        <a href="/page/cart.php">Demo 2</a>
+        <a href="/page/login.php">Demo 3</a>
+        <a href="/page/product.php">Demo 4</a>
+        <a href="/page/register.php">Demo 5</a>
         <a href="/page/demo6.php">Demo 6</a>
     </nav>
 

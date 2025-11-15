@@ -1,39 +1,11 @@
 <?php
-require '../_base.php';
-// ----------------------------------------------------------------------------
-
-// TODO
-
-$btn = get('btn');
-if ($btn) {
-    $output = "GET - You click on Button $btn";
-}
-
-// ----------------------------------------------------------------------------
-$_title = 'Page | Demo 5 | GET Parameters';
-include '../_head.php';
+$_title = 'Register - N°9 Perfume';
+include '../_head.php';  
 ?>
 
-<style>
-    form {
-        display: inline-block;
-    }
-</style>
+<div style="padding:2rem;">
+    <h2>Still develop</h2>
+    <p>We are a luxury perfume brand...</p>
+</div>
 
-<!-- TODO -->
-
-<a href="?btn=1">1</a> |
-<a href="?btn=2">2</a> |
-
-<form>
-    <button name="btn" value="3">3</button>
-    <button name="btn" value="4">4</button>
-</form>
-
-<button data-get="?btn=5">5</button>
-<button data-get="?btn=6">6</button>
-
-<p><?= $output ?? '' ?></p>
-
-<?php
-include '../_foot.php';
+<?php include '../_foot.php'; ?>

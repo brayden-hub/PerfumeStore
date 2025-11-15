@@ -1,42 +1,20 @@
 <?php
-require '../_base.php';
-// ----------------------------------------------------------------------------
+session_start();
 
-// TODO
+// 手動定義 get/post
+function get($key, $default = null) { return $_GET[$key] ?? $default; }
+function post($key, $default = null) { return $_POST[$key] ?? $default; }
 
-if (is_get()) {
-    $output = 'GET request';
-}
-
-if (is_post()) {
-    $output = 'POST request';
-}
-
-// ----------------------------------------------------------------------------
-$_title = 'Page | Demo 4 | GET and POST Requests';
+$_title = 'Login';
 include '../_head.php';
 ?>
 
-<!-- TODO -->
+<div class="container" style="max-width:400px; margin:100px auto;">
+    <form method="post">
+        <input type="email" name="email" placeholder="Email" required style="width:100%; padding:10px; margin:10px 0;">
+        <input type="password" name="password" placeholder="Password" required style="width:100%; padding:10px; margin:10px 0;">
+        <button type="submit" style="width:100%; padding:10px; background:#000; color:#fff; border:none;">Login</button>
+    </form>
+</div>
 
-<style>
-    form {
-        display: inline-block;
-    }
-</style>
-
-<form>
-    <button>GET</button>
-</form>
-
-<form method="post">
-    <button>POST</button>
-</form>
-
-<button data-get>GET</button>
-<button data-post>POST</button>
-
-<p><?= $output ?? '' ?></p>
-
-<?php
-include '../_foot.php';
+<?php include '../_foot.php'; ?>

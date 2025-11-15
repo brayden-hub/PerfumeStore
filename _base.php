@@ -1,43 +1,16 @@
 <?php
-//test
-// ============================================================================
-// PHP Setups
-// ============================================================================
-
+session_start();
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// ============================================================================
-// General Page Functions
-// ============================================================================
+function is_get() { return $_SERVER['REQUEST_METHOD'] === 'GET'; }
+function is_post() { return $_SERVER['REQUEST_METHOD'] === 'POST'; }
 
-// Is GET request?
-// TODO
-
-function is_get(){
-    return $_SERVER['REQUEST_METHOD'] =='GET';
+function get($key, $default = null) {
+    return $_GET[$key] ?? $default;
 }
-
-// Is POST request?
-// TODO
-
-function is_post(){
-    return $_SERVER['REQUEST_METHOD'] == 'POST';
+function post($key, $default = null) {
+    return $_POST[$key] ?? $default;
 }
-
-// Obtain GET parameter
-function get($key, $value = null) {
-    $value = $_GET[$key] ?? $value;
-    return is_array($value) ? array_map('trim', $value) : trim($value);
-}
-
-// Obtain POST parameter
-function post($key, $value = null) {
-    $value = $_POST[$key] ?? $value;
-    return is_array($value) ? array_map('trim', $value) : trim($value);
-}
-
-// Obtain REQUEST (GET and POST) parameter
-function req($key, $value = null) {
-    $value = $_REQUEST[$key] ?? $value;
-    return is_array($value) ? array_map('trim', $value) : trim($value);
+function req($key, $default = null) {
+    return $_REQUEST[$key] ?? $default;
 }

@@ -1,0 +1,286 @@
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Helvetica Neue', Arial; background:#fff; color:#111; line-height:1.6; }
+.container { max-width:1200px; margin:auto; padding:0 5%; }
+
+header {
+    position:fixed; top:0; width:100%; background:#fff;
+    border-bottom:1px solid #eee; z-index:1000; padding:1.5rem 0;
+}
+header .container { display:flex; justify-content:space-between; align-items:center; }
+.logo { font-size:1.8rem; font-weight:300; letter-spacing:6px; }
+nav ul { display:flex; gap:2rem; list-style:none; }
+nav a { text-decoration:none; color:#111; font-size:0.85rem; text-transform:uppercase; letter-spacing:2px; }
+nav a:hover, nav a.active { color:#666; }
+.cart-item span { background:#111; color:#fff; font-size:0.7rem; width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-left:5px; }
+
+main { margin-top:80px; padding:5rem 0; }
+.hero { text-align:center; }
+.hero h1 { font-size:4rem; font-weight:300; letter-spacing:8px; }
+.hero p { color:#666; margin:1rem 0; }
+.btn { display:inline-block; margin-top:2rem; padding:12px 32px; border:1px solid #111; color:#111; text-decoration:none; font-size:0.85rem; letter-spacing:2px; }
+.btn:hover { background:#111; color:#fff; }
+
+footer { padding:3rem 0; border-top:1px solid #eee; font-size:0.8rem; color:#666; }
+footer .container { display:flex; justify-content:space-between; align-items:center; }
+.social a { margin-left:1rem; color:#666; text-decoration:none; }
+.social a:hover { color:#111; }
+
+header.logo {
+    font-family: 'Times New Roman', Times, serif;
+    position: fixed;
+    background-color: #000;
+    height: 75px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    z-index: 1;
+    overflow: hidden;  /* 防止logo溢出 */
+}
+
+header.logo h1 {
+    color: #fff;
+    position: absolute;
+    left: 50px;  /* 调整left：原120px → 50px，避开边距 */
+    top: 0;
+    line-height: 75px;  /* 匹配header高度 */
+    width: 150px;  /* 减小宽度，避免溢出 */
+    text-indent: -9999px;
+    background-image: url(public/images/logo.jpg);  /* 改img为background */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+header.logo img {
+    position: absolute;
+    left: 10px;  /* 调整img位置：左对齐，不溢出 */
+    top: 2.5px;  /* 垂直居中 */
+    object-fit: contain;  /* 保持比例，不溢出 */
+    opacity: 0.5;
+    z-index: 2;
+}
+
+/* Nav 保持不变 */
+nav {
+    background: #000;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-weight: 400;
+}
+
+nav a:hover {
+    color: #D4AF37;
+    text-decoration: none;
+}
+
+nav li {
+    display: inline;
+    margin-right: 3vw;
+    padding-right: 30px;
+    position: relative;
+}
+
+nav ul {
+    position: fixed;
+    right: 3vw;
+    top: 0;
+    line-height: 75px;  /* 匹配header高度 */
+    font-size: 20px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+
+nav a.active {
+    color: #D4AF37 !important;
+}
+
+/* Cart Badge 保持不变 */
+.cart-li {
+    position: relative;
+}
+
+.cart-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#cart-count {
+    background: #D4AF37 !important;  /* 金色背景 */
+    color: #000 !important;  /* 黑字 */
+    border-radius: 50%;
+    width: 24px;  /* 再放大一點 */
+    height: 24px;
+    font-size: 13px;  /* 再放大字體 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 3px;  /* 更上移 */
+    right: -45px;  /* 更右移 */
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);  /* 加強陰影 */
+    z-index: 10;  /* 確保在最上層 */
+}
+
+/* Footer - 三列平均分布 + 图标固定格子 */
+.footer-main {
+    background: #f8f8f8;  /* 浅灰背景 */
+    padding: 2rem 0;
+    font-family: 'Times New Roman', Times, serif;
+    color: #666;
+    font-size: 14px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 5%;
+    display: flex;  /* 横向三列 */
+    justify-content: space-between;
+    align-items: flex-start;  /* 顶对齐，内容垂直 */
+    gap: 2rem;
+}
+
+.copyright-left {
+    flex: 1;  /* 平均分布：每列等宽 */
+    text-align: left;
+}
+
+.copyright-left p {
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.email {
+    color: #D4AF37;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.email:hover {
+    color: #111;
+    text-decoration: underline;
+}
+
+.company-middle {
+    flex: 1;  /* 平均分布 */
+    text-align: left;
+}
+
+.company-middle h2 {
+    color: #111;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.company-middle p {
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.company-middle a {
+    color: #D4AF37;
+    text-decoration: none;
+}
+
+.company-middle a:hover {
+    color: #111;
+    text-decoration: underline;
+}
+
+.subscribe-right {
+    flex: 1;  /* 平均分布 */
+    text-align: center;
+}
+
+.subscribe-right h2 {
+    color: #111;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.subscribe-right form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.subscribe-right input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.subscribe-right button {
+    padding: 10px 20px;
+    background: #D4AF37;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.subscribe-right button:hover {
+    background: #111;
+    color: #fff;
+}
+
+.social-btns {
+    display: flex;  /* 横向格子 */
+    justify-content: center;
+    gap: 1rem;
+}
+
+.social-btns .btn {
+    display: flex;  /* 固定格子居中 */
+    align-items: center;
+    justify-content: center;
+    width: 40px;  /* 固定格子尺寸 */
+    height: 40px;
+    font-size: 18px;  /* 图标大小 */
+    color: #666;
+    transition: all 0.3s;
+    background: #fff;  /* 白色格子 */
+    border: 1px solid #ddd;
+    border-radius: 4px;  /* 圆角格子 */
+}
+
+.social-btns .btn:hover {
+    color: #D4AF37;
+    border-color: #D4AF37;
+    transform: scale(1.1);  /* hover轻微放大 */
+}
+
+/* 响应式 - 小屏纵向 */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+    .copyright-left {
+        text-align: center;
+    }
+    .subscribe-right form {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .social-btns {
+        gap: 0.5rem;
+    }
+    .social-btns .btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+}

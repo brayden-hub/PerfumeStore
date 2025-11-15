@@ -1,46 +1,12 @@
 <?php
-require '../_base.php';
-// ----------------------------------------------------------------------------
-
-// Associative array
-$states = [
-    'PJY' => 'Putrajaya',
-    'KTN' => 'Kelantan',
-    'PRK' => 'Perak',
-    'NSN' => 'Negeri Sembilan',
-    'PLS' => 'Perlis',
-    'PNG' => 'Pulau Pinang',
-    'TRG' => 'Terengganu',
-    'LBN' => 'Labuan',
-    'SBH' => 'Sabah',
-    'PHG' => 'Pahang',
-    'SRW' => 'Sarawak',
-    'MLK' => 'Melaka',
-    'KDH' => 'Kedah',
-    'SEL' => 'Selangor',
-    'JHR' => 'Johor',
-];
-
-// TODO
-$states['KUL'] = 'Kuala Lumpur';
-asort($states);
-
-// ----------------------------------------------------------------------------
-$_title = 'Page | Demo 2 | Ordered List';
-include '../_head.php';
+$_title = 'Products - N°9 Perfume';
+include '../_head.php';  // 上层路径
 ?>
 
-<!-- TODO -->
+<!-- 你的页面内容 -->
+<div style="padding:2rem;">
+    <h2>Our Scents</h2>
+    <!-- 产品列表 -->
+</div>
 
-<p><?= count($states) ?> state(s)</p>
-
-<ol> <!-- order list-->
-    <?php
-    foreach ($states as $k => $v) {
-        echo "<li>$k - $v</li>";
-    }
-    ?>
-</ol>
-
-<?php
-include '../_foot.php';
+<?php include '../_foot.php'; ?>

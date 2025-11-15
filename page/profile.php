@@ -1,5 +1,5 @@
 <?php
-$_title = 'Your Cart - N°9 Perfume';
+$_title = 'Your Profile - N°9 Perfume';
 include '../_head.php';  
 ?>
 

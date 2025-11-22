@@ -8,7 +8,7 @@ if (is_post()) {
     $email       = req('email');
     $name    = req('name');
     $phone = req('phone_number');
-    $role = 'customer';
+    $role = 'Member';
     $password = req('password');
 
 

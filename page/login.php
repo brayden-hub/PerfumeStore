@@ -1,23 +1,11 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
-    $token = $_COOKIE['remember_token'];
 
-    $stm = $_db->prepare("SELECT * FROM user WHERE remember_token = ?");
-    $stm->execute([$token]);
-    $user = $stm->fetch();
+require '../_base.php'; // 确保 $_db 定义
 
-    if ($user) {
-        $_SESSION['user_id'] = $user->id;
-        $_SESSION['user_name'] = $user->name;
-        $_SESSION['user_role'] = $user->role;
-    } else {
-        // 如果 token 无效 → 清掉 cookie
-        setcookie('remember_token', '', time() - 3600, '/');
-    }
-}
 
-require '../_base.php'; 
+
+
+
 
 $_err = [];
 
@@ -58,7 +46,7 @@ if (is_post()) {
             temp('info', 'Login successful!');
 
             // 如果勾选 Remember Me → 生成 token 并存 cookie
-            if (req('remember') == '1') {
+            if (req('remember') == '1' && $user->role === 'Member') {
                 // 生成 64 位随机 token
                 $token = bin2hex(random_bytes(32));
 
@@ -68,6 +56,10 @@ if (is_post()) {
 
                 // 存到 cookie，有效期 30 天
                 setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/');
+            }else if (req('remember') == '1' && $user->role !== 'Member') {
+                $_err['remember'] = 'Only Members can use Remember Me';
+                
+
             }
 
             redirect('/'); 
@@ -92,7 +84,8 @@ include '../_head.php';
         <input type="password" name="password" placeholder="Password" 
                style="width:100%; padding:10px; margin:10px 0;">
         <?= err('password') ?>
-        <input type="checkbox" name="remember" value="1"> Remember me
+        <input type="checkbox" name="remember" value="1" user_role='Member' > Remember me
+        <?= err('remember') ?>
 
 
         <button type="submit" 

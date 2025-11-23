@@ -1,4 +1,5 @@
 <?php
+require '../_base.php';
 $_title = 'Your Cart - N°9 Perfume';
 include '../_head.php';  
 ?>

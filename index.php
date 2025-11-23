@@ -1,5 +1,7 @@
 <?php
+require '_base.php';
 $_title = 'Welcome to N°9 Perfume';
+
 include '_head.php'; 
 ?>
 

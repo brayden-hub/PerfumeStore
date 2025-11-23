@@ -1,7 +1,31 @@
 <?php
 session_start();
+//database created
+$_db = new PDO('mysql:dbname=db1', 'root', '', [
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+]);
+
+// Auto-login using Remember Token
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    $token = $_COOKIE['remember_token'];
+
+    $stm = $_db->prepare("SELECT * FROM user WHERE remember_token = ?");
+    $stm->execute([$token]);
+    $user = $stm->fetch();
+
+    if ($user && $user->role === 'Member') {
+        $_SESSION['user_id'] = $user->id;
+        $_SESSION['user_name'] = $user->name;
+        $_SESSION['user_role'] = $user->role;
+    } else {
+        setcookie('remember_token', '', time() - 3600, '/');
+    }
+}
+
+
 date_default_timezone_set('Asia/Kuala_Lumpur');
 //下面czz都改了
+
 
 function is_get() {
     return $_SERVER['REQUEST_METHOD'] == 'GET';
@@ -67,10 +91,7 @@ function html_radios($key, $items, $br = false) {
     }
     echo '</div>';
 }
-$_role = [
-    'A' => 'Admin',
-    'C' => 'Customer',
-];
+
 // Generate <select>
 function html_select($key, $items, $default = '- Select One -', $attr = '') {
     $value = encode($GLOBALS[$key] ?? '');
@@ -96,10 +117,7 @@ function err($key) {
         echo '<span></span>';
     }
 }
-//database created
-$_db = new PDO('mysql:dbname=db1', 'root', '', [
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-]);
+
 
 // Is unique?
 function is_unique($value, $table, $field) {
@@ -116,3 +134,4 @@ function is_exists($value, $table, $field) {
     $stm->execute([$value]);
     return $stm->fetchColumn() > 0;
 }
+

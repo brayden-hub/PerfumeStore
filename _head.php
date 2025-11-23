@@ -1,5 +1,5 @@
 <?php
-@session_start();
+
 date_default_timezone_set('Asia/Kuala_Lumpur');
 //alr delete 2 line
 $cart_count = 0;

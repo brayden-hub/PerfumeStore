@@ -1,8 +1,14 @@
 <?php
+// Ensure session is started if not already (usually done in _base.php, but good practice here if standalone)
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 date_default_timezone_set('Asia/Kuala_Lumpur');
-//alr delete 2 line
-$cart_count = 0;
+$cart_count = 0; 
+
+// Get current User Role safely
+$user_role = $_SESSION['user_role'] ?? 'Guest';
 ?>
 
 <!DOCTYPE html>
@@ -25,21 +31,33 @@ $cart_count = 0;
     <nav>
         <ul>
             <li><a href="/" class="<?= basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : '' ?>">Home</a></li>
-            <li><a href="/page/about.php" class="<?= basename($_SERVER['PHP_SELF']) === 'about.php' ? 'active' : '' ?>">About us</a></li>
-            <li><a href="/page/product.php" class="<?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <li><a href="/page/profile.php">Profile</a></li>
+
+            <?php if ($user_role === 'Admin'): ?>
+                <li><a href="/page/product.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
+                <li><a href="/page/user.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'user.php' ? 'active' : '' ?>">User</a></li>
+                <li><a href="/page/order.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'order.php' ? 'active' : '' ?>">Order</a></li>
+                <li><a href="/page/profile.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : '' ?>">Profile</a></li>
                 <li><a href="/logout.php">Logout</a></li>
+
             <?php else: ?>
-                <li><a href="/page/login.php">Login</a></li>
-                <li><a href="/page/register.php">Register</a></li>
+                <li><a href="/page/about.php" class="<?= basename($_SERVER['PHP_SELF']) === 'about.php' ? 'active' : '' ?>">About us</a></li>
+                <li><a href="/page/product.php" class="<?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
+
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <li><a href="/page/profile.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : '' ?>">Profile</a></li>
+                    <li><a href="/logout.php">Logout</a></li>
+                <?php else: ?>
+                    <li><a href="/page/login.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'login.php' ? 'active' : '' ?>">Login</a></li>
+                    <li><a href="/page/register.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'register.php' ? 'active' : '' ?>">Register</a></li>
+                <?php endif; ?>
+
+                <li class="cart-li">
+                    <a href="/page/cart.php" class="cart-link">
+                        Cart
+                        <span id="cart-count"><?= $cart_count ?></span>
+                    </a>
+                </li>
             <?php endif; ?>
-            <li class="cart-li">
-                <a href="/page/cart.php" class="cart-link">
-                    Cart
-                    <span id="cart-count"><?= $cart_count ?></span>
-                </a>
-            </li>
         </ul>
     </nav>
 </header>

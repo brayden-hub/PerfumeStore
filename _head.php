@@ -4,7 +4,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-date_default_timezone_set('Asia/Kuala_Lumpur');
 $cart_count = 0; 
 
 // Get current User Role safely
@@ -33,7 +32,7 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
             <li><a href="/" class="<?= basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : '' ?>">Home</a></li>
 
             <?php if ($user_role === 'Admin'): ?>
-                <li><a href="/page/product.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
+                <li><a href="/page/productList.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'productList.php' ? 'active' : '' ?>">Product</a></li>
                 <li><a href="/page/user.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'user.php' ? 'active' : '' ?>">User</a></li>
                 <li><a href="/page/order.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'order.php' ? 'active' : '' ?>">Order</a></li>
                 <li><a href="/page/profile.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : '' ?>">Profile</a></li>

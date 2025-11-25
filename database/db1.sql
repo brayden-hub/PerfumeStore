@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 25, 2025 at 05:05 PM
+-- Generation Time: Nov 25, 2025 at 06:28 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,40 +48,39 @@ CREATE TABLE `product` (
   `ProductName` varchar(100) NOT NULL,
   `Price` float NOT NULL,
   `Stock` int(10) NOT NULL,
-  `Description` varchar(100) NOT NULL,
-  `Image` mediumblob NOT NULL
+  `Description` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `product`
 --
 
-INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `Description`, `Image`) VALUES
-('FH001', 'Fresh', 'N°9 Aqua Breeze', 240, 42, 'A cool aquatic fragrance with sea notes and light citrus.', 0x50696374757265),
-('FH002', 'Fresh', 'N°9 Crystal Morning', 260, 28, 'Clean and bright citrus freshness with lemon and bergamot.', 0x50696374757265),
-('FH003', 'Fresh', 'N°9 Pure Daylight', 230, 36, 'A mild fresh scent with white tea and soft flowers.', 0x50696374757265),
-('FH004', 'Fresh', 'N°9 Mist Horizon', 270, 22, 'Airy freshness with hints of mint and watery florals.', 0x50696374757265),
-('FH005', 'Fresh', 'N°9 Spring Drift', 250, 40, 'Light, refreshing, and breezy with green citrus notes.', 0x50696374757265),
-('FL001', 'Floral', 'N°9 Bloom Whisper', 280, 30, 'A soft floral blend of rose petals and white jasmine, elegant and romantic.', 0x50696374757265),
-('FL002', 'Floral', 'N°9 Petal Symphony', 320, 25, 'A graceful bouquet of peony, lily, and iris, perfect for feminine charm.', 0x50696374757265),
-('FL003', 'Floral', 'N°9 Rose Étoile', 300, 22, 'A modern rose fragrance with bright floral tones and subtle sweetness.', 0x50696374757265),
-('FL004', 'Floral', 'N°9 Velvet Blossom', 350, 18, 'Warm and luxurious floral scent with velvet rose and creamy magnolia.', 0x50696374757265),
-('FL005', 'Floral', 'N°9 Garden Muse', 260, 35, 'A lively blend of garden flowers, fresh and youthful.', 0x50696374757265),
-('FR001', 'Fruity', 'N°9 Juicy Mirage', 250, 40, 'A playful mix of peach, apple, and pear with a hint of sweetness.', 0x50696374757265),
-('FR002', 'Fruity', 'N°9 Berry Cascade', 270, 28, 'A fresh fruity scent bursting with raspberry, blackberry, and plum.', 0x50696374757265),
-('FR003', 'Fruity', 'N°9 Tropical Aura', 260, 32, 'A sunny tropical blend of mango, pineapple, and coconut.', 0x50696374757265),
-('FR004', 'Fruity', 'N°9 Sweet Orchard', 230, 45, 'Crisp orchard fruits with a soft floral background; refreshing and light.', 0x50696374757265),
-('FR005', 'Fruity', 'N°9 Candy Citrus', 240, 38, 'A bright citrus-fruity fragrance with orange, grapefruit, and sugar notes.', 0x50696374757265),
-('GR001', 'Green', 'N°9 Green Leaf Spirit', 200, 55, 'Herbal green scent with fresh-cut leaves and soft florals.', 0x50696374757265),
-('GR002', 'Green', 'N°9 Bamboo Whisper', 260, 20, 'Clean bamboo and gentle floral notes, calming and natural.', 0x50696374757265),
-('GR003', 'Green', 'N°9 Meadow Fresh', 220, 33, 'Soft grassy scent inspired by morning dew on an open field.', 0x50696374757265),
-('GR004', 'Green', 'N°9 Herbal Dew', 240, 27, 'Green herbs with mint and tea-like freshness.', 0x50696374757265),
-('GR005', 'Green', 'N°9 Wild Garden', 210, 30, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.', 0x50696374757265),
-('WD001', 'Woody', 'N°9 Sandal Noir', 330, 20, 'A warm woody scent with sandalwood, musk, and soft amber.', 0x50696374757265),
-('WD002', 'Woody', 'N°9 Cedar Realm', 310, 15, 'Earthy cedarwood with crisp herbal notes, calm and grounding.', 0x50696374757265),
-('WD003', 'Woody', 'N°9 Urban Shadow', 350, 18, 'A modern woody fragrance with smoky notes and masculine depth.', 0x50696374757265),
-('WD004', 'Woody', 'N°9 Amber Trail', 380, 14, 'Amber, patchouli, and dry woods create a rich, sensual scent.', 0x50696374757265),
-('WD005', 'Woody', 'N°9 Forest Velvet', 300, 24, 'Soft forest woods with a creamy finish, comforting and elegant.', 0x50696374757265);
+INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `Description`) VALUES
+('FH001', 'Fresh', 'N°9 Aqua Breeze', 240, 42, 'A cool aquatic fragrance with sea notes and light citrus.'),
+('FH002', 'Fresh', 'N°9 Crystal Morning', 260, 28, 'Clean and bright citrus freshness with lemon and bergamot.'),
+('FH003', 'Fresh', 'N°9 Pure Daylight', 230, 36, 'A mild fresh scent with white tea and soft flowers.'),
+('FH004', 'Fresh', 'N°9 Mist Horizon', 270, 22, 'Airy freshness with hints of mint and watery florals.'),
+('FH005', 'Fresh', 'N°9 Spring Drift', 250, 40, 'Light, refreshing, and breezy with green citrus notes.'),
+('FL001', 'Floral', 'N°9 Bloom Whisper', 280, 30, 'A soft floral blend of rose petals and white jasmine, elegant and romantic.'),
+('FL002', 'Floral', 'N°9 Petal Symphony', 320, 25, 'A graceful bouquet of peony, lily, and iris, perfect for feminine charm.'),
+('FL003', 'Floral', 'N°9 Rose Étoile', 300, 22, 'A modern rose fragrance with bright floral tones and subtle sweetness.'),
+('FL004', 'Floral', 'N°9 Velvet Blossom', 350, 18, 'Warm and luxurious floral scent with velvet rose and creamy magnolia.'),
+('FL005', 'Floral', 'N°9 Garden Muse', 260, 35, 'A lively blend of garden flowers, fresh and youthful.'),
+('FR001', 'Fruity', 'N°9 Juicy Mirage', 250, 40, 'A playful mix of peach, apple, and pear with a hint of sweetness.'),
+('FR002', 'Fruity', 'N°9 Berry Cascade', 270, 28, 'A fresh fruity scent bursting with raspberry, blackberry, and plum.'),
+('FR003', 'Fruity', 'N°9 Tropical Aura', 260, 32, 'A sunny tropical blend of mango, pineapple, and coconut.'),
+('FR004', 'Fruity', 'N°9 Sweet Orchard', 230, 45, 'Crisp orchard fruits with a soft floral background; refreshing and light.'),
+('FR005', 'Fruity', 'N°9 Candy Citrus', 240, 38, 'A bright citrus-fruity fragrance with orange, grapefruit, and sugar notes.'),
+('GR001', 'Green', 'N°9 Green Leaf Spirit', 200, 55, 'Herbal green scent with fresh-cut leaves and soft florals.'),
+('GR002', 'Green', 'N°9 Bamboo Whisper', 260, 20, 'Clean bamboo and gentle floral notes, calming and natural.'),
+('GR003', 'Green', 'N°9 Meadow Fresh', 220, 33, 'Soft grassy scent inspired by morning dew on an open field.'),
+('GR004', 'Green', 'N°9 Herbal Dew', 240, 27, 'Green herbs with mint and tea-like freshness.'),
+('GR005', 'Green', 'N°9 Wild Garden', 210, 30, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.'),
+('WD001', 'Woody', 'N°9 Sandal Noir', 330, 20, 'A warm woody scent with sandalwood, musk, and soft amber.'),
+('WD002', 'Woody', 'N°9 Cedar Realm', 310, 15, 'Earthy cedarwood with crisp herbal notes, calm and grounding.'),
+('WD003', 'Woody', 'N°9 Urban Shadow', 350, 18, 'A modern woody fragrance with smoky notes and masculine depth.'),
+('WD004', 'Woody', 'N°9 Amber Trail', 380, 14, 'Amber, patchouli, and dry woods create a rich, sensual scent.'),
+('WD005', 'Woody', 'N°9 Forest Velvet', 300, 24, 'Soft forest woods with a creamy finish, comforting and elegant.');
 
 -- --------------------------------------------------------
 
@@ -120,7 +119,8 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role`, `remember_token`, `Profile_Photo`) VALUES
 (1, 'ali', 'chongzhengzhe@gmail.com', '$2y$10$4Vew8Q.0PKoM74By9ime9.MjXuci6pO/REtKZ.HAnoOWZsMUwfU16', '018000000', 'Member', NULL, ''),
-(2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, '');
+(2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, ''),
+(5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, '');
 
 --
 -- Indexes for dumped tables
@@ -161,7 +161,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables

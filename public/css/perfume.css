@@ -402,3 +402,36 @@ nav a.active {
     }
 }
 
+/* 主頁左導航 + 表格 */
+aside h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #111;
+}
+
+aside ul a {
+    color: #666;
+    transition: color 0.3s;
+}
+
+aside ul a:hover {
+    color: #D4AF37;
+}
+
+table th, table td {
+    padding: 1rem;
+    text-align: left;
+}
+
+table tr:hover {
+    background: #f8f8f8;
+}
+
+table a {
+    color: #D4AF37;
+    transition: color 0.3s;
+}
+
+table a:hover {
+    color: #111;
+}

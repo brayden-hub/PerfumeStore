@@ -6,7 +6,7 @@ require '_base.php'; // 如果你的 _base.php 在上一层，请改为 ../_base
 if (isset($_SESSION['user_id'])) {
 
     // 清空数据库 token
-    $stm = $_db->prepare("UPDATE user SET remember_token = NULL WHERE id = ?");
+    $stm = $_db->prepare("UPDATE user SET remember_token = NULL WHERE UserID = ?");
     $stm->execute([$_SESSION['user_id']]);
 }
 

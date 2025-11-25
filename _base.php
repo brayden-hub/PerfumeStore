@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     $user = $stm->fetch();
 
     if ($user && $user->role === 'Member') {
-        $_SESSION['user_id'] = $user->id;
+        $_SESSION['user_id'] = $user->userID;
         $_SESSION['user_name'] = $user->name;
         $_SESSION['user_role'] = $user->role;
     } else {

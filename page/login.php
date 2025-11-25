@@ -39,7 +39,7 @@ if (is_post()) {
         } 
         else {
             // 设置 session
-            $_SESSION['user_id'] = $user->id;
+            $_SESSION['user_id'] = $user->userID;
             $_SESSION['user_name'] = $user->name;
             $_SESSION['user_role'] = $user->role;
 
@@ -52,7 +52,7 @@ if (is_post()) {
 
                 // 存到数据库
                 $stm = $_db->prepare("UPDATE user SET remember_token = ? WHERE id = ?");
-                $stm->execute([$token, $user->id]);
+                $stm->execute([$token, $user->userID]);
 
                 // 存到 cookie，有效期 30 天
                 setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/');

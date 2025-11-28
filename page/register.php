@@ -2,6 +2,7 @@
 require '../_base.php';
 
 
+
 if (is_post()) {
     // Input
     
@@ -106,7 +107,7 @@ include '../_head.php';
     
 
     <!-- Password -->
-    <label for="password">Password</label>
+    <label for="password">Password(minimum 8 length to 20 length,atleast one upper and lowercase,number and special character)</label>
     <div style="display: flex; align-items: center; gap: 5px;">
         <input type="password" id="password" name="password" maxlength="20">
         <button type="button" class="show-pass" data-target="#password" style="cursor: pointer;">👁️</button>

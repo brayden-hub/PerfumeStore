@@ -51,7 +51,7 @@ if (is_post()) {
                 $token = bin2hex(random_bytes(32));
 
                 // 存到数据库
-                $stm = $_db->prepare("UPDATE user SET remember_token = ? WHERE id = ?");
+                $stm = $_db->prepare("UPDATE user SET remember_token = ? WHERE userID = ?");
                 $stm->execute([$token, $user->userID]);
 
                 // 存到 cookie，有效期 30 天
@@ -81,9 +81,15 @@ include '../_head.php';
                style="width:100%; padding:10px; margin:10px 0;">
         <?= err('email') ?>
 
-        <input type="password" name="password" placeholder="Password" 
-               style="width:100%; padding:10px; margin:10px 0;">
+        <div style="display: flex; align-items: center; gap: 5px; margin:10px 0;">
+            <input type="password" id="login_password" name="password"
+                placeholder="Password"
+                style="width:100%; padding:10px;">
+            <button type="button" class="show-pass" data-target="#login_password" 
+                    style="cursor:pointer; padding:10px;">👁️</button>
+        </div>
         <?= err('password') ?>
+
         <input type="checkbox" name="remember" value="1" user_role='Member' > Remember me
         <?= err('remember') ?>
 

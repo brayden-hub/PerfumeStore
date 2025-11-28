@@ -25,8 +25,6 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     }
 }
 
-
-date_default_timezone_set('Asia/Kuala_Lumpur');
 //下面czz都改了
 
 
@@ -110,6 +108,18 @@ function html_select($key, $items, $default = '- Select One -', $attr = '') {
 }
 $_err = [];
 
+// Generate <input type='number'>
+function html_number($key, $min = '', $max = '', $step = '', $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='number' id='$key' name='$key' value='$value'
+                 min='$min' max='$max' step='$step' $attr>";
+}
+
+// Generate <input type='file'>
+function html_file($key, $accept = '', $attr = '') {
+    echo "<input type='file' id='$key' name='$key' accept='$accept' $attr>";
+}
+
 // Generate <span class='err'>
 function err($key) {
     global $_err;
@@ -136,4 +146,41 @@ function is_exists($value, $table, $field) {
     $stm = $_db->prepare("SELECT COUNT(*) FROM $table WHERE $field = ?");
     $stm->execute([$value]);
     return $stm->fetchColumn() > 0;
+}
+
+
+//For admin product
+// Obtain uploaded file --> cast to object
+function get_file($key) {
+    $f = $_FILES[$key] ?? null;
+    
+    if ($f && $f['error'] == 0) {
+        return (object)$f;
+    }
+
+    return null;
+}
+
+// Crop, resize and save photo
+function save_photo($f, $folder, $width = 200, $height = 200) {
+    $image = uniqid() . '.jpg'; // create a unique filename
+    
+    require_once 'lib/SimpleImage.php';
+    $img = new SimpleImage();
+    $img->fromFile($f->tmp_name)
+        ->thumbnail($width, $height)
+        ->toFile("$folder/$photo", 'image/jpeg');
+
+    return $image;
+}
+
+// Is money?
+function is_money($value) {
+    return preg_match('/^\-?\d+(\.\d{1,2})?$/', $value);
+
+/* /^               =start
+    \-?             =can be negative sign
+    \d+
+    (\.\d{1,2})?    =can be RM10, 10.0 ,10.00
+    $/              = end*/
 }

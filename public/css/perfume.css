@@ -358,29 +358,160 @@ nav a.active {
 
 /* Action Buttons (Edit/Delete) */
 .action-btn {
-    padding: 6px 12px;
-    margin-right: 5px;
-    text-decoration: none;
-    color: #fff !important; /* Force white text */
-    border-radius: 3px;
-    font-size: 0.8rem;
     display: inline-block;
-    transition: opacity 0.2s;
+    padding: 8px 16px;
+    margin-right: 5px;
+    color: #fff !important;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none; 
+    cursor: pointer;
+    line-height: 1.2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
 }
 
 .action-btn:hover {
-    opacity: 0.8;
+    opacity: 0.9;
+    transform: translateY(-1px); 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.action-btn:active {
+    transform: translateY(0);
 }
 
 .btn-edit { 
-    background-color: #28a745; /* Green */
+    background-color: #28a745;
 }
 
 .btn-delete { 
-    background-color: #dc3545; /* Red */
+    background-color: #dc3545;
 }
 
 .stock-low { 
     color: #dc3545; 
     font-weight: bold; 
+}
+
+/* ADMIN FORM STYLES (Add Product, etc.)*/
+.form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    background: #fff;
+}
+
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.form-container label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    margin-top: 20px;
+    color: #333;
+}
+
+/* Style all inputs inside the form container */
+.form-container input[type="text"],
+.form-container input[type="number"],
+.form-container textarea,
+.form-container select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form-container input[type="file"] {
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+
+.form-container small {
+    display: block;
+    margin-top: 5px;
+    color: #888;
+}
+
+/* Submit Button */
+.btn-submit {
+    background-color: #000;
+    color: #D4AF37; /* Gold */
+    padding: 14px 20px;
+    border: 1px solid #000;
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 30px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Cancel Link */
+.btn-cancel {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.btn-cancel:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+/* Error Messages */
+.form-container .err {
+    color: #dc3545; /* Red */
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+}
+
+/* PHOTO UPLOAD PREVIEW STYLES */
+label.upload {
+    display: inline-block;
+    cursor: pointer; /* Shows hand icon */
+}
+
+/* Hide the actual file input button */
+label.upload input[type="file"] {
+    display: none; 
+}
+
+/* Style the image inside the label */
+label.upload img {
+    display: block;
+    border: 1px solid #333;
+    width: 200px;
+    height: 200px;
+    object-fit: cover; /* Ensures image fills box without stretching */
+    background-color: #f8f8f8;
+    transition: opacity 0.3s;
+}
+
+label.upload img:hover {
+    opacity: 0.8; /* Slight fade effect on hover */
 }

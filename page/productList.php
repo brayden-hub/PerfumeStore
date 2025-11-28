@@ -19,7 +19,7 @@ $arr = $stm->fetchAll();
     
     <div class="admin-header">
         <h2>Product Management</h2>
-        <a href="product_create.php" class="btn-add">+ Add New Product</a>
+        <a href="product_add.php" class="btn-add">+ Add New Product</a>
     </div>
 
     <p><?= count($arr) ?> record(s) found</p>
@@ -27,7 +27,7 @@ $arr = $stm->fetchAll();
     <table class="product-table">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>ProductID</th>
                 <th>Series</th>
                 <th>Name</th>
                 <th>Price (RM)</th>
@@ -52,9 +52,9 @@ $arr = $stm->fetchAll();
             ?>
 
             <tr>
-                <td><?= htmlspecialchars($p->ProductID) ?></td>
-                <td><?= htmlspecialchars($p->Series) ?></td>
-                <td><?= htmlspecialchars($p->ProductName) ?></td>
+                <td><?= ($p->ProductID) ?></td>
+                <td><?= ($p->Series) ?></td>
+                <td><?= ($p->ProductName) ?></td>
                 <td><?= number_format($p->Price, 2) ?></td>
                 
                 <td class="<?= $p->Stock < 10 ? 'stock-low' : '' ?>">
@@ -62,7 +62,7 @@ $arr = $stm->fetchAll();
                 </td>
                 <td>
                     <?php if ($imgSrc): ?>
-                        <img src="<?= $imgSrc ?>" class="thumb-img" alt="<?= htmlspecialchars($p->ProductName) ?>">
+                        <img src="<?= $imgSrc ?>" class="thumb-img" alt="<?= ($p->ProductName) ?>">
                     <?php else: ?>
                         <div style="width:60px; height:60px; background:#eee; display:flex; align-items:center; justify-content:center; border:1px solid #ccc; font-size:10px; color:#999;">
                             No Img
@@ -70,12 +70,12 @@ $arr = $stm->fetchAll();
                     <?php endif; ?>
                 </td>
                 <td>
-                    <a href="product_edit.php?id=<?= $p->ProductID ?>" class="action-btn btn-edit">Edit</a>
-                    <a href="product_delete.php?id=<?= $p->ProductID ?>" 
+                    <button data-get="product_edit.php?productID=<?= $p->ProductID ?>" class="action-btn btn-edit">Edit</button>
+                    <button data-post="product_delete.php?productID=<?= $p->ProductID ?>" 
                     class="action-btn btn-delete"
-                    onclick="return confirm('Delete <?= htmlspecialchars($p->ProductName) ?>?');">
+                    onclick="return confirm('Delete <?= ($p->ProductName) ?>?');">
                     Delete
-                    </a>
+                    </button>
                 </td>
             </tr>
             <?php endforeach ?>

@@ -54,7 +54,7 @@ include '../_head.php';
                 <span style="margin:0 1rem; color:#aaa;">|</span>
                 <a href="change_password.php">Change Password</a>
                 <span style="margin:0 1rem; color:#aaa;">|</span>
-                <a href="logout.php" style="color:#c33;">Logout</a>
+                <a href="../logout.php" style="color:#c33;">Logout</a>
             </div>
         </div>
     </div>

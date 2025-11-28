@@ -44,7 +44,8 @@ if (is_post()) {
             $_SESSION['email']     = $user->email;
             $_SESSION['phone']     = $user->phone_number ?? '';
             $_SESSION['role']      = $user->role;
-            $_SESSION['user_name'] = $user->name;  // 保留你原来的 key
+            $_SESSION['user_name'] = $user->name;  
+            $_SESSION['Profile_Photo'] = $user->Profile_Photo ?? 'default1.jpg';
 
             temp('info', 'Login successful!');
 

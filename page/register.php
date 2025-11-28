@@ -77,13 +77,19 @@ if (is_post()) {
 
     // Output
     if (!$_err) {
-        $stm = $_db->prepare('INSERT INTO user
-                              (email, name, phone_number, password, role)
-                              VALUES(?, ?, ?, ?, ?)');
-        $stm->execute([$email, $name, $phone, $hashed_password, $role]);
-        
-        temp('info', 'Record inserted');
-        redirect('/');
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        // 随机给一个默认头像（1~6）
+        $defaults = ['default1.jpg','default2.jpg','default3.jpg','default4.jpg','default5.jpg','default6.jpg'];
+        $random_avatar = $defaults[array_rand($defaults)];
+
+        // 插入数据库（多了 Profile_Photo）
+        $stm = $_db->prepare('INSERT INTO user (email, name, phone_number, password, role, Profile_Photo) 
+                              VALUES (?, ?, ?, ?, ?, ?)');
+        $stm->execute([$email, $name, $phone, $hashed_password, $role, $random_avatar]);
+
+        temp('info', 'Registration successful!');
+        redirect('login.php');
     }
 }
 

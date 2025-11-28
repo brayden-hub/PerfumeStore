@@ -72,9 +72,9 @@ $arr = $stm->fetchAll();
                 <td>
                     <button data-get="product_edit.php?productID=<?= $p->ProductID ?>" class="action-btn btn-edit">Edit</button>
                     <button data-post="product_delete.php?productID=<?= $p->ProductID ?>" 
-                    class="action-btn btn-delete"
-                    onclick="return confirm('Delete <?= ($p->ProductName) ?>?');">
-                    Delete
+                            data-confirm="Are you sure you want to delete <?= htmlspecialchars($p->ProductName) ?>?"
+                            class="action-btn btn-delete">
+                        Delete
                     </button>
                 </td>
             </tr>

@@ -15,18 +15,20 @@ include '_head.php';
 </section>
 
 <div class="homepage-main" style="display: flex; padding: 4rem 0;">
-    <aside class="series-nav" style="flex: 0 0 250px; background: #f8f8f8; padding: 2rem 1rem; border-radius: 0 8px 8px 0;">
-        <h3 style="font-size: 1rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: #111;">SERIES</h3>
-        <ul style="list-style: none;">
-            <li><a href="/?series=" class="series-link <?= get('series') == '' ? 'active' : '' ?>" data-series="">All</a></li>
-            <?php
-            $stm = $_db->query("SELECT DISTINCT Series FROM product ORDER BY Series");
-            foreach ($stm->fetchAll(PDO::FETCH_COLUMN) as $series):
-            ?>
-                <li><a href="/?series=<?= urlencode($series) ?>" class="series-link <?= get('series') == $series ? 'active' : '' ?>" data-series="<?= htmlspecialchars($series) ?>"><?= htmlspecialchars($series) ?></a></li>
-            <?php endforeach; ?>
-        </ul>
-    </aside>
+        <aside class="series-nav" style="flex: 0 0 250px; background: #f8f8f8; padding: 2rem 1rem; border-radius: 0 8px 8px 0;">
+            <h3 style="font-size: 1rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: #111;">SERIES</h3>
+            <ul style="list-style: none; padding:0; margin:0;">
+                <li><a href="#" class="series-link active" data-series="">All</a></li>
+                <?php
+                $stm = $_db->query("SELECT DISTINCT Series FROM product ORDER BY Series");
+                foreach ($stm->fetchAll(PDO::FETCH_COLUMN) as $series):
+                ?>
+                    <li><a href="#" class="series-link" data-series="<?= htmlspecialchars($series) ?>">
+                        <?= htmlspecialchars($series) ?>
+                    </a></li>
+                <?php endforeach; ?>
+            </ul>
+        </aside>
 
     <section class="products-grid" style="flex: 1; padding: 0 2rem;">
         <div class="filter-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">

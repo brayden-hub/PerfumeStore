@@ -61,5 +61,4 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
     </nav>
 </header>
 
-<main style="margin-top: 15px;">
-    <h1><?= $_title ?? 'Untitled' ?></h1>
+<main style="margin-top: 0px;">

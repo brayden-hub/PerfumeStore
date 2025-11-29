@@ -37,32 +37,29 @@ if (is_post()) {
         else if (!password_verify($password, $user->password)) {
             $_err['password'] = 'Wrong password';
         } 
-        else {
-            // 设置 session
-            $_SESSION['user_id'] = $user->userID;
-            $_SESSION['user_name'] = $user->name;
-            $_SESSION['user_role'] = $user->role;
+                else {
+            // 登入成功 → 把所有资料存进 session
+            $_SESSION['user_id']   = $user->userID;
+            $_SESSION['username']  = $user->name;
+            $_SESSION['email']     = $user->email;
+            $_SESSION['phone']     = $user->phone_number ?? '';
+            $_SESSION['role']      = $user->role;
+            $_SESSION['user_name'] = $user->name;  
+            $_SESSION['Profile_Photo'] = $user->Profile_Photo ?? 'default1.jpg';
 
             temp('info', 'Login successful!');
 
-            // 如果勾选 Remember Me → 生成 token 并存 cookie
+            // Remember Me 功能保持不变（你写得很好）
             if (req('remember') == '1' && $user->role === 'Member') {
-                // 生成 64 位随机 token
                 $token = bin2hex(random_bytes(32));
-
-                // 存到数据库
-                $stm = $_db->prepare("UPDATE user SET remember_token = ? WHERE id = ?");
+                $stm = $_db->prepare("UPDATE user SET remember_token = ? WHERE userID = ?");
                 $stm->execute([$token, $user->userID]);
-
-                // 存到 cookie，有效期 30 天
                 setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/');
-            }else if (req('remember') == '1' && $user->role !== 'Member') {
+            } else if (req('remember') == '1' && $user->role !== 'Member') {
                 $_err['remember'] = 'Only Members can use Remember Me';
-                
-
             }
 
-            redirect('/'); 
+            redirect('profile.php');  // 改这里！直接跳 profile
         }
 
     }
@@ -81,9 +78,15 @@ include '../_head.php';
                style="width:100%; padding:10px; margin:10px 0;">
         <?= err('email') ?>
 
-        <input type="password" name="password" placeholder="Password" 
-               style="width:100%; padding:10px; margin:10px 0;">
+        <div style="display: flex; align-items: center; gap: 5px; margin:10px 0;">
+            <input type="password" id="login_password" name="password"
+                placeholder="Password"
+                style="width:100%; padding:10px;">
+            <button type="button" class="show-pass" data-target="#login_password" 
+                    style="cursor:pointer; padding:10px;">👁️</button>
+        </div>
         <?= err('password') ?>
+
         <input type="checkbox" name="remember" value="1" user_role='Member' > Remember me
         <?= err('remember') ?>
 

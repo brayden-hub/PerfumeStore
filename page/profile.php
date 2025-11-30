@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id  = $_SESSION['user_id'];
-$username = $_SESSION['username'] ?? 'Guest';
+$username = $_SESSION['user_name'] ?? 'Guest';
 $email    = $_SESSION['email'] ?? '';
 
 // 强制从数据库抓最新头像（永不漏）
@@ -40,7 +40,7 @@ include '../_head.php';
         <div style="flex:1;">
             <table style="font-size:1.05rem; line-height:2.2;">
                 <tr><td style="color:#666; width:130px;">Name</td>
-                    <td><?= htmlspecialchars($_SESSION['username']) ?></td></tr>
+                    <td><?= htmlspecialchars($_SESSION['user_name']) ?></td></tr>
                 <tr><td style="color:#666;">Email</td>
                     <td><?= htmlspecialchars($_SESSION['email']) ?></td></tr>
                 <tr><td style="color:#666;">Phone</td>

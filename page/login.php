@@ -40,10 +40,10 @@ if (is_post()) {
                 else {
             // 登入成功 → 把所有资料存进 session
             $_SESSION['user_id']   = $user->userID;
-            $_SESSION['username']  = $user->name;
+            $_SESSION['user_name']  = $user->name;
             $_SESSION['email']     = $user->email;
             $_SESSION['phone']     = $user->phone_number ?? '';
-            $_SESSION['role']      = $user->role;
+            $_SESSION['user_role']      = $user->role;
             $_SESSION['user_name'] = $user->name;  
             $_SESSION['Profile_Photo'] = $user->Profile_Photo ?? 'default1.jpg';
 

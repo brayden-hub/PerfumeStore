@@ -83,7 +83,7 @@ include '../_head.php';
                 placeholder="Password"
                 style="width:100%; padding:10px;">
             <button type="button" class="show-pass" data-target="#login_password" 
-                    style="cursor:pointer; padding:10px;">👁️</button>
+                    style="cursor:pointer; padding:10px;">👁︎</button>
         </div>
         <?= err('password') ?>
 

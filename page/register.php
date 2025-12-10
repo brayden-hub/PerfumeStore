@@ -49,6 +49,8 @@ elseif (is_post() && $step == 4 && empty($_err)) {
         $step = 3;
     } else {
         $errors = [];
+        $len = strlen($password);
+        
         if ($len < 8 || $len > 20) {
             $errors[] = '8-20 characters';
         }
@@ -63,15 +65,15 @@ elseif (is_post() && $step == 4 && empty($_err)) {
         } elseif ($password !== $confirm) {
             $_err['confirm_password'] = 'Passwords do not match';
             $step = 3;
-        } else {
-            $_SESSION['reg_password'] = $password; // 暂存密码
         }
+        // 验证通过，不保存密码，直接进入 Step 4
     }
 }
 
 // ===== Step 4: 验证 Phone + 最终注册 =====
 elseif (is_post() && $step == 5 && empty($_err)) {
-    $phone = req('phone_number');
+    $phone    = req('phone_number');
+    $password = req('password'); // 从表单重新读取密码
     
     if ($phone == '') {
         $_err['phone_number'] = 'Required';
@@ -84,9 +86,8 @@ elseif (is_post() && $step == 5 && empty($_err)) {
         $step = 4;
     } else {
         // 全部验证通过，执行注册
-        $name     = $_SESSION['reg_name'];
-        $email    = $_SESSION['reg_email'];
-        $password = $_SESSION['reg_password'];
+        $name  = $_SESSION['reg_name'];
+        $email = $_SESSION['reg_email'];
         
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         $defaults = ['default1.jpg','default2.jpg','default3.jpg','default4.jpg','default5.jpg','default6.jpg'];
@@ -96,7 +97,7 @@ elseif (is_post() && $step == 5 && empty($_err)) {
         $stm->execute([$email, $name, $phone, $hashed, $avatar]);
 
         // 清除所有临时数据
-        unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone'], $_SESSION['reg_password']);
+        unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone']);
 
         temp('info', 'Welcome aboard, ' . htmlspecialchars($name) . '! Account created successfully!');
         redirect('login.php');
@@ -110,7 +111,7 @@ elseif (is_post() && $step == 5 && empty($_err)) {
 $name     = $_SESSION['reg_name']     ?? '';
 $email    = $_SESSION['reg_email']    ?? '';
 $phone    = $_SESSION['reg_phone']    ?? req('phone_number', '');
-$password = $_SESSION['reg_password'] ?? '';
+// 密码不从 session 读取（让用户每次都重新输入）
 
 $_title = 'Register - N°9 Perfume';
 include '../_head.php';
@@ -161,8 +162,16 @@ include '../_head.php';
         <!-- Step 3: Password -->
         <?php if ($step == 3): ?>
             <div>
-                <input type="password" name="password" value="<?= htmlspecialchars($password) ?>" placeholder="Create password" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
-                <input type="password" name="confirm_password" value="<?= htmlspecialchars($password) ?>" placeholder="Confirm password" style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
+                <div style="display: flex; align-items: center; gap: 5px; margin:10px 0;">
+                    <input type="password" id="reg_password" name="password" placeholder="Create password" autofocus style="width:100%; padding:17px; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
+                    <button type="button" class="show-pass" data-target="#reg_password" style="cursor:pointer; padding:10px; border:1px solid #ccc; border-radius:10px; background:#f8f8f8; font-size:1.2rem;">👁︎</button>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 5px; margin:10px 0;">
+                    <input type="password" id="reg_confirm_password" name="confirm_password" placeholder="Confirm password" style="width:100%; padding:17px; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
+                    <button type="button" class="show-pass" data-target="#reg_confirm_password" style="cursor:pointer; padding:10px; border:1px solid #ccc; border-radius:10px; background:#f8f8f8; font-size:1.2rem;">👁︎</button>
+                </div>
+                
                 <?= err('password') ?><?= err('confirm_password') ?>
             </div>
             <div style="display:flex; flex-direction:row-reverse; gap:12px; margin-top:30px;">
@@ -174,6 +183,8 @@ include '../_head.php';
         <!-- Step 4: Phone -->
         <?php if ($step == 4): ?>
             <div>
+                <!-- 隐藏字段：保持密码在表单中传递 -->
+                <input type="hidden" name="password" value="<?= htmlspecialchars(req('password', '')) ?>">
                 <input type="tel" name="phone_number" value="<?= htmlspecialchars($phone) ?>" placeholder="Phone number" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
                 <?= err('phone_number') ?>
             </div>

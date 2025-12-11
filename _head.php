@@ -4,7 +4,13 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-$cart_count = 0; 
+// Get cart count for logged-in users
+$cart_count = 0;
+if (isset($_SESSION['user_id'])) {
+    $stmt = $_db->prepare("SELECT SUM(Quantity) FROM cart WHERE UserID = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $cart_count = $stmt->fetchColumn() ?: 0;
+}
 
 // Get current User Role safely
 $user_role = $_SESSION['user_role'] ?? 'Guest';
@@ -43,6 +49,7 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
                 <li><a href="/page/product.php" class="<?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
+                    <li><a href="/page/order_history.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'order_history.php' ? 'active' : '' ?>">My Orders</a></li>
                     <li><a href="/page/profile.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : '' ?>">Profile</a></li>
                     <li><a href="/logout.php">Logout</a></li>
                 <?php else: ?>
@@ -53,7 +60,9 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
                 <li class="cart-li">
                     <a href="/page/cart.php" class="cart-link">
                         Cart
+                        <?php if ($cart_count > 0): ?>
                         <span id="cart-count"><?= $cart_count ?></span>
+                        <?php endif; ?>
                     </a>
                 </li>
             <?php endif; ?>

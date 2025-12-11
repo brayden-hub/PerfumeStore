@@ -126,7 +126,31 @@ INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role
 --
 -- Indexes for dumped tables
 --
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `cart`
+--
+
+CREATE TABLE IF NOT EXISTS `cart` (
+  `CartID` char(6) NOT NULL,
+  `UserID` int(11) NOT NULL,
+  `ProductID` char(5) NOT NULL,
+  `Quantity` int(10) NOT NULL DEFAULT 1,
+  `AddedDate` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`CartID`),
+  KEY `UserID` (`UserID`),
+  KEY `ProductID` (`ProductID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Constraints for table `cart`
+--
+ALTER TABLE `cart`
+  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE;
+
+COMMIT;
 --
 -- Indexes for table `order`
 --

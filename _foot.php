@@ -6,8 +6,7 @@
             <p>Copyright © <?= date('Y') ?> N°9 Perfume All Rights Reserved.<br>
             Contact us - <a href="mailto:n9perfumestr@gmail.com" class="email">n9perfumestr@gmail.com</a>
             </p>
-        </div>
-
+        </div>  
         <div class="company-middle">
             <h2>Company Information</h2>
             <p>Company Name: N°9 Perfume</p>

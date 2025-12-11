@@ -91,4 +91,99 @@ $(() => {
         }
     });
 
+// app.js - Main JavaScript file for N°9 Perfume
+
+$(document).ready(function() {
+    
+    // Update cart count on page load
+    updateCartCount();
+    
+    // Generic AJAX GET handler
+    $('[data-get]').on('click', function(e) {
+        e.preventDefault();
+        const url = $(this).data('get');
+        location.href = url;
+    });
+    
+    // Generic AJAX POST handler with confirmation
+    $('[data-post]').on('click', function(e) {
+        e.preventDefault();
+        const url = $(this).data('post');
+        const confirm_msg = $(this).data('confirm');
+        
+        if (confirm_msg) {
+            if (!confirm(confirm_msg)) {
+                return;
+            }
+        }
+        
+        const form = $('<form>', {
+            method: 'POST',
+            action: url
+        });
+        
+        form.appendTo('body').submit();
+    });
+    
+    // Add to cart from product grid (if any)
+    $(document).on('click', '.quick-add-cart', function(e) {
+        e.preventDefault();
+        const productId = $(this).data('id');
+        const btn = $(this);
+        
+        btn.prop('disabled', true).text('Adding...');
+        
+        $.post('/api/cart_add.php', {
+            product_id: productId,
+            quantity: 1
+        }, function(response) {
+            if (response.success) {
+                updateCartCount();
+                btn.text('✓ Added!');
+                setTimeout(function() {
+                    btn.prop('disabled', false).text('Add to Cart');
+                }, 1500);
+            } else {
+                alert(response.message || 'Failed to add to cart');
+                btn.prop('disabled', false).text('Add to Cart');
+            }
+        }, 'json').fail(function() {
+            alert('Error. Please try again.');
+            btn.prop('disabled', false).text('Add to Cart');
+        });
+    });
+    
+    // Photo upload preview
+    $('label.upload input[type=file]').on('change', function(e) {
+        const file = e.target.files[0];
+        
+        if (file) {
+            if (file.type.indexOf('image') === -1) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('label.upload img').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 });
+
+// Function to update cart count
+function updateCartCount() {
+    $.get('/api/cart_count.php', function(response) {
+        if (response.count > 0) {
+            $('#cart-count').text(response.count).show();
+        } else {
+            $('#cart-count').hide();
+        }
+    }, 'json').fail(function() {
+        console.log('Failed to fetch cart count');
+    });
+}
+    
+});
+

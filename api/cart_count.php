@@ -9,5 +9,5 @@ if (isset($_SESSION['user_id'])) {
     $count = $stmt->fetchColumn() ?: 0;
 }
 
-echo json_encode(['count' => $count]);
+echo json_encode(['count' => (int)$count]);
 ?>

@@ -1,19 +1,33 @@
 <?php
 require '../_base.php';
 
+// 1. receive parameters
 $series = get('series', '');
-$min    = (float)get('min', 0);
-$max    = (float)get('max', 1000);
-$sort   = get('sort', 'asc') === 'desc' ? 'DESC' : 'ASC';
+$min    = (float)get('min', 0);     
+$max    = (float)get('max', 99999);  
+$sort   = get('sort', 'asc') === 'desc' ? 'DESC' : 'ASC'; 
+$search = get('search', '');         // search keyword
 
-$sql = "SELECT ProductID, ProductName, Description, Price FROM product WHERE Price BETWEEN ? AND ?";
+// 2. make SQL
+$sql = "SELECT ProductID, ProductName, Description, Price, Image, Series 
+        FROM product 
+        WHERE Price BETWEEN ? AND ?";
 $params = [$min, $max];
 
+// if choice series
 if ($series !== '') {
     $sql .= " AND Series = ?";
     $params[] = $series;
 }
 
+// if search keyword
+if ($search !== '') {
+    $sql .= " AND (ProductName LIKE ? OR Description LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+}
+
+// 3. process sort
 $sql .= " ORDER BY Price $sort";
 
 $stmt = $_db->prepare($sql);

@@ -46,6 +46,20 @@ $_title = 'Order Details - N°9 Perfume';
 include '../_head.php';
 ?>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);
+    });
+
+    if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);  
+    document.addEventListener("DOMContentLoaded", () => window.scrollTo(0, 0));
+
+    
+</script>
+
 <div class="container" style="margin-top: 30px; min-height: 60vh;">
     <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
         <a href="/page/order.php" style="color: #666; text-decoration: none;">← Back to Order List</a>

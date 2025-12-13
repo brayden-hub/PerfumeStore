@@ -63,11 +63,17 @@ try {
     $stmt = $_db->prepare("SELECT SUM(Quantity) FROM cart WHERE UserID = ?");
     $stmt->execute([$user_id]);
     $total_count = $stmt->fetchColumn() ?: 0;
+
+    // 新增：計算新總價（給前端更新）
+    $stmt = $_db->prepare("SELECT SUM(c.Quantity * p.Price) FROM cart c JOIN product p ON c.ProductID = p.ProductID WHERE c.UserID = ?");
+    $stmt->execute([$user_id]);
+    $new_total = $stmt->fetchColumn() ?: 0;
     
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => 'Added to cart successfully',
-        'cart_count' => $total_count
+        'cart_count' => (int)$total_count,
+        'new_total' => (float)$new_total
     ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Database error']);

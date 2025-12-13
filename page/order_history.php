@@ -25,6 +25,20 @@ $_title = 'Order History - N°9 Perfume';
 include '../_head.php';
 ?>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);
+    });
+
+    if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);  
+    document.addEventListener("DOMContentLoaded", () => window.scrollTo(0, 0));
+
+    
+</script>
+
 <div class="container" style="margin-top: 100px; min-height: 60vh;">
     <h2 style="margin-bottom: 2rem;">My Order History</h2>
     

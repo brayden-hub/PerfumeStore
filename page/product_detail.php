@@ -16,6 +16,18 @@ $_title = $p->ProductName . " - N°9 Perfume";
 include '../_head.php';
 ?>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);
+    });
+
+    if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);  
+    document.addEventListener("DOMContentLoaded", () => window.scrollTo(0, 0));
+</script>
+
 <div class="detail-container" style="max-width:1400px;margin:0 auto;padding:4rem 5%;display:flex;gap:6rem;flex-wrap:wrap;align-items:flex-start;">
     <div class="detail-image" style="flex:1;min-width:400px;">
         <img src="/public/images/<?= htmlspecialchars($p->ProductID) ?>.png" 
@@ -90,10 +102,22 @@ include '../_head.php';
         </div>
 
         <!-- You May Also Like -->
-        <div style="margin-top:4rem;">
-            <h3 style="font-size:1.1rem;margin-bottom:1.5rem;color:#111;">You May Also Like</h3>
-            <div id="related-products" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;">
-                <!-- AJAX load -->
+        <div class="related" style="margin-top:4rem;">
+            <h2 style="font-size:1.1rem;margin-bottom:1.5rem;color:#111;">You May Also Like</h2>
+            <div class="related-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;">
+                <?php
+                $stmt = $_db->prepare("SELECT * FROM product WHERE Series = ? AND ProductID != ? ORDER BY RAND() LIMIT 3");
+                $stmt->execute([$p->Series, $id]);
+                $related = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                foreach ($related as $r):
+                ?>
+                    <a href="/page/product_detail.php?id=<?= $r['ProductID'] ?>" class="related-card" style="text-decoration:none;">
+                        <img src="/public/images/<?= $r['ProductID'] ?>.png" alt="<?= $r['ProductName'] ?>" style="width:100%;height:auto;border-radius:8px;">
+                        <h4 style="margin:0.8rem 0 0.3rem;font-size:1rem; color:#000"><?= $r['ProductName'] ?></h4>
+                        <p style="color:#D4AF37;">RM <?= number_format($r['Price'],2) ?></p>
+                    </a>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>

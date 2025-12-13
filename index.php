@@ -1,106 +1,105 @@
 <?php
 require '_base.php';
 include '_head.php';
+
+// 1. HERO
+$stm_hero = $_db->query("SELECT * FROM product ORDER BY ProductID DESC LIMIT 1");
+$hero = $stm_hero->fetch();
+
+// 2. TOP SALES
+$sql_top = "
+    SELECT p.*, COALESCE(SUM(po.Quantity), 0) as total_sold 
+    FROM product p 
+    LEFT JOIN productorder po ON p.ProductID = po.ProductID 
+    GROUP BY p.ProductID 
+    ORDER BY total_sold DESC 
+    LIMIT 4
+";
+$stm_top = $_db->query($sql_top);
+$top_products = $stm_top->fetchAll();
+
+// 3. SERIES
+$stm_series = $_db->query("SELECT DISTINCT Series FROM product ORDER BY Series");
+$series_list = $stm_series->fetchAll(PDO::FETCH_COLUMN);
+
+// 4. SPOTLIGHT: random product
+$stm_spot = $_db->query("SELECT * FROM product ORDER BY RAND() LIMIT 1");
+$spot = $stm_spot->fetch();
 ?>
-
-<section class="hero">
-    <div class="bg"></div>
-    <div class="text">
-        <h2>N°9 Perfume</h2>
-        <p>“Rare Scents for the Discerning”</p>
-        <a href="/page/about.php">
-            <button class="center">More</button>
-        </a>
-    </div>
-</section>
-
-<div class="homepage-main" style="display: flex; padding: 4rem 0;">
-        <aside class="series-nav" style="flex: 0 0 250px; background: #f8f8f8; padding: 2rem 1rem; border-radius: 0 8px 8px 0;">
-            <h3 style="font-size: 1rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: #111;">SERIES</h3>
-            <ul style="list-style: none; padding:0; margin:0;">
-                <li><a href="#" class="series-link active" data-series="">All</a></li>
-                <?php
-                $stm = $_db->query("SELECT DISTINCT Series FROM product ORDER BY Series");
-                foreach ($stm->fetchAll(PDO::FETCH_COLUMN) as $series):
-                ?>
-                    <li><a href="#" class="series-link" data-series="<?= htmlspecialchars($series) ?>">
-                        <?= htmlspecialchars($series) ?>
-                    </a></li>
-                <?php endforeach; ?>
-            </ul>
-        </aside>
-
-    <section class="products-grid" style="flex: 1; padding: 0 2rem;">
-        <div class="filter-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h2 style="font-size: 2.5rem; font-weight: 300; letter-spacing: 3px;">OUR SCENTS</h2>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-                <span>Sort by Price:</span>
-                <select id="sort-select" style="padding: 0.5rem; border: 1px solid #ddd;">
-                    <option value="asc">Low to High</option>
-                    <option value="desc">High to Low</option>
-                </select>
-            </div>
-        </div>
-        <div id="products-container" class="products-grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
-        </div>
-    </section>
-
-    <!-- right fillter range for cost -->
-    <aside class="price-filter" style="flex: 0 0 250px; background: #f8f8f8; padding: 2rem 1rem; border-radius: 8px 0 0 8px;">
-        <h3 style="font-size: 1rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: #111;">PRICE RANGE</h3>
-        <div class="price-slider">
-            <input type="range" id="price-min" min="0" max="600" value="0" style="width: 100%;">
-            <input type="range" id="price-max" min="0" max="400" value="400" style="width: 100%;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #666;">
-                <span>RM 0</span>
-                <span id="price-range">RM 0 - RM 400</span>
-                <span>RM 400</span>
-            </div>
-        </div>
-    </aside>
-</div>
 
 <script>
     $(document).ready(function() {
         window.scrollTo(0, 0);
-        if (window.location.search.indexOf('series=') !== -1) {
-            window.history.replaceState(null, null, window.location.pathname);  // remove URL ?series=
-            location.reload();  
-        } else {
-            $('.series-link:first').addClass('active');  
-            loadProducts();
-        }
-
-        // price change ontime
-        $('#price-min, #price-max').on('input', function() {
-            const min = $('#price-min').val();
-            const max = $('#price-max').val();
-            $('#price-range').text(`RM ${min} - RM ${max}`);
-            loadProducts();
-        });
-
-        // left Series 
-        $('.series-link').on('click', function(e) {
-            e.preventDefault();
-            $('.series-link').removeClass('active');
-            $(this).addClass('active');
-            loadProducts();
-        });
-
-        // order change
-        $('#sort-select').on('change', loadProducts);
     });
 
-    function loadProducts() {
-        const series = $('.series-link.active').data('series') || '';
-        const min = $('#price-min').val();
-        const max = $('#price-max').val();
-        const sort = $('#sort-select').val();
-
-        $.get('/api/products.php', {series: series, min: min, max: max, sort: sort}, function(html) {
-            $('#products-container').html(html);
-        });
+    if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual';
     }
+    window.scrollTo(0, 0);  
+    document.addEventListener("DOMContentLoaded", () => window.scrollTo(0, 0));
+
+    
 </script>
+
+<section class="hero">
+    <div class="hero-bg" style="background-image: url('/public/images/<?= $hero->Image ?>');"></div>
+    <div class="hero-content">
+        <span style="letter-spacing: 3px; color: #ddd; text-transform: uppercase;">New Arrival</span>
+        <h2><?= $hero->ProductName ?></h2>
+        <p>“<?= $hero->Description ?>”</p>
+            <a href="/page/product_detail.php?id=<?= $hero->ProductID ?>">
+                <button class="btn-outline">Discover Now</button>
+            </a>
+    </div>
+</section>
+
+<section class="bestsellers">
+    <h3 class="section-title">Most Loved Scents</h3>
+    <div class="bs-grid">
+        <?php foreach ($top_products as $i => $prod): ?>
+                <a href="/page/product_detail.php?id=<?= $prod->ProductID ?>" class="bs-card">
+                    <?php if($i == 0): ?><div class="bs-tag">#1 Best Seller</div><?php endif; ?>
+                <img src="/public/images/<?= $prod->Image ?>" alt="<?= htmlspecialchars($prod->ProductName) ?>">
+                <h4 style="margin: 10px 0; font-size: 1rem;"><?= $prod->ProductName ?></h4>
+                <p style="color: #666; font-size: 0.9rem;">RM <?= number_format($prod->Price, 2) ?></p>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</section>
+
+<section class="series-section">
+    <h3 class="section-title">Explore Collections</h3>
+    <div class="series-container">
+        <?php foreach($series_list as $s): ?>
+            <?php 
+                $stm_img = $_db->prepare("SELECT Image FROM product WHERE Series = ? LIMIT 1");
+                $stm_img->execute([$s]);
+                $s_img = $stm_img->fetchColumn();
+            ?>
+            <a href="/page/product.php?series=<?= urlencode($s) ?>" class="series-card" 
+               style="background-image: url('/public/images/<?= $s_img ?>'); background-size: cover;">
+                <span class="series-name"><?= $s ?></span>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</section>
+
+<section class="spotlight-section">
+    <div class="spotlight-img">
+        <img src="/public/images/<?= $spot->Image ?>" alt="<?= $spot->ProductName ?>">
+    </div>
+    <div class="spotlight-info">
+        <span class="spot-tag">Spotlight of the Moment</span>
+        <h3><?= $spot->ProductName ?></h3>
+        <span class="price">RM <?= number_format($spot->Price, 2) ?></span>
+        <p>
+            Experience the unique notes of the <?= $spot->Series ?> collection.<br>
+            <strong>Description:</strong> <?= $spot->Description ?>
+        </p>
+            <a href="/page/product_detail.php?id=<?= $spot->ProductID ?>">
+                <button class="btn-black">View Details</button>
+            </a>
+    </div>
+</section>
 
 <?php include '_foot.php'; ?>

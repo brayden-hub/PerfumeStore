@@ -45,7 +45,6 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
                 <li><a href="/logout.php">Logout</a></li>
 
             <?php else: ?>
-                <li><a href="/page/about.php" class="<?= basename($_SERVER['PHP_SELF']) === 'about.php' ? 'active' : '' ?>">About us</a></li>
                 <li><a href="/page/product.php" class="<?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
 
                 <?php if (isset($_SESSION['user_id'])): ?>

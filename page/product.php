@@ -1,25 +1,32 @@
 <?php
 require '../_base.php';
 $_title = 'Products - N°9 Perfume';
+
+// process series filter
+$selected_series = get('series', '');
+
 include '../_head.php';  
 ?>
 
 <div class="homepage-main" style="display: flex; padding: 4rem 0;">
         <aside class="series-nav" style="flex: 0 0 250px; background: #f8f8f8; padding: 2rem 1rem; border-radius: 0 8px 8px 0;">
             <h3 style="font-size: 1rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: #111;">SERIES</h3>
-            <ul style="list-style: none; padding:0; margin:0;">
-                <li><a href="#" class="series-link active" data-series="">All</a></li>
-                <?php
-                $stm = $_db->query("SELECT DISTINCT Series FROM product ORDER BY Series");
-                foreach ($stm->fetchAll(PDO::FETCH_COLUMN) as $series):
-                ?>
-                    <li><a href="#" class="series-link" data-series="<?= htmlspecialchars($series) ?>">
-                        <?= htmlspecialchars($series) ?>
-                    </a></li>
-                <?php endforeach; ?>
-            </ul>
+                <ul style="list-style: none; padding:0; margin:0;">
+                    <li><a href="/page/product.php" class="series-link <?= $selected_series == '' ? 'active' : '' ?>" data-series="">All</a></li>
+                    <?php
+                    $stm = $_db->query("SELECT DISTINCT Series FROM product ORDER BY Series");
+                    foreach ($stm->fetchAll(PDO::FETCH_COLUMN) as $series):
+                    ?>
+                        <li><a href="/page/product.php?series=<?= urlencode($series) ?>" 
+                            class="series-link <?= $selected_series == $series ? 'active' : '' ?>" 
+                            data-series="<?= htmlspecialchars($series) ?>">
+                            <?= htmlspecialchars($series) ?>
+                        </a></li>
+                    <?php endforeach; ?>
+                </ul>
         </aside>
 
+    <!-- sort by price -->
     <section class="products-grid" style="flex: 1; padding: 0 2rem;">
         <div class="filter-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
             <h2 style="font-size: 2.5rem; font-weight: 300; letter-spacing: 3px;">OUR SCENTS</h2>
@@ -53,15 +60,21 @@ include '../_head.php';
 <script>
     $(document).ready(function() {
         window.scrollTo(0, 0);
-        if (window.location.search.indexOf('series=') !== -1) {
-            window.history.replaceState(null, null, window.location.pathname);  // remove URL ?series=
-            location.reload();  
+
+        // Set active based on the current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSeries = urlParams.get('series') || '';
+
+        $('.series-link').removeClass('active');
+        if (currentSeries === '') {
+            $('.series-link[data-series=""]').addClass('active');
         } else {
-            $('.series-link:first').addClass('active');  
-            loadProducts();
+            $('.series-link[data-series="' + currentSeries + '"]').addClass('active');
         }
 
-        // price change ontime
+        loadProducts();
+
+        // price range change
         $('#price-min, #price-max').on('input', function() {
             const min = $('#price-min').val();
             const max = $('#price-max').val();
@@ -69,7 +82,7 @@ include '../_head.php';
             loadProducts();
         });
 
-        // left Series 
+        // Series click
         $('.series-link').on('click', function(e) {
             e.preventDefault();
             $('.series-link').removeClass('active');
@@ -77,17 +90,17 @@ include '../_head.php';
             loadProducts();
         });
 
-        // order change
         $('#sort-select').on('change', loadProducts);
     });
 
     function loadProducts() {
-        const series = $('.series-link.active').data('series') || '';
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSeries = urlParams.get('series') || $('.series-link.active').data('series') || '';
         const min = $('#price-min').val();
         const max = $('#price-max').val();
         const sort = $('#sort-select').val();
 
-        $.get('/api/products.php', {series: series, min: min, max: max, sort: sort}, function(html) {
+        $.get('/api/products.php', {series: currentSeries, min: min, max: max, sort: sort}, function(html) {
             $('#products-container').html(html);
         });
     }

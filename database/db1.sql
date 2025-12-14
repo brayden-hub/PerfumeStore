@@ -378,6 +378,19 @@ ALTER TABLE `cart`
 ALTER TABLE `order`
   ADD CONSTRAINT `order_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`),
   ADD CONSTRAINT `order_ibfk_2` FOREIGN KEY (`ShippingAddressID`) REFERENCES `user_address` (`AddressID`) ON DELETE SET NULL;
+  ADD COLUMN `Status` ENUM('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled') 
+    NOT NULL DEFAULT 'Pending' AFTER `PaymentMethod`,
+  ADD COLUMN `StatusUpdatedAt` TIMESTAMP NULL DEFAULT NULL AFTER `Status`,
+  ADD COLUMN `ProcessedAt` TIMESTAMP NULL DEFAULT NULL AFTER `StatusUpdatedAt`,
+  ADD COLUMN `ShippedAt` TIMESTAMP NULL DEFAULT NULL AFTER `ProcessedAt`,
+  ADD COLUMN `DeliveredAt` TIMESTAMP NULL DEFAULT NULL AFTER `ShippedAt`,
+  ADD COLUMN `EstimatedDelivery` DATE NULL DEFAULT NULL AFTER `DeliveredAt`,
+  ADD COLUMN `TrackingNumber` VARCHAR(100) NULL DEFAULT NULL AFTER `EstimatedDelivery`;
+
+-- Update existing orders to have initial status
+UPDATE `order` SET 
+    `Status` = 'Pending',
+    `StatusUpdatedAt` = `PurchaseDate`;
 
 --
 -- Constraints for table `productorder`

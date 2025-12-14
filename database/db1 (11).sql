@@ -2,10 +2,17 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
+<<<<<<< HEAD:database/db1 (11).sql
 -- Host: 127.0.0.1
 -- Generation Time: Dec 14, 2025 at 11:23 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
+=======
+-- 主机： 127.0.0.1
+-- 生成日期： 2025-12-14 11:15:17
+-- 服务器版本： 10.4.32-MariaDB
+-- PHP 版本： 8.2.12
+>>>>>>> 251e897a80c406cd42188b071a00719febb39250:database/db1.sql
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -38,7 +45,11 @@ CREATE TABLE `cart` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+<<<<<<< HEAD:database/db1 (11).sql
 -- Dumping data for table `cart`
+=======
+-- 转存表中的数据 `cart`
+>>>>>>> 251e897a80c406cd42188b071a00719febb39250:database/db1.sql
 --
 
 INSERT INTO `cart` (`CartID`, `UserID`, `ProductID`, `Quantity`, `AddedDate`) VALUES
@@ -201,6 +212,39 @@ INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role
 
 -- --------------------------------------------------------
 
+<<<<<<< HEAD:database/db1 (11).sql
+=======
+--
+-- 表的结构 `user_address`
+--
+
+CREATE TABLE `user_address` (
+  `AddressID` int(11) NOT NULL,
+  `UserID` int(11) NOT NULL,
+  `AddressLabel` varchar(50) NOT NULL COMMENT 'Home, Office, etc.',
+  `RecipientName` varchar(100) NOT NULL,
+  `PhoneNumber` varchar(20) NOT NULL,
+  `AddressLine1` varchar(255) NOT NULL,
+  `AddressLine2` varchar(255) DEFAULT NULL,
+  `City` varchar(100) NOT NULL,
+  `State` varchar(100) NOT NULL,
+  `PostalCode` varchar(10) NOT NULL,
+  `Country` varchar(50) NOT NULL DEFAULT 'Malaysia',
+  `IsDefault` tinyint(1) NOT NULL DEFAULT 0,
+  `CreatedDate` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 转存表中的数据 `user_address`
+--
+
+INSERT INTO `user_address` (`AddressID`, `UserID`, `AddressLabel`, `RecipientName`, `PhoneNumber`, `AddressLine1`, `AddressLine2`, `City`, `State`, `PostalCode`, `Country`, `IsDefault`, `CreatedDate`) VALUES
+(1, 6, 'Home', 'Brayden', '01154789632', 'No998, Jalan Kehantar,', 'Bukit nanti, Tangkak', 'sa', 'Johor', '84200', 'Malaysia', 0, '2025-12-14 10:01:31'),
+(2, 6, 'Home', 'Brayden', '01154789632', 'qqqqqqqqqqqqq', 'qqqqqqqqqqqq', 'qqqqqqq', 'Selangor', '52011', 'Malaysia', 1, '2025-12-14 10:10:18'),
+(3, 6, 'Home', 'Brayden', '01154789632', 'No998, Jalan Kehantar,', 'qqqqqqqqqqqq', 'sa', 'Labuan', '84200', 'Malaysia', 0, '2025-12-14 10:13:08'),
+(4, 6, 'word', 'Brayden', '01154789632', 'No998, Jalan Kehantar,', 'Bukit nanti, Tangkak', 'sa', 'Terengganu', '52011', 'Malaysia', 0, '2025-12-14 10:13:26');
+
+>>>>>>> 251e897a80c406cd42188b071a00719febb39250:database/db1.sql
 --
 -- Table structure for table `user_address`
 --
@@ -279,14 +323,22 @@ ALTER TABLE `user`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+<<<<<<< HEAD:database/db1 (11).sql
 -- Indexes for table `user_address`
+=======
+-- 表的索引 `user_address`
+>>>>>>> 251e897a80c406cd42188b071a00719febb39250:database/db1.sql
 --
 ALTER TABLE `user_address`
   ADD PRIMARY KEY (`AddressID`),
   ADD KEY `UserID` (`UserID`);
 
 --
+<<<<<<< HEAD:database/db1 (11).sql
 -- AUTO_INCREMENT for dumped tables
+=======
+-- 在导出的表使用AUTO_INCREMENT
+>>>>>>> 251e897a80c406cd42188b071a00719febb39250:database/db1.sql
 --
 
 --
@@ -296,13 +348,21 @@ ALTER TABLE `user`
   MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+<<<<<<< HEAD:database/db1 (11).sql
 -- AUTO_INCREMENT for table `user_address`
+=======
+-- 使用表AUTO_INCREMENT `user_address`
+>>>>>>> 251e897a80c406cd42188b071a00719febb39250:database/db1.sql
 --
 ALTER TABLE `user_address`
   MODIFY `AddressID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+<<<<<<< HEAD:database/db1 (11).sql
 -- Constraints for dumped tables
+=======
+-- 限制导出的表
+>>>>>>> 251e897a80c406cd42188b071a00719febb39250:database/db1.sql
 --
 
 --
@@ -327,7 +387,11 @@ ALTER TABLE `productorder`
   ADD CONSTRAINT `productorder_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`);
 
 --
+<<<<<<< HEAD:database/db1 (11).sql
 -- Constraints for table `user_address`
+=======
+-- 限制表 `user_address`
+>>>>>>> 251e897a80c406cd42188b071a00719febb39250:database/db1.sql
 --
 ALTER TABLE `user_address`
   ADD CONSTRAINT `user_address_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE;

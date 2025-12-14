@@ -1083,16 +1083,21 @@ nav.pager span {
     margin-bottom: 0.5rem;
 }
 
-.series-link:hover {
+.series-link:hover:not(.active) {
     background: #fff;
     color: #D4AF37;
     padding-left: 1.5rem;
 }
 
 .series-link.active {
-    background: #D4AF37;
-    color: #000;
+    background: #141108;
+    color: #000 !important;
     font-weight: 600;
+}
+
+.series-link.active:hover {
+    background: #c99d2e;
+    color: #000 !important;
 }
 
 /* Loading animation */

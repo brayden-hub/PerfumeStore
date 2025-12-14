@@ -825,51 +825,58 @@ label.upload img:hover {
     opacity: 0.8; /* Slight fade effect on hover */
 }
 /* =========================================
-   PAGER (Pagination) STYLES - for SimplePager.php
+   PAGER (Pagination) STYLES
    ========================================= */
 
-.pager {
-    display: flex; /* Aligns links nicely */
-    justify-content: center;
+/* 1. Reset the container so it doesn't look like the main menu */
+nav.pager {
+    background: transparent !important; /* Fixes the black bar issue */
+    padding: 20px 0;
     margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px; /* Space between buttons */
+    position: static; /* Prevents it from floating like the header */
+    width: auto;
+    border: none;
 }
 
-.pager a,
-.pager span {
-    display: inline-block;
-    padding: 10px 15px; /* Wider/nicer padding */
-    margin: 0 4px;
+/* 2. Style the links (buttons) */
+nav.pager a {
+    color: #333 !important; /* Dark text */
     text-decoration: none;
-    border: 1px solid #ccc;
+    padding: 8px 14px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 1rem;
-    color: #333;
-    transition: background-color 0.2s;
-    line-height: 1; /* Ensures vertical alignment */
+    background-color: #fff;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    font-weight: normal;
+    text-transform: capitalize; /* "Next", not "NEXT" */
+    letter-spacing: 0.5px;
 }
 
-/* Hover/Focus State */
-.pager a:hover {
-    background-color: #f0f0f0;
-    color: #000;
+/* 3. Hover Effect */
+nav.pager a:hover {
+    background-color: #000;
+    color: #D4AF37 !important; /* Gold text on hover */
     border-color: #000;
 }
 
-/* Active Page State */
-.pager a.active {
+/* 4. Active Page (The current page number) */
+nav.pager a.active {
     background-color: #000;
-    color: #D4AF37; /* Use your golden color for active page */
+    color: #D4AF37 !important;
     border-color: #000;
     font-weight: bold;
+    pointer-events: none; /* Disable clicking the current page */
 }
 
-/* Disabled State (for 'span' tags) */
-.pager span {
-    background-color: #f9f9f9;
-    color: #aaa;
-    cursor: default;
+/* 5. Disabled State (Hidden or grayed out) */
+nav.pager span {
+    display: none; /* Hide disabled buttons if SimplePager outputs spans */
 }
-
 
 /* Product Page Styles */
 
@@ -1374,4 +1381,70 @@ label.upload img:hover {
     .stock-indicator-small {
         font-size: 0.7rem;
     }
+}
+
+/* Filter Bar Styles (For productList.php) */
+.filter-container {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group input[type="text"],
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 200px;
+}
+
+.btn-search {
+    background-color: #000;
+    color: #D4AF37;
+    border: 1px solid #000;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-search:hover {
+    background-color: #333;
+}
+
+.btn-reset {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-bottom: 1px solid transparent;
+}
+
+.btn-reset:hover {
+    border-color: #666;
+}
+
+/* Sortable Headers */
+th a.sort-link {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+th a.sort-link:hover {
+    color: #D4AF37;
 }

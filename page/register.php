@@ -75,34 +75,63 @@ elseif (is_post() && $step == 5 && empty($_err)) {
     $phone    = req('phone_number');
     $password = req('password'); // 从表单重新读取密码
     
+    // --- 新的验证逻辑 ---
     if ($phone == '') {
         $_err['phone_number'] = 'Required';
         $step = 4;
-    } elseif (!preg_match('/^[0-9]+$/', $phone)) {
-        $_err['phone_number'] = 'Only digits';
-        $step = 4;
-    } elseif (strlen($phone) < 8 || strlen($phone) > 15) {
-        $_err['phone_number'] = '8-15 digits';
-        $step = 4;
     } else {
-        // 全部验证通过，执行注册
-        $name  = $_SESSION['reg_name'];
-        $email = $_SESSION['reg_email'];
+        // 1. 清理：移除所有非数字字符，得到纯数字字符串
+        $phone_digits = preg_replace('/[^\d]/', '', trim($phone)); 
+
+        // 2. 验证纯数字长度 (必须是 11 位)
+        if (strlen($phone_digits) != 11) {
+            $_err['phone_number'] = 'Phone number must be exactly 11 digits.';
+            $step = 4;
+        } 
         
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $defaults = ['default1.jpg','default2.jpg','default3.jpg','default4.jpg','default5.jpg','default6.jpg'];
-        $avatar = $defaults[array_rand($defaults)];
+        // 3. 验证开头 (必须是 60 或 01)
+        // 正则表达式解释: ^(60|01)\d{9}$
+        // ^(60|01) : 必须以 60 或 01 开头
+        // \d{9}$ : 后面跟着 9 个数字，总共 11 位
+        elseif (!preg_match('/^(60|01)\d{9}$/', $phone_digits)) {
+            $_err['phone_number'] = 'Invalid starting digits. Must start with 60 or 01.';
+            $step = 4;
+        }
+        
+        // 4. (国内号码格式验证): 检查是否以 01 开头，且输入的原始数据 ($phone) 必须包含破折号
+        elseif ($phone_digits[0] == '0' && !preg_match('/^01\d-\d{4}-\d{4}$/', $phone)) {
+             $_err['phone_number'] = 'Domestic mobile format must be 01x-xxxx-xxxx.';
+             $step = 4;
+        }
+        
+        // 5. (国际号码格式验证): 检查是否以 60 开头，且输入的原始数据 ($phone) 不得包含破折号
+        elseif ($phone_digits[0] == '6' && strpos($phone, '-') !== false) {
+             $_err['phone_number'] = 'International format (60) must not contain dashes.';
+             $step = 4;
+        }
+        
+        else {
+            // 全部验证通过，执行注册
+            $name  = $_SESSION['reg_name'];
+            $email = $_SESSION['reg_email'];
+            
+            $hashed = password_hash($password, PASSWORD_DEFAULT);
+            $defaults = ['default1.jpg','default2.jpg','default3.jpg','default4.jpg','default5.jpg','default6.jpg'];
+            $avatar = $defaults[array_rand($defaults)];
+            
+            // 存储时只存储纯数字 ($phone_digits)
+            $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo) VALUES (?, ?, ?, ?, 'Member', ?)");
+            $stm->execute([$email, $name, $phone_digits, $hashed, $avatar]); 
 
-        $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo) VALUES (?, ?, ?, ?, 'Member', ?)");
-        $stm->execute([$email, $name, $phone, $hashed, $avatar]);
+            // 清除所有临时数据
+            unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone']);
 
-        // 清除所有临时数据
-        unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone']);
-
-        temp('info', 'Welcome aboard, ' . htmlspecialchars($name) . '! Account created successfully!');
-        redirect('login.php');
+            temp('info', 'Welcome aboard, ' . htmlspecialchars($name) . '! Account created successfully!');
+            redirect('login.php');
+        }
     }
 }
+// ... (其余代码不变)
 
 // ===== 处理 Back 按钮（不验证，直接跳转） =====
 // 不需要特殊处理，因为 step 值已经在按钮里设置好了
@@ -185,7 +214,7 @@ include '../_head.php';
             <div>
                 <!-- 隐藏字段：保持密码在表单中传递 -->
                 <input type="hidden" name="password" value="<?= htmlspecialchars(req('password', '')) ?>">
-                <input type="tel" name="phone_number" value="<?= htmlspecialchars($phone) ?>" placeholder="Phone number" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
+                <input type="tel" id="reg_phone_number" name="phone_number" value="<?= htmlspecialchars($phone) ?>" placeholder="Phone number" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
                 <?= err('phone_number') ?>
             </div>
             <p style="color:#666; font-size:0.92rem; margin:25px 0; line-height:1.5;">

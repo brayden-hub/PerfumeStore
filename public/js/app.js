@@ -172,18 +172,68 @@ $(document).ready(function() {
     });
 });
 
-// Function to update cart count
-function updateCartCount() {
-    $.get('/api/cart_count.php', function(response) {
-        if (response.count > 0) {
-            $('#cart-count').text(response.count).show();
+    // Function to update cart count
+    function updateCartCount() {
+        $.get('/api/cart_count.php', function(response) {
+            if (response.count > 0) {
+                $('#cart-count').text(response.count).show();
+            } else {
+                $('#cart-count').hide();
+            }
+        }, 'json').fail(function() {
+            console.log('Failed to fetch cart count');
+        });
+    }
+// === 电话号码自动格式化 (register.php - Step 4) ===
+    $("#reg_phone_number").on("input", function() {
+        let input = $(this).val().replace(/[^0-9]/g, ''); // 移除所有非数字字符
+
+        if (input.startsWith('60')) {
+            // Case 1: 以 60 开头 (国际格式)，保持纯数字，限制在 11 位
+            if (input.length > 11) {
+                input = input.substring(0, 11);
+            }
+            $(this).val(input);
+
+        } else if (input.startsWith('01')) {
+            // Case 2: 以 01 开头 (国内手机格式)，进行自动插入破折号
+            let formatted = '';
+
+            // 第一部分：3位数字 (01x)
+            formatted += input.substring(0, 3);
+            
+            if (input.length >= 4) {
+                formatted += '-';
+                
+                // 第二部分：4位数字
+                formatted += input.substring(3, 7);
+            }
+            
+            if (input.length >= 8) {
+                 // 第三部分：4位数字
+                formatted += '-';
+                formatted += input.substring(7, 11);
+            }
+            
+            // 限制总数字不超过 11 位
+            if (formatted.length > 13) {
+                 formatted = formatted.substring(0, 13);
+            }
+
+            $(this).val(formatted);
+
         } else {
-            $('#cart-count').hide();
+            // 如果既不是 60 也不是 01 开头，则保持纯数字，限制长度，或者阻止输入
+            if (input.length > 11) {
+                 input = input.substring(0, 11);
+            }
+            $(this).val(input);
         }
-    }, 'json').fail(function() {
-        console.log('Failed to fetch cart count');
+    }).on("blur", function() {
+        // 确保光标停留在正确位置
+        $(this).val($(this).val()); 
     });
-}
+    // === 格式化结束 ===
     
 });
 

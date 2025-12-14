@@ -43,14 +43,23 @@ if (is_post()) {
         $m = get_mail();
         $m->addAddress($u->email, $u->name);
         
+        // --- START of fix in forgot_password.php ---
+        // Get the photo filename, using 'default1.jpg' as the fallback if the DB column is empty.
+        $photoFile = $u->Profile_Photo ?: 'default1.jpg';
+
         // Add embedded image if user has profile photo
-        $photoPath = "../images/profile/" . $u->Profile_Photo;
+        $photoPath = "../images/avatars/" . $photoFile;
+
+        // The file_exists check will now look for a real file (e.g., ../images/avatars/default1.jpg)
         if (file_exists($photoPath)) {
-            $m->addEmbeddedImage($photoPath, 'photo');
+            // The photoPath now includes the filename, resolving the error.
+            $m->addEmbeddedImage($photoPath, 'photo'); 
             $photoTag = "<img src='cid:photo' style='width: 150px; height: 150px; border-radius: 50%; border: 2px solid #D4AF37; object-fit: cover;'>";
         } else {
             $photoTag = "";
         }
+        // --- END of fix ---
+                
         
         $m->isHTML(true);
         $m->Subject = 'Reset Your Password - Nº9 Perfume';

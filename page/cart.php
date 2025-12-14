@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $_title = 'Shopping Cart - N°9 Perfume';
 include '../_head.php';
-include 'progress_bar.php';
 
 $user_id = $_SESSION['user_id'];
 

@@ -208,6 +208,347 @@ label:has(input[type="radio"]):hover {
 
 
 
+/* ========================================
+   CINEMATIC VIDEO SHOWCASE
+   ======================================== */
+
+.cinematic-showcase {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000;
+    padding: 8rem 2rem;
+}
+
+/* Parallax Background */
+.parallax-bg {
+    position: absolute;
+    top: -10%;
+    left: 0;
+    right: 0;
+    bottom: -10%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    background-image: 
+        url('/public/images/texture-bg.jpg'),
+        linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(45, 45, 45, 0.9) 100%);
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    will-change: transform;
+    z-index: 0;
+}
+
+/* Content Container */
+.cinematic-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Header */
+.cinematic-header {
+    margin-bottom: 4rem;
+    animation: fadeInUp 1s ease-out;
+}
+
+.cinematic-tag {
+    display: inline-block;
+    font-size: 0.85rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #D4AF37;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.cinematic-title {
+    font-size: 4rem;
+    font-weight: 300;
+    color: #fff;
+    margin: 0 0 1rem;
+    letter-spacing: 2px;
+    line-height: 1.2;
+}
+
+.cinematic-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+/* Video Container */
+.video-container {
+    perspective: 1000px;
+    margin: 0 auto 4rem;
+    max-width: 1000px;
+}
+
+.video-frame {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(212, 175, 55, 0.2),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInScale 1.2s ease-out 0.3s backwards;
+}
+
+.video-container.hovered .video-frame {
+    transform: scale(1.02);
+    box-shadow: 
+        0 30px 80px rgba(0, 0, 0, 0.7),
+        0 0 0 2px rgba(212, 175, 55, 0.4),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.showcase-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+}
+
+/* Sound Toggle Button */
+.sound-toggle {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.sound-toggle:hover {
+    background: rgba(212, 175, 55, 0.9);
+    border-color: rgba(212, 175, 55, 1);
+    transform: scale(1.1);
+}
+
+.sound-icon {
+    width: 24px;
+    height: 24px;
+    transition: opacity 0.3s ease;
+}
+
+.sound-icon.sound-on {
+    position: absolute;
+    opacity: 0;
+}
+
+.sound-toggle.active .sound-icon.sound-off {
+    opacity: 0;
+}
+
+.sound-toggle.active .sound-icon.sound-on {
+    opacity: 1;
+}
+
+/* Hover Hint */
+.hover-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    padding: 1.5rem 3rem;
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 5;
+}
+
+.video-container.hovered .hover-hint {
+    opacity: 1;
+}
+
+.hover-hint span {
+    color: #D4AF37;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Call to Action */
+.cinematic-cta {
+    animation: fadeInUp 1s ease-out 0.6s backwards;
+}
+
+.btn-cinematic {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 3rem;
+    background: transparent;
+    border: 2px solid #D4AF37;
+    color: #D4AF37;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-cinematic::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: #D4AF37;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+    z-index: -1;
+}
+
+.btn-cinematic:hover::before {
+    width: 300%;
+    height: 300%;
+}
+
+.btn-cinematic:hover {
+    color: #000;
+    border-color: #D4AF37;
+    transform: translateY(-2px);
+}
+
+.btn-cinematic svg {
+    transition: transform 0.3s ease;
+}
+
+.btn-cinematic:hover svg {
+    transform: translateX(5px);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .cinematic-showcase {
+        padding: 6rem 1.5rem;
+    }
+    
+    .cinematic-title {
+        font-size: 3rem;
+    }
+    
+    .video-container {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+    .cinematic-showcase {
+        padding: 4rem 1rem;
+        min-height: 80vh;
+    }
+    
+    .cinematic-title {
+        font-size: 2.5rem;
+    }
+    
+    .cinematic-subtitle {
+        font-size: 1rem;
+    }
+    
+    .video-container {
+        max-width: 100%;
+    }
+    
+    .sound-toggle {
+        width: 40px;
+        height: 40px;
+        bottom: 1rem;
+        right: 1rem;
+    }
+    
+    .sound-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .hover-hint {
+        padding: 1rem 2rem;
+    }
+    
+    .hover-hint span {
+        font-size: 0.85rem;
+    }
+    
+    .btn-cinematic {
+        padding: 1rem 2rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cinematic-title {
+        font-size: 2rem;
+    }
+    
+    .cinematic-header {
+        margin-bottom: 2rem;
+    }
+    
+    .cinematic-cta {
+        margin-top: 2rem;
+    }
+}
+
+
+
 
 
 
@@ -825,47 +1166,631 @@ label.upload img:hover {
     opacity: 0.8; /* Slight fade effect on hover */
 }
 /* =========================================
-   PAGER (Pagination) STYLES - for SimplePager.php
+   PAGER (Pagination) STYLES
    ========================================= */
 
-.pager {
-    display: flex; /* Aligns links nicely */
-    justify-content: center;
+/* 1. Reset the container so it doesn't look like the main menu */
+nav.pager {
+    background: transparent !important; /* Fixes the black bar issue */
+    padding: 20px 0;
     margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px; /* Space between buttons */
+    position: static; /* Prevents it from floating like the header */
+    width: auto;
+    border: none;
 }
 
-.pager a,
-.pager span {
-    display: inline-block;
-    padding: 10px 15px; /* Wider/nicer padding */
-    margin: 0 4px;
+/* 2. Style the links (buttons) */
+nav.pager a {
+    color: #333 !important; /* Dark text */
     text-decoration: none;
-    border: 1px solid #ccc;
+    padding: 8px 14px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 1rem;
-    color: #333;
-    transition: background-color 0.2s;
-    line-height: 1; /* Ensures vertical alignment */
+    background-color: #fff;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    font-weight: normal;
+    text-transform: capitalize; /* "Next", not "NEXT" */
+    letter-spacing: 0.5px;
 }
 
-/* Hover/Focus State */
-.pager a:hover {
-    background-color: #f0f0f0;
-    color: #000;
+/* 3. Hover Effect */
+nav.pager a:hover {
+    background-color: #000;
+    color: #D4AF37 !important; /* Gold text on hover */
     border-color: #000;
 }
 
-/* Active Page State */
-.pager a.active {
+/* 4. Active Page (The current page number) */
+nav.pager a.active {
     background-color: #000;
-    color: #D4AF37; /* Use your golden color for active page */
+    color: #D4AF37 !important;
     border-color: #000;
     font-weight: bold;
+    pointer-events: none; /* Disable clicking the current page */
 }
 
-/* Disabled State (for 'span' tags) */
-.pager span {
+/* 5. Disabled State (Hidden or grayed out) */
+nav.pager span {
+    display: none; /* Hide disabled buttons if SimplePager outputs spans */
+}
+
+/* Product Page Styles */
+
+/* Product Card Styles with Elegant Hover Effects */
+.product-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+}
+
+/* Product Image Section */
+.product-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+    background: #f9f9f9;
+}
+
+.product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.08);
+}
+
+/* Image overlay effect */
+.product-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.product-card:hover .product-image-overlay {
+    opacity: 1;
+}
+
+/* View Details badge that appears on hover */
+.view-details-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(212, 175, 55, 0.95);
+    color: #000;
+    padding: 0.8rem 2rem;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.product-card:hover .view-details-badge {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Series badge */
+.series-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    z-index: 5;
+}
+
+/* Product Info Section */
+.product-info {
+    padding: 1.5rem;
+    position: relative;
+}
+
+.product-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.product-card:hover .product-name {
+    color: #D4AF37;
+}
+
+.product-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #D4AF37;
+    margin-bottom: 1rem;
+}
+
+.product-description {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Stock indicator */
+.stock-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.stock-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #28a745;
+}
+
+.stock-dot.low {
+    background: #ffc107;
+}
+
+.stock-dot.out {
+    background: #dc3545;
+}
+
+/* Add to Cart Button */
+.add-to-cart-btn {
+    width: 100%;
+    padding: 0.9rem;
+    background: #000;
+    color: #D4AF37;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+}
+
+.add-to-cart-btn:hover {
+    background: #D4AF37;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.add-to-cart-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.add-to-cart-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Series Nav Active State */
+.series-link {
+    display: block;
+    padding: 0.8rem 1rem;
+    color: #666;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+.series-link:hover:not(.active) {
+    background: #fff;
+    color: #D4AF37;
+    padding-left: 1.5rem;
+}
+
+.series-link.active {
+    background: #141108;
+    color: #000 !important;
+    font-weight: 600;
+}
+
+.series-link.active:hover {
+    background: #c99d2e;
+    color: #000 !important;
+}
+
+/* Loading animation */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Toast notification animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .products-grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    }
+    
+    .product-name {
+        font-size: 1rem;
+    }
+    
+    .product-price {
+        font-size: 1.1rem;
+    }
+    
+    .view-details-badge {
+        font-size: 0.85rem;
+        padding: 0.6rem 1.5rem;
+    }
+    
+    .series-badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-info {
+        padding: 1rem;
+    }
+    
+    .product-description {
+        font-size: 0.85rem;
+    }
+    
+    .add-to-cart-btn {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Product Detail Page Styles */
+
+/* Related Products Section */
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+/* Related Product Card with Hover Effects */
+.related-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+}
+
+.related-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+}
+
+/* Related Product Image */
+.related-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+    background: #f9f9f9;
+}
+
+.related-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.related-card:hover .related-image {
+    transform: scale(1.08);
+}
+
+/* Image overlay effect */
+.related-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.related-card:hover .related-image-overlay {
+    opacity: 1;
+}
+
+/* View Details Badge */
+.view-details-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(212, 175, 55, 0.95);
+    color: #000;
+    padding: 0.6rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.related-card:hover .view-details-badge {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Related Product Info */
+.related-info {
+    padding: 1.2rem;
+}
+
+.related-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    transition: color 0.3s ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.related-card:hover .related-name {
+    color: #D4AF37;
+}
+
+.related-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #D4AF37;
+    margin: 0 0 0.8rem 0;
+}
+
+/* Stock Indicator (Smaller Version) */
+.stock-indicator-small {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 0.8rem;
+}
+
+.stock-dot-small {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #28a745;
+}
+
+.stock-dot-small.low {
+    background: #ffc107;
+}
+
+.stock-dot-small.out {
+    background: #dc3545;
+}
+
+/* Quick Add Button */
+.quick-add-btn {
+    width: 100%;
+    padding: 0.7rem;
+    background: #000;
+    color: #D4AF37;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.quick-add-btn:hover {
+    background: #D4AF37;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.quick-add-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.quick-add-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Toast Animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .related-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .related-name {
+        font-size: 0.9rem;
+    }
+    
+    .related-price {
+        font-size: 1rem;
+    }
+    
+    .view-details-badge {
+        font-size: 0.75rem;
+        padding: 0.5rem 1.2rem;
+    }
+    
+    .quick-add-btn {
+        font-size: 0.8rem;
+        padding: 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .related-info {
+        padding: 1rem;
+    }
+    
+    .stock-indicator-small {
+        font-size: 0.7rem;
+    }
+}
+
+/* Filter Bar Styles (For productList.php) */
+.filter-container {
     background-color: #f9f9f9;
-    color: #aaa;
-    cursor: default;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group input[type="text"],
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 200px;
+}
+
+.btn-search {
+    background-color: #000;
+    color: #D4AF37;
+    border: 1px solid #000;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-search:hover {
+    background-color: #333;
+}
+
+.btn-reset {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-bottom: 1px solid transparent;
+}
+
+.btn-reset:hover {
+    border-color: #666;
+}
+
+/* Sortable Headers */
+th a.sort-link {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+th a.sort-link:hover {
+    color: #D4AF37;
 }

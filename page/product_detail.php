@@ -16,6 +16,8 @@ $_title = $p->ProductName . " - N°9 Perfume";
 include '../_head.php';
 ?>
 
+<link rel="stylesheet" href="/public/css/product_detail.css">
+
 <script>
     $(document).ready(function() {
         window.scrollTo(0, 0);
@@ -103,20 +105,40 @@ include '../_head.php';
 
         <!-- You May Also Like -->
         <div class="related" style="margin-top:4rem;">
-            <h2 style="font-size:1.1rem;margin-bottom:1.5rem;color:#111;">You May Also Like</h2>
-            <div class="related-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;">
+            <h2 style="font-size:1.5rem;margin-bottom:2rem;color:#111;font-weight:400;">You May Also Like</h2>
+            <div class="related-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;">
                 <?php
                 $stmt = $_db->prepare("SELECT * FROM product WHERE Series = ? AND ProductID != ? ORDER BY RAND() LIMIT 3");
                 $stmt->execute([$p->Series, $id]);
                 $related = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 foreach ($related as $r):
+                    $relatedStockStatus = $r['Stock'] > 10 ? 'in-stock' : ($r['Stock'] > 0 ? 'low-stock' : 'out-of-stock');
+                    $relatedStockText = $r['Stock'] > 10 ? 'In Stock' : ($r['Stock'] > 0 ? "Only {$r['Stock']} left" : 'Out of Stock');
+                    $relatedStockDotClass = $r['Stock'] > 10 ? '' : ($r['Stock'] > 0 ? 'low' : 'out');
                 ?>
-                    <a href="/page/product_detail.php?id=<?= $r['ProductID'] ?>" class="related-card" style="text-decoration:none;">
-                        <img src="/public/images/<?= $r['ProductID'] ?>.png" alt="<?= $r['ProductName'] ?>" style="width:100%;height:auto;border-radius:8px;">
-                        <h4 style="margin:0.8rem 0 0.3rem;font-size:1rem; color:#000"><?= $r['ProductName'] ?></h4>
-                        <p style="color:#D4AF37;">RM <?= number_format($r['Price'],2) ?></p>
-                    </a>
+                    <div class="related-card" data-product-id="<?= htmlspecialchars($r['ProductID']) ?>">
+                        <div class="related-image-wrapper">
+                            <img src="/public/images/<?= htmlspecialchars($r['ProductID']) ?>.png" 
+                                 alt="<?= htmlspecialchars($r['ProductName']) ?>" 
+                                 class="related-image">
+                            <div class="related-image-overlay"></div>
+                            <div class="view-details-badge">VIEW DETAILS</div>
+                        </div>
+                        <div class="related-info">
+                            <h4 class="related-name"><?= htmlspecialchars($r['ProductName']) ?></h4>
+                            <p class="related-price">RM <?= number_format($r['Price'], 2) ?></p>
+                            <div class="stock-indicator-small">
+                                <span class="stock-dot-small <?= $relatedStockDotClass ?>"></span>
+                                <span><?= $relatedStockText ?></span>
+                            </div>
+                            <button class="quick-add-btn" 
+                                    data-product-id="<?= htmlspecialchars($r['ProductID']) ?>"
+                                    <?= $r['Stock'] <= 0 ? 'disabled' : '' ?>>
+                                <?= $r['Stock'] <= 0 ? 'Out of Stock' : 'Quick Add' ?>
+                            </button>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -138,7 +160,7 @@ $('#qty-increase').on('click', function() {
     if (val < maxStock) qtyInput.val(val + 1);
 });
 
-// Add to cart
+// Add to cart (main product)
 $('.add-to-cart').on('click', function() {
     <?php if (!isset($_SESSION['user_id'])): ?>
         alert('Please login first to add items to cart');
@@ -157,11 +179,9 @@ $('.add-to-cart').on('click', function() {
         quantity: quantity
     }, function(response) {
         if (response.success) {
-            // Update cart count
             $('#cart-count').text(response.cart_count);
-            
-            // Show success message
             btn.text('✓ Added to Cart!').css('background', '#28a745');
+            showToast('Product added to cart!');
             
             setTimeout(function() {
                 btn.prop('disabled', false).text('🛒 Add to Cart').css('background', '#D4AF37');
@@ -176,13 +196,83 @@ $('.add-to-cart').on('click', function() {
     });
 });
 
-// Load related products
-$.get('/api/related_product.php', {
-    current_id: '<?= $p->ProductID ?>', 
-    series: '<?= $p->Series ?>'
-}, function(html) {
-    $('#related-products').html(html);
+// Related product card click (navigate to detail)
+$(document).on('click', '.related-card', function(e) {
+    // Don't navigate if clicking the quick add button
+    if ($(e.target).hasClass('quick-add-btn') || $(e.target).closest('.quick-add-btn').length) {
+        return;
+    }
+    
+    const productId = $(this).data('product-id');
+    if (productId) {
+        window.location.href = `/page/product_detail.php?id=${productId}`;
+    }
 });
+
+// Quick add to cart (related products)
+$(document).on('click', '.quick-add-btn', function(e) {
+    e.stopPropagation();
+    
+    <?php if (!isset($_SESSION['user_id'])): ?>
+        alert('Please login first to add items to cart');
+        window.location.href = '/page/login.php';
+        return;
+    <?php endif; ?>
+    
+    const productId = $(this).data('product-id');
+    const btn = $(this);
+    
+    if (btn.prop('disabled')) return;
+    
+    btn.prop('disabled', true).text('Adding...');
+    
+    $.post('/api/cart_add.php', {
+        product_id: productId,
+        quantity: 1
+    }, function(response) {
+        if (response.success) {
+            $('#cart-count').text(response.cart_count);
+            btn.text('✓ Added').css('background', '#28a745');
+            showToast('Product added to cart!');
+            
+            setTimeout(function() {
+                btn.prop('disabled', false).text('Quick Add').css('background', '#000');
+            }, 2000);
+        } else {
+            alert(response.message || 'Failed to add to cart');
+            btn.prop('disabled', false).text('Quick Add');
+        }
+    }, 'json').fail(function() {
+        alert('Error adding to cart. Please try again.');
+        btn.prop('disabled', false).text('Quick Add');
+    });
+});
+
+// Toast notification
+function showToast(message) {
+    const toast = $(`
+        <div style="
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #28a745;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        ">
+            ${message}
+        </div>
+    `);
+    
+    $('body').append(toast);
+    
+    setTimeout(() => {
+        toast.fadeOut(300, () => toast.remove());
+    }, 2000);
+}
 </script>
 
 <?php include '../_foot.php'; ?>

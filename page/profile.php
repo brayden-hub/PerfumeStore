@@ -1,6 +1,6 @@
 <?php
 require '../_base.php';
-//
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
@@ -14,14 +14,23 @@ $email    = $_SESSION['email'] ?? '';
 $stm = $_db->prepare("SELECT Profile_Photo FROM user WHERE userID = ?");
 $stm->execute([$user_id]);
 $avatar = $stm->fetchColumn() ?: 'default1.jpg';
-$_SESSION['Profile_Photo'] = $avatar;   // 顺便补回 session
+$_SESSION['Profile_Photo'] = $avatar;
 
-$_title = 'My Profile - N°9 Perfume';
+// Get temp message ONCE
+$info_message = temp('info');
+
+$_title = 'My Profile - Nº9 Perfume';
 include '../_head.php';
 ?>
 
 <div style="padding:2rem; max-width: 800px; margin: 0 auto;">
     <h2>Welcome back, <?= htmlspecialchars($username) ?>!</h2>
+
+    <?php if ($info_message): ?>
+        <div style="padding:12px; background:#d4edda; color:#155724; border-radius:5px; margin:15px 0; border-left: 4px solid #28a745;">
+            ✓ <?= htmlspecialchars($info_message) ?>
+        </div>
+    <?php endif; ?>
 
     <div style="display:flex; gap:2.5rem; align-items:flex-start; margin-top:2rem;">
         <!-- Avatar -->

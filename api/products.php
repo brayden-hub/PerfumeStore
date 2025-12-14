@@ -1,54 +1,76 @@
 <?php
 require '../_base.php';
 
-// 1. receive parameters
 $series = get('series', '');
-$min    = (float)get('min', 0);     
-$max    = (float)get('max', 99999);  
-$sort   = get('sort', 'asc') === 'desc' ? 'DESC' : 'ASC'; 
-$search = get('search', '');         // search keyword
+$min = (int)get('min', 0);
+$max = (int)get('max', 400);
+$sort = get('sort', 'asc');
 
-// 2. make SQL
-$sql = "SELECT ProductID, ProductName, Description, Price, Image, Series 
-        FROM product 
-        WHERE Price BETWEEN ? AND ?";
+// Build query with filters
+$sql = "SELECT * FROM product WHERE Price BETWEEN ? AND ?";
 $params = [$min, $max];
 
-// if choice series
 if ($series !== '') {
     $sql .= " AND Series = ?";
     $params[] = $series;
 }
 
-// if search keyword
-if ($search !== '') {
-    $sql .= " AND (ProductName LIKE ? OR Description LIKE ?)";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
-}
-
-// 3. process sort
-$sql .= " ORDER BY Price $sort";
+// Add sorting
+$sql .= $sort === 'desc' ? " ORDER BY Price DESC" : " ORDER BY Price ASC";
 
 $stmt = $_db->prepare($sql);
 $stmt->execute($params);
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($stmt->rowCount() == 0) {
-    echo '<p style="text-align: center; color: #666;">No products found.</p>';
-} else {
-    while ($p = $stmt->fetch()) {
-        $img_file = '/public/images/' . htmlspecialchars($p->ProductID) . '.png';  
-        $img = file_exists($_SERVER['DOCUMENT_ROOT'] . $img_file) ? $img_file : 'https://placehold.co/400x500?text=No+Image';
-        echo '
-        <div class="product-card" style="background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08); transition:0.3s;">
-            <img src="'.$img.'" style="width:100%; height:320px; object-fit:cover;">
-            <div style="padding:1.5rem;">
-                <h3 style="font-size:1.1rem; margin:0 0 0.5rem; color:#111;">'.htmlspecialchars($p->ProductName).'</h3>
-                <p style="color:#666; font-size:0.9rem; margin:0 0 1rem;">'.htmlspecialchars($p->Description).'</p>
-                <p style="font-size:1.6rem; font-weight:600; color:#D4AF37;">RM '.number_format($p->Price,2).'</p>
-                <a href="/page/product_detail.php?id='.$p->ProductID.'" style="display:block; margin-top:1rem; text-align:center; color:#D4AF37; text-decoration:none;">View Detail →</a>
+if (empty($products)):
+?>
+    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: #999;">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 1rem;">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No products found</h3>
+        <p>Try adjusting your filters or price range</p>
+    </div>
+<?php
+else:
+    foreach ($products as $p):
+        $stockStatus = $p['Stock'] > 10 ? 'in-stock' : ($p['Stock'] > 0 ? 'low-stock' : 'out-of-stock');
+        $stockText = $p['Stock'] > 10 ? 'In Stock' : ($p['Stock'] > 0 ? "Only {$p['Stock']} left" : 'Out of Stock');
+        $stockDotClass = $p['Stock'] > 10 ? '' : ($p['Stock'] > 0 ? 'low' : 'out');
+        $productId = htmlspecialchars($p['ProductID']);
+?>
+        <div class="product-card" data-product-id="<?= $productId ?>">
+            <div class="product-image-wrapper">
+                <img src="/public/images/<?= $productId ?>.png" 
+                     alt="<?= htmlspecialchars($p['ProductName']) ?>" 
+                     class="product-image"
+                     data-product-id="<?= $productId ?>">
+                <div class="product-image-overlay"></div>
+                <div class="view-details-badge">VIEW DETAILS</div>
+                <div class="series-badge"><?= htmlspecialchars($p['Series']) ?></div>
             </div>
-        </div>';
-    }
-}
+            
+            <div class="product-info">
+                <h3 class="product-name"><?= htmlspecialchars($p['ProductName']) ?></h3>
+                <div class="product-price">RM <?= number_format($p['Price'], 2) ?></div>
+                
+                <p class="product-description"><?= htmlspecialchars($p['Description']) ?></p>
+                
+                <div class="stock-indicator">
+                    <span class="stock-dot <?= $stockDotClass ?>"></span>
+                    <span><?= $stockText ?></span>
+                </div>
+                
+                <button class="add-to-cart-btn" 
+                        data-product-id="<?= $productId ?>"
+                        <?= $p['Stock'] <= 0 ? 'disabled' : '' ?>>
+                    <?= $p['Stock'] <= 0 ? 'Out of Stock' : 'Add to Cart' ?>
+                </button>
+            </div>
+        </div>
+<?php
+    endforeach;
+endif;
 ?>

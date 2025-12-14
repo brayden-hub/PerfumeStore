@@ -142,7 +142,65 @@ main { margin-top:80px; padding:5rem 0; }
 .btn-outline:hover { background: #fff; color: #000; }
 
 
+/* ========================================
+   CHECKOUT PAGE STYLES
+   ======================================== */
 
+/* Gift Summary Box */
+.gift-summary-box {
+    background: linear-gradient(135deg, #fffbf0 0%, #fff 100%);
+    border: 2px solid #D4AF37;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.gift-summary-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gift-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.gift-detail-row:last-child {
+    border-bottom: none;
+}
+
+.gift-message-preview {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #666;
+    border-left: 3px solid #D4AF37;
+}
+
+/* Payment Method Selection */
+input[type="radio"]:checked + span {
+    font-weight: 600;
+    color: #D4AF37;
+}
+
+label:has(input[type="radio"]:checked) {
+    border-color: #D4AF37 !important;
+    background: #fffbf0 !important;
+}
+
+label:has(input[type="radio"]):hover {
+    border-color: #D4AF37;
+    background: #fafafa;
+}
 
 
 

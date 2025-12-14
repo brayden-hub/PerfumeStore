@@ -824,3 +824,48 @@ label.upload img {
 label.upload img:hover {
     opacity: 0.8; /* Slight fade effect on hover */
 }
+/* =========================================
+   PAGER (Pagination) STYLES - for SimplePager.php
+   ========================================= */
+
+.pager {
+    display: flex; /* Aligns links nicely */
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.pager a,
+.pager span {
+    display: inline-block;
+    padding: 10px 15px; /* Wider/nicer padding */
+    margin: 0 4px;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #333;
+    transition: background-color 0.2s;
+    line-height: 1; /* Ensures vertical alignment */
+}
+
+/* Hover/Focus State */
+.pager a:hover {
+    background-color: #f0f0f0;
+    color: #000;
+    border-color: #000;
+}
+
+/* Active Page State */
+.pager a.active {
+    background-color: #000;
+    color: #D4AF37; /* Use your golden color for active page */
+    border-color: #000;
+    font-weight: bold;
+}
+
+/* Disabled State (for 'span' tags) */
+.pager span {
+    background-color: #f9f9f9;
+    color: #aaa;
+    cursor: default;
+}

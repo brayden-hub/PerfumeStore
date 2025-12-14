@@ -31,9 +31,6 @@ if (is_post()) {
         else if (!password_verify($password, $user->password)) {
             $_err['password'] = 'Wrong password';
         } 
-        else if($user->role!=='Member'){
-            $_err['email'] = 'Only member can in';
-        }
         else {
             // Login successful
             $_SESSION['user_id']   = $user->userID;

@@ -18,9 +18,13 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     $user = $stm->fetch();
 
     if ($user && $user->role === 'Member') {
-        $_SESSION['user_id'] = $user->userID;
+        // Set ALL session variables (same as login.php)
+        $_SESSION['user_id']   = $user->userID;
         $_SESSION['user_name'] = $user->name;
+        $_SESSION['email']     = $user->email;
+        $_SESSION['phone']     = $user->phone_number ?? '';
         $_SESSION['user_role'] = $user->role;
+        $_SESSION['Profile_Photo'] = $user->Profile_Photo ?? 'default1.jpg';
     } else {
         setcookie('remember_token', '', time() - 3600, '/');
     }
@@ -179,4 +183,21 @@ function save_photo($f, $folder, $width = 200, $height = 200) {
 // Is money?
 function is_money($value) {
     return preg_match('/^\-?\d+(\.\d{1,2})?$/', $value);
+}
+// Initialize and return mail object
+function get_mail() {
+    require_once 'lib/PHPMailer.php';
+    require_once 'lib/SMTP.php';
+
+    $m = new PHPMailer(true);
+    $m->isSMTP();
+    $m->SMTPAuth = true;
+    $m->Host = 'smtp.gmail.com';
+    $m->Port = 587;
+    $m->Username = 'n9perfumestr@gmail.com';
+    $m->Password = 'ysef vynx shpi faja';
+    $m->CharSet = 'utf-8';
+    $m->setFrom($m->Username, 'N°9 Perfume');
+
+    return $m;
 }

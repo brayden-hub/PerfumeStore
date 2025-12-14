@@ -1151,3 +1151,227 @@ label.upload img:hover {
         font-size: 0.9rem;
     }
 }
+
+/* Product Detail Page Styles */
+
+/* Related Products Section */
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+/* Related Product Card with Hover Effects */
+.related-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+}
+
+.related-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+}
+
+/* Related Product Image */
+.related-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+    background: #f9f9f9;
+}
+
+.related-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.related-card:hover .related-image {
+    transform: scale(1.08);
+}
+
+/* Image overlay effect */
+.related-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.related-card:hover .related-image-overlay {
+    opacity: 1;
+}
+
+/* View Details Badge */
+.view-details-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(212, 175, 55, 0.95);
+    color: #000;
+    padding: 0.6rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.related-card:hover .view-details-badge {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Related Product Info */
+.related-info {
+    padding: 1.2rem;
+}
+
+.related-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    transition: color 0.3s ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.related-card:hover .related-name {
+    color: #D4AF37;
+}
+
+.related-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #D4AF37;
+    margin: 0 0 0.8rem 0;
+}
+
+/* Stock Indicator (Smaller Version) */
+.stock-indicator-small {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 0.8rem;
+}
+
+.stock-dot-small {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #28a745;
+}
+
+.stock-dot-small.low {
+    background: #ffc107;
+}
+
+.stock-dot-small.out {
+    background: #dc3545;
+}
+
+/* Quick Add Button */
+.quick-add-btn {
+    width: 100%;
+    padding: 0.7rem;
+    background: #000;
+    color: #D4AF37;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.quick-add-btn:hover {
+    background: #D4AF37;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.quick-add-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.quick-add-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Toast Animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .related-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .related-name {
+        font-size: 0.9rem;
+    }
+    
+    .related-price {
+        font-size: 1rem;
+    }
+    
+    .view-details-badge {
+        font-size: 0.75rem;
+        padding: 0.5rem 1.2rem;
+    }
+    
+    .quick-add-btn {
+        font-size: 0.8rem;
+        padding: 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .related-info {
+        padding: 1rem;
+    }
+    
+    .stock-indicator-small {
+        font-size: 0.7rem;
+    }
+}

@@ -118,8 +118,7 @@ if (is_post()) {
             $_db->commit();
             
             temp('success', 'Order placed successfully!');
-            redirect('/page/order_detail_member.php?id=' . $order_id);
-            
+            redirect('/page/order_confirmation.php?order_id=' . $order_id);            
         } catch (Exception $e) {
             $_db->rollBack();
             temp('error', 'Order failed: ' . $e->getMessage());

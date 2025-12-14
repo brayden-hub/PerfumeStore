@@ -1,5 +1,7 @@
 <?php
 require '../_base.php';
+$current_step = 1;
+
 
 if (!isset($_SESSION['user_id'])) {
     redirect('/page/login.php');
@@ -7,6 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $_title = 'Shopping Cart - N°9 Perfume';
 include '../_head.php';
+include 'progress_bar.php';
 
 $user_id = $_SESSION['user_id'];
 
@@ -340,29 +343,31 @@ input:checked + .toggle-slider:before {
 
 <div class="cart-container" style="max-width: 1400px; margin: 100px auto 0; padding: 0 5%; display: flex; gap: 4rem; flex-wrap: wrap;">
     <!-- Progress Bar -->
-    <div class="progress-bar" style="width: 100%; margin-bottom: 3rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="text-align: center;">
-                <div style="width: 40px; height: 40px; background: #D4AF37; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">1</div>
-                <p style="margin: 0; font-size: 0.9rem;">Shopping Cart</p>
-            </div>
-            <div style="flex: 1; height: 2px; background: #eee; margin: 0 1rem;"></div>
-            <div style="text-align: center;">
-                <div style="width: 40px; height: 40px; background: #eee; color: #666; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem;">2</div>
-                <p style="margin: 0; font-size: 0.9rem; color: #666;">Details</p>
-            </div>
-            <div style="flex: 1; height: 2px; background: #eee; margin: 0 1rem;"></div>
-            <div style="text-align: center;">
-                <div style="width: 40px; height: 40px; background: #eee; color: #666; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem;">3</div>
-                <p style="margin: 0; font-size: 0.9rem; color: #666;">Payment</p>
-            </div>
-            <div style="flex: 1; height: 2px; background: #eee; margin: 0 1rem;"></div>
-            <div style="text-align: center;">
-                <div style="width: 40px; height: 40px; background: #eee; color: #666; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem;">4</div>
-                <p style="margin: 0; font-size: 0.9rem; color: #666;">Done</p>
+        <div class="progress-bar" style="width: 100%; margin-bottom: 3rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <!-- Step 1: Shopping Cart -->
+                <div style="text-align: center;">
+                    <div style="width: 40px; height: 40px; background: <?= $current_step >= 1 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 1 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">1</div>
+                    <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 1 ? '#000' : '#666' ?>;">Shopping Cart</p>
+                </div>
+                
+                <div style="flex: 1; height: 2px; background: <?= $current_step >= 2 ? '#D4AF37' : '#eee' ?>; margin: 0 1rem;"></div>
+                
+                <!-- Step 2: Checkout & Payment -->
+                <div style="text-align: center;">
+                    <div style="width: 40px; height: 40px; background: <?= $current_step >= 2 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 2 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">2</div>
+                    <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 2 ? '#000' : '#666' ?>;">Checkout & Payment</p>
+                </div>
+                
+                <div style="flex: 1; height: 2px; background: <?= $current_step >= 3 ? '#D4AF37' : '#eee' ?>; margin: 0 1rem;"></div>
+                
+                <!-- Step 3: Done -->
+                <div style="text-align: center;">
+                    <div style="width: 40px; height: 40px; background: <?= $current_step >= 3 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 3 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">3</div>
+                    <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 3 ? '#000' : '#666' ?>;">Done</p>
+                </div>
             </div>
         </div>
-    </div>
 
     <!-- Left: Cart Items -->
     <div class="cart-items" style="flex: 2; min-width: 600px;">
@@ -765,7 +770,6 @@ $(document).ready(function() {
             hidePrice: $('#hidePrice').is(':checked') ? '1' : '0'
         };
         
-        console.log('Saving gift data:', giftData); // Debug
         
         // Save to PHP session
         $.ajax({
@@ -774,7 +778,6 @@ $(document).ready(function() {
             data: giftData,
             dataType: 'json',
             success: function(response) {
-                console.log('Save response:', response); // Debug
                 if (response.success) {
                     // Successfully saved, now go to checkout
                     window.location.href = '/page/checkout.php?debug=1';
@@ -782,12 +785,6 @@ $(document).ready(function() {
                     alert('Failed to save gift options: ' + response.message);
                 }
             },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                alert('Error saving gift options. Check console for details.');
-                // Still go to checkout even if save fails
-                window.location.href = '/page/checkout.php?debug=1';
-            }
         });
     });
 

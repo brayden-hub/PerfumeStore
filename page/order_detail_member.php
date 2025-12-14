@@ -1,5 +1,6 @@
 <?php
 require '../_base.php';
+$current_step = 3;
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'Member') {
     redirect('/page/login.php');

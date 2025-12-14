@@ -7,10 +7,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'Member') {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch user's orders with totals
+// Fetch user's orders with totals (including gift wrap cost)
 $stmt = $_db->prepare("
-    SELECT o.OrderID, o.PurchaseDate, o.PaymentMethod,
-           SUM(po.TotalPrice) as OrderTotal,
+    SELECT o.OrderID, o.PurchaseDate, o.PaymentMethod, o.GiftWrapCost,
+           SUM(po.TotalPrice) as ProductTotal,
            COUNT(po.ProductOrderID) as ItemCount
     FROM `order` o
     LEFT JOIN productorder po ON o.OrderID = po.OrderID
@@ -35,8 +35,6 @@ include '../_head.php';
     }
     window.scrollTo(0, 0);  
     document.addEventListener("DOMContentLoaded", () => window.scrollTo(0, 0));
-
-    
 </script>
 
 <div class="container" style="margin-top: 100px; min-height: 60vh;">
@@ -68,14 +66,22 @@ include '../_head.php';
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($orders as $order): ?>
+                <?php foreach ($orders as $order): 
+                    // Calculate correct total including gift wrap
+                    $orderTotal = $order->ProductTotal + ($order->GiftWrapCost ?? 0);
+                ?>
                 <tr>
                     <td style="font-weight: 600;"><?= htmlspecialchars($order->OrderID) ?></td>
                     <td><?= date('d M Y', strtotime($order->PurchaseDate)) ?></td>
                     <td><?= $order->ItemCount ?> item(s)</td>
                     <td><?= htmlspecialchars($order->PaymentMethod) ?></td>
                     <td style="color: #D4AF37; font-weight: 600;">
-                        RM <?= number_format($order->OrderTotal, 2) ?>
+                        RM <?= number_format($orderTotal, 2) ?>
+                        <?php if ($order->GiftWrapCost > 0): ?>
+                            <span style="font-size: 0.85rem; color: #999; display: block;">
+                                (incl. RM <?= number_format($order->GiftWrapCost, 2) ?> gift wrap)
+                            </span>
+                        <?php endif; ?>
                     </td>
                     <td>
                         <a href="/page/order_detail_member.php?id=<?= $order->OrderID ?>" 

@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Dec 14, 2025 at 09:48 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- 主机： 127.0.0.1
+-- 生成日期： 2025-12-14 10:10:30
+-- 服务器版本： 10.4.32-MariaDB
+-- PHP 版本： 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,15 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `db1`
+-- 数据库： `db1`
 --
+CREATE DATABASE IF NOT EXISTS `db1` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `db1`;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cart`
+-- 表的结构 `cart`
 --
 
 CREATE TABLE `cart` (
@@ -38,7 +40,7 @@ CREATE TABLE `cart` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `order`
+-- 表的结构 `order`
 --
 
 CREATE TABLE `order` (
@@ -53,17 +55,18 @@ CREATE TABLE `order` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `order`
+-- 转存表中的数据 `order`
 --
 
 INSERT INTO `order` (`OrderID`, `UserID`, `PurchaseDate`, `PaymentMethod`, `GiftWrap`, `GiftMessage`, `HidePrice`, `GiftWrapCost`) VALUES
 ('O00001', 6, '2025-12-14', 'Cash on Delivery', 'luxury', '999', 1, 5.00),
-('O00002', 6, '2025-12-14', 'Online Banking', 'luxury', 'pikachu', 1, 5.00);
+('O00002', 6, '2025-12-14', 'Online Banking', 'luxury', 'pikachu', 1, 5.00),
+('O00003', 6, '2025-12-14', 'E-Wallet', 'luxury', 'how are you i am fine tq ==', 0, 5.00);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `product`
+-- 表的结构 `product`
 --
 
 CREATE TABLE `product` (
@@ -77,7 +80,7 @@ CREATE TABLE `product` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `product`
+-- 转存表中的数据 `product`
 --
 
 INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `Description`, `Image`) VALUES
@@ -92,7 +95,7 @@ INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `
 ('P0009', 'Fruity', 'N°9 Sweet Orchard', 230, 45, 'Crisp orchard fruits with a soft floral background; refreshing and light.', 'P0009.png'),
 ('P0010', 'Fruity', 'N°9 Candy Citrus', 240, 38, 'A bright citrus-fruity fragrance with orange, grapefruit, and sugar notes.', 'P0010.png'),
 ('P0011', 'Woody', 'N°9 Sandal Noir', 330, 20, 'A warm woody scent with sandalwood, musk, and soft amber.', 'P0011.png'),
-('P0012', 'Woody', 'N°9 Cedar Realm', 310, 15, 'Earthy cedarwood with crisp herbal notes, calm and grounding.', 'P0012.png'),
+('P0012', 'Woody', 'N°9 Cedar Realm', 310, 14, 'Earthy cedarwood with crisp herbal notes, calm and grounding.', 'P0012.png'),
 ('P0013', 'Woody', 'N°9 Urban Shadow', 350, 18, 'A modern woody fragrance with smoky notes and masculine depth.', 'P0013.png'),
 ('P0014', 'Woody', 'N°9 Amber Trail', 380, 14, 'Amber, patchouli, and dry woods create a rich, sensual scent.', 'P0014.png'),
 ('P0015', 'Woody', 'N°9 Forest Velvet', 300, 24, 'Soft forest woods with a creamy finish, comforting and elegant.', 'P0015.png'),
@@ -110,7 +113,7 @@ INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `productorder`
+-- 表的结构 `productorder`
 --
 
 CREATE TABLE `productorder` (
@@ -122,17 +125,18 @@ CREATE TABLE `productorder` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `productorder`
+-- 转存表中的数据 `productorder`
 --
 
 INSERT INTO `productorder` (`ProductOrderID`, `OrderID`, `ProductID`, `Quantity`, `TotalPrice`) VALUES
 ('PO00001', 'O00001', 'P0025', 1, 210),
-('PO00002', 'O00002', 'P0021', 1, 200);
+('PO00002', 'O00002', 'P0021', 1, 200),
+('PO00003', 'O00003', 'P0012', 1, 310);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- 表的结构 `user`
 --
 
 CREATE TABLE `user` (
@@ -147,21 +151,21 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `user`
+-- 转存表中的数据 `user`
 --
 
 INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role`, `remember_token`, `Profile_Photo`) VALUES
 (1, 'ali', 'chongzhengzhe@gmail.com', '$2y$10$4Vew8Q.0PKoM74By9ime9.MjXuci6pO/REtKZ.HAnoOWZsMUwfU16', '018000000', 'Member', NULL, ''),
 (2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, ''),
 (5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, ''),
-(6, 'pop@gmail.com', 'pop@gmail.com', '$2y$10$Up7xPG91ut/2LSzwYgcjUOD.v6wDo1esV6kp3IHxdXUy4t8YKmcOW', '01154789654', 'Member', 'a79eefa8b99ae096f7c701a6df1dc531d0a7845e658833ee97b5955cb1486818', 'default5.jpg');
+(6, 'pop@gmail.com', 'pop@gmail.com', '$2y$10$Up7xPG91ut/2LSzwYgcjUOD.v6wDo1esV6kp3IHxdXUy4t8YKmcOW', '01154789654', 'Member', NULL, 'default5.jpg');
 
 --
--- Indexes for dumped tables
+-- 转储表的索引
 --
 
 --
--- Indexes for table `cart`
+-- 表的索引 `cart`
 --
 ALTER TABLE `cart`
   ADD PRIMARY KEY (`CartID`),
@@ -169,20 +173,20 @@ ALTER TABLE `cart`
   ADD KEY `ProductID` (`ProductID`);
 
 --
--- Indexes for table `order`
+-- 表的索引 `order`
 --
 ALTER TABLE `order`
   ADD PRIMARY KEY (`OrderID`),
   ADD KEY `UserID` (`UserID`);
 
 --
--- Indexes for table `product`
+-- 表的索引 `product`
 --
 ALTER TABLE `product`
   ADD PRIMARY KEY (`ProductID`);
 
 --
--- Indexes for table `productorder`
+-- 表的索引 `productorder`
 --
 ALTER TABLE `productorder`
   ADD PRIMARY KEY (`ProductOrderID`),
@@ -190,41 +194,41 @@ ALTER TABLE `productorder`
   ADD KEY `ProductID` (`ProductID`);
 
 --
--- Indexes for table `user`
+-- 表的索引 `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`userID`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- 在导出的表使用AUTO_INCREMENT
 --
 
 --
--- AUTO_INCREMENT for table `user`
+-- 使用表AUTO_INCREMENT `user`
 --
 ALTER TABLE `user`
   MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- Constraints for dumped tables
+-- 限制导出的表
 --
 
 --
--- Constraints for table `cart`
+-- 限制表 `cart`
 --
 ALTER TABLE `cart`
   ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE,
   ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE;
 
 --
--- Constraints for table `order`
+-- 限制表 `order`
 --
 ALTER TABLE `order`
   ADD CONSTRAINT `order_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`);
 
 --
--- Constraints for table `productorder`
+-- 限制表 `productorder`
 --
 ALTER TABLE `productorder`
   ADD CONSTRAINT `productorder_ibfk_1` FOREIGN KEY (`OrderID`) REFERENCES `order` (`OrderID`) ON DELETE CASCADE,

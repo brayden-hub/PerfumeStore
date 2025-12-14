@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 28, 2025 at 03:20 PM
+-- Generation Time: Dec 14, 2025 at 09:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,8 +20,20 @@ SET time_zone = "+00:00";
 --
 -- Database: `db1`
 --
-CREATE DATABASE IF NOT EXISTS `db1` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `db1`;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cart`
+--
+
+CREATE TABLE `cart` (
+  `CartID` char(6) NOT NULL,
+  `UserID` int(11) NOT NULL,
+  `ProductID` char(5) NOT NULL,
+  `Quantity` int(10) NOT NULL DEFAULT 1,
+  `AddedDate` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -33,8 +45,20 @@ CREATE TABLE `order` (
   `OrderID` char(6) NOT NULL,
   `UserID` int(11) NOT NULL,
   `PurchaseDate` date NOT NULL,
-  `PaymentMethod` varchar(20) NOT NULL
+  `PaymentMethod` varchar(20) NOT NULL,
+  `GiftWrap` varchar(20) DEFAULT NULL COMMENT 'standard or luxury',
+  `GiftMessage` text DEFAULT NULL COMMENT 'Gift message text',
+  `HidePrice` tinyint(1) DEFAULT 0 COMMENT 'Hide price on receipt',
+  `GiftWrapCost` decimal(10,2) DEFAULT 0.00 COMMENT 'Gift wrap cost'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order`
+--
+
+INSERT INTO `order` (`OrderID`, `UserID`, `PurchaseDate`, `PaymentMethod`, `GiftWrap`, `GiftMessage`, `HidePrice`, `GiftWrapCost`) VALUES
+('O00001', 6, '2025-12-14', 'Cash on Delivery', 'luxury', '999', 1, 5.00),
+('O00002', 6, '2025-12-14', 'Online Banking', 'luxury', 'pikachu', 1, 5.00);
 
 -- --------------------------------------------------------
 
@@ -77,11 +101,11 @@ INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `
 ('P0018', 'Fresh', 'N°9 Pure Daylight', 230, 36, 'A mild fresh scent with white tea and soft flowers.', 'P0018.png'),
 ('P0019', 'Fresh', 'N°9 Mist Horizon', 270, 22, 'Airy freshness with hints of mint and watery florals.', 'P0019.png'),
 ('P0020', 'Fresh', 'N°9 Spring Drift', 250, 40, 'Light, refreshing, and breezy with green citrus notes.', 'P0020.png'),
-('P0021', 'Green', 'N°9 Green Leaf Spirit', 200, 55, 'Herbal green scent with fresh-cut leaves and soft florals.', 'P0021.png'),
+('P0021', 'Green', 'N°9 Green Leaf Spirit', 200, 54, 'Herbal green scent with fresh-cut leaves and soft florals.', 'P0021.png'),
 ('P0022', 'Green', 'N°9 Bamboo Whisper', 260, 20, 'Clean bamboo and gentle floral notes, calming and natural.', 'P0022.png'),
 ('P0023', 'Green', 'N°9 Meadow Fresh', 220, 33, 'Soft grassy scent inspired by morning dew on an open field.', 'P0023.png'),
 ('P0024', 'Green', 'N°9 Herbal Dew', 240, 27, 'Green herbs with mint and tea-like freshness.', 'P0024.png'),
-('P0025', 'Green', 'N°9 Wild Garden', 210, 30, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.', 'P0025.png');
+('P0025', 'Green', 'N°9 Wild Garden', 210, 29, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.', 'P0025.png');
 
 -- --------------------------------------------------------
 
@@ -97,6 +121,14 @@ CREATE TABLE `productorder` (
   `TotalPrice` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `productorder`
+--
+
+INSERT INTO `productorder` (`ProductOrderID`, `OrderID`, `ProductID`, `Quantity`, `TotalPrice`) VALUES
+('PO00001', 'O00001', 'P0025', 1, 210),
+('PO00002', 'O00002', 'P0021', 1, 200);
+
 -- --------------------------------------------------------
 
 --
@@ -111,7 +143,7 @@ CREATE TABLE `user` (
   `phone_number` varchar(100) NOT NULL,
   `role` varchar(30) NOT NULL,
   `remember_token` varchar(64) DEFAULT NULL,
-  `Profile_Photo` varchar(100) NOT NULL
+  `Profile_Photo` varchar(100) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -121,36 +153,21 @@ CREATE TABLE `user` (
 INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role`, `remember_token`, `Profile_Photo`) VALUES
 (1, 'ali', 'chongzhengzhe@gmail.com', '$2y$10$4Vew8Q.0PKoM74By9ime9.MjXuci6pO/REtKZ.HAnoOWZsMUwfU16', '018000000', 'Member', NULL, ''),
 (2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, ''),
-(5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, '');
+(5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, ''),
+(6, 'pop@gmail.com', 'pop@gmail.com', '$2y$10$Up7xPG91ut/2LSzwYgcjUOD.v6wDo1esV6kp3IHxdXUy4t8YKmcOW', '01154789654', 'Member', 'a79eefa8b99ae096f7c701a6df1dc531d0a7845e658833ee97b5955cb1486818', 'default5.jpg');
 
 --
 -- Indexes for dumped tables
 --
--- --------------------------------------------------------
 
 --
--- Table structure for table `cart`
---
-
-CREATE TABLE IF NOT EXISTS `cart` (
-  `CartID` char(6) NOT NULL,
-  `UserID` int(11) NOT NULL,
-  `ProductID` char(5) NOT NULL,
-  `Quantity` int(10) NOT NULL DEFAULT 1,
-  `AddedDate` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`CartID`),
-  KEY `UserID` (`UserID`),
-  KEY `ProductID` (`ProductID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Constraints for table `cart`
+-- Indexes for table `cart`
 --
 ALTER TABLE `cart`
-  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE;
+  ADD PRIMARY KEY (`CartID`),
+  ADD KEY `UserID` (`UserID`),
+  ADD KEY `ProductID` (`ProductID`);
 
-COMMIT;
 --
 -- Indexes for table `order`
 --
@@ -176,7 +193,8 @@ ALTER TABLE `productorder`
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`userID`);
+  ADD PRIMARY KEY (`userID`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -186,11 +204,18 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `cart`
+--
+ALTER TABLE `cart`
+  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `order`
@@ -202,7 +227,7 @@ ALTER TABLE `order`
 -- Constraints for table `productorder`
 --
 ALTER TABLE `productorder`
-  ADD CONSTRAINT `productorder_ibfk_1` FOREIGN KEY (`OrderID`) REFERENCES `order` (`OrderID`),
+  ADD CONSTRAINT `productorder_ibfk_1` FOREIGN KEY (`OrderID`) REFERENCES `order` (`OrderID`) ON DELETE CASCADE,
   ADD CONSTRAINT `productorder_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`);
 COMMIT;
 

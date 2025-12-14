@@ -3,9 +3,10 @@
 date_default_timezone_set('Asia/Kuala_Lumpur');
 session_start();
 
-//database created
-$_db = new PDO('mysql:dbname=db1', 'root', '', [
+// Database connection with error mode
+$_db = new PDO('mysql:host=127.0.0.1;dbname=db1;charset=utf8mb4', 'root', '', [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Important for debugging
 ]);
 
 // Auto-login using Remember Token
@@ -25,9 +26,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     }
 }
 
-//下面czz都改了
-
-
+// Is GET request?
 function is_get() {
     return $_SERVER['REQUEST_METHOD'] == 'GET';
 }
@@ -54,21 +53,26 @@ function req($key, $value = null) {
     $value = $_REQUEST[$key] ?? $value;
     return is_array($value) ? array_map('trim', $value) : trim($value);
 }
+
+// Redirect to URL
 function redirect($url = null) {
     $url ??= $_SERVER['REQUEST_URI'];
     header("Location: $url");
     exit();
 }
+
+// Temporary session variable (for flash messages)
 function temp($key, $value = null) {
     if ($value !== null) {
         $_SESSION["temp_$key"] = $value;
-    }
-    else {
+    } else {
         $value = $_SESSION["temp_$key"] ?? null;
         unset($_SESSION["temp_$key"]);
         return $value;
     }
 }
+
+// HTML encode
 function encode($value) {
     return htmlentities($value);
 }
@@ -106,7 +110,6 @@ function html_select($key, $items, $default = '- Select One -', $attr = '') {
     }
     echo '</select>';
 }
-$_err = [];
 
 // Generate <input type='number'>
 function html_number($key, $min = '', $max = '', $step = '', $attr = '') {
@@ -120,17 +123,18 @@ function html_file($key, $accept = '', $attr = '') {
     echo "<input type='file' id='$key' name='$key' accept='$accept' $attr>";
 }
 
+// Global error array
+$_err = [];
+
 // Generate <span class='err'>
 function err($key) {
     global $_err;
     if ($_err[$key] ?? false) {
         echo "<span class='err'>$_err[$key]</span>";
-    }
-    else {
+    } else {
         echo '<span></span>';
     }
 }
-
 
 // Is unique?
 function is_unique($value, $table, $field) {
@@ -148,8 +152,6 @@ function is_exists($value, $table, $field) {
     return $stm->fetchColumn() > 0;
 }
 
-
-//For admin product
 // Obtain uploaded file --> cast to object
 function get_file($key) {
     $f = $_FILES[$key] ?? null;
@@ -163,7 +165,7 @@ function get_file($key) {
 
 // Crop, resize and save photo
 function save_photo($f, $folder, $width = 200, $height = 200) {
-    $image = uniqid() . '.jpg'; // create a unique filename
+    $photo = uniqid() . '.jpg'; // Fixed: was $image, should be $photo
     
     require_once 'lib/SimpleImage.php';
     $img = new SimpleImage();
@@ -171,16 +173,10 @@ function save_photo($f, $folder, $width = 200, $height = 200) {
         ->thumbnail($width, $height)
         ->toFile("$folder/$photo", 'image/jpeg');
 
-    return $image;
+    return $photo; // Fixed: return $photo instead of $image
 }
 
 // Is money?
 function is_money($value) {
     return preg_match('/^\-?\d+(\.\d{1,2})?$/', $value);
-
-/* /^               =start
-    \-?             =can be negative sign
-    \d+
-    (\.\d{1,2})?    =can be RM10, 10.0 ,10.00
-    $/              = end*/
 }

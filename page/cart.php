@@ -753,22 +753,41 @@ $(document).ready(function() {
     });
 
     // Checkout
-    $('#checkout-btn').on('click', function() {
-        // Store gift options in PHP session via AJAX
+    $('#checkout-btn').on('click', function(e) {
+        e.preventDefault(); // Prevent immediate navigation
+        
+        // Collect gift options
+        const giftEnabled = $('#giftToggle').is(':checked');
         const giftData = {
-            enabled: $('#giftToggle').is(':checked'),
-            packaging: $('input[name="packaging"]:checked').val(),
-            message: $('#giftMessage').val(),
-            hidePrice: $('#hidePrice').is(':checked')
+            enabled: giftEnabled ? '1' : '0',
+            packaging: $('input[name="packaging"]:checked').val() || 'standard',
+            message: $('#giftMessage').val() || '',
+            hidePrice: $('#hidePrice').is(':checked') ? '1' : '0'
         };
         
+        console.log('Saving gift data:', giftData); // Debug
+        
         // Save to PHP session
-        $.post('/api/save_gift_options.php', giftData, function() {
-            location.href = '/page/checkout.php';
-        }).fail(function() {
-            // If AJAX fails, still proceed to checkout
-            console.error('Failed to save gift options');
-            location.href = '/page/checkout.php';
+        $.ajax({
+            url: '/api/save_gift_options.php',
+            type: 'POST',
+            data: giftData,
+            dataType: 'json',
+            success: function(response) {
+                console.log('Save response:', response); // Debug
+                if (response.success) {
+                    // Successfully saved, now go to checkout
+                    window.location.href = '/page/checkout.php?debug=1';
+                } else {
+                    alert('Failed to save gift options: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', error);
+                alert('Error saving gift options. Check console for details.');
+                // Still go to checkout even if save fails
+                window.location.href = '/page/checkout.php?debug=1';
+            }
         });
     });
 

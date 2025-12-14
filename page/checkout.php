@@ -37,30 +37,36 @@ $hide_price = 0;
 if (isset($_SESSION['gift_options'])) {
     $gift_data = $_SESSION['gift_options'];
     
-    // Convert boolean strings to actual booleans
-    $gift_enabled = ($gift_data['enabled'] === true || $gift_data['enabled'] === 'true' || $gift_data['enabled'] === 1);
+    // Convert to proper boolean
+    $gift_enabled = ($gift_data['enabled'] === true || $gift_data['enabled'] === 1 || $gift_data['enabled'] === '1');
     $gift_packaging = $gift_data['packaging'] ?? 'standard';
     $gift_message = trim($gift_data['message'] ?? '');
-    $hide_price = ($gift_data['hidePrice'] === true || $gift_data['hidePrice'] === 'true' || $gift_data['hidePrice'] === 1) ? 1 : 0;
+    $hide_price = ($gift_data['hidePrice'] === true || $gift_data['hidePrice'] === 1 || $gift_data['hidePrice'] === '1') ? 1 : 0;
     
+    // Calculate gift wrap cost
     if ($gift_enabled && $gift_packaging === 'luxury') {
         $gift_wrap_cost = 5.00;
     }
 }
 
-// Debug output (add ?debug=1 to URL to see)
+// Debug output for testing
 if (isset($_GET['debug'])) {
-    echo '<div style="background:#000;color:#0f0;padding:1rem;margin:1rem;font-family:monospace;">';
-    echo "<strong>SESSION DATA:</strong><br>";
-    echo "Raw session: " . print_r($_SESSION['gift_options'] ?? 'NOT SET', true) . "<br><br>";
-    echo "<strong>PROCESSED VALUES:</strong><br>";
-    echo "Gift Enabled: " . ($gift_enabled ? 'YES' : 'NO') . "<br>";
-    echo "Packaging: $gift_packaging<br>";
-    echo "Message: " . ($gift_message ?: '(empty)') . "<br>";
-    echo "Hide Price: " . ($hide_price ? 'YES' : 'NO') . "<br>";
-    echo "Gift Wrap Cost: RM " . number_format($gift_wrap_cost, 2) . "<br>";
-    echo "Subtotal: RM " . number_format($subtotal, 2) . "<br>";
-    echo "Total: RM " . number_format($subtotal + $gift_wrap_cost, 2) . "<br>";
+    echo '<div style="background:#000;color:#0f0;padding:1.5rem;margin:1rem;font-family:monospace;border:3px solid #0f0;border-radius:8px;">';
+    echo "<h3 style='color:#ff0;margin-top:0;'>🔍 DEBUG MODE</h3>";
+    echo "<strong style='color:#fff;'>RAW SESSION DATA:</strong><br>";
+    echo "<pre style='color:#0ff;'>" . print_r($_SESSION['gift_options'] ?? 'NOT SET', true) . "</pre>";
+    echo "<hr style='border-color:#0f0;'>";
+    echo "<strong style='color:#fff;'>PROCESSED VALUES:</strong><br>";
+    echo "Gift Enabled: <span style='color:" . ($gift_enabled ? '#0f0' : '#f00') . ";font-weight:bold;'>" . ($gift_enabled ? 'YES ✓' : 'NO ✗') . "</span><br>";
+    echo "Packaging Type: <span style='color:#ff0;font-weight:bold;'>" . strtoupper($gift_packaging) . "</span><br>";
+    echo "Message Length: <span style='color:#0ff;'>" . strlen($gift_message) . " chars</span><br>";
+    echo "Message: <span style='color:#fff;font-style:italic;'>" . ($gift_message ?: '(empty)') . "</span><br>";
+    echo "Hide Price: <span style='color:" . ($hide_price ? '#0f0' : '#f00') . ";'>" . ($hide_price ? 'YES' : 'NO') . "</span><br>";
+    echo "<hr style='border-color:#0f0;'>";
+    echo "<strong style='color:#fff;'>PRICING:</strong><br>";
+    echo "Subtotal: <span style='color:#0f0;font-weight:bold;'>RM " . number_format($subtotal, 2) . "</span><br>";
+    echo "Gift Wrap Cost: <span style='color:" . ($gift_wrap_cost > 0 ? '#ff0' : '#666') . ";font-weight:bold;'>RM " . number_format($gift_wrap_cost, 2) . "</span><br>";
+    echo "Total: <span style='color:#0f0;font-size:1.2em;font-weight:bold;'>RM " . number_format($subtotal + $gift_wrap_cost, 2) . "</span><br>";
     echo '</div>';
 }
 

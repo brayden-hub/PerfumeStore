@@ -15,6 +15,11 @@ $stm->execute();
 $arr = $stm->fetchAll();
 ?>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);})
+</script>
+
 <div class="container" style="margin-top: 30px;">
     
     <div class="admin-header">

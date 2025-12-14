@@ -23,6 +23,11 @@ $_title = 'My Profile - Nº9 Perfume';
 include '../_head.php';
 ?>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);})
+</script>
+
 <div style="padding:2rem; max-width: 800px; margin: 0 auto;">
     <h2>Welcome back, <?= htmlspecialchars($username) ?>!</h2>
 

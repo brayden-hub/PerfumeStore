@@ -131,6 +131,190 @@ $_title = 'Checkout - N°9 Perfume';
 include '../_head.php';
 ?>
 
+<style>
+.payment-option {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    background: #fff;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-option:hover {
+    border-color: #D4AF37;
+    background: #fffbf0;
+}
+
+.payment-option.selected {
+    border-color: #D4AF37;
+    background: #fffbf0;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+}
+
+.payment-option input[type="radio"] {
+    margin-right: 0.8rem;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.payment-details {
+    display: none;
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 2px solid #D4AF37;
+}
+
+.payment-details.active {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #D4AF37;
+}
+
+.card-input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.bank-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+}
+
+.bank-option {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.bank-option:hover {
+    border-color: #D4AF37;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.bank-option.selected {
+    border-color: #D4AF37;
+    background: #fffbf0;
+}
+
+.bank-option input[type="radio"] {
+    margin-right: 0.6rem;
+}
+
+.qr-container {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+}
+
+.qr-code {
+    width: 250px;
+    height: 250px;
+    margin: 1rem auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+}
+
+.gift-summary-box {
+    background: linear-gradient(135deg, #fffbf0 0%, #fff 100%);
+    border: 2px solid #D4AF37;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.gift-summary-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gift-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0e6d2;
+}
+
+.gift-detail-row:last-child {
+    border-bottom: none;
+}
+
+.gift-message-preview {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    font-style: italic;
+    color: #666;
+    border-left: 3px solid #D4AF37;
+}
+</style>
+
 <div class="container" style="margin-top: 100px; min-height: 60vh; max-width: 1200px; padding: 0 2rem;">
     <?php include 'progress_bar.php'; ?>
 
@@ -215,7 +399,7 @@ include '../_head.php';
 
             <!-- Gift Options Summary -->
             <?php if ($gift_enabled): ?>
-                <div class="gift-summary-box" style="margin-top: 2rem;">
+                <div class="gift-summary-box">
                     <div class="gift-summary-title">
                         <span>🎁</span> Gift Options
                     </div>
@@ -263,25 +447,139 @@ include '../_head.php';
                 <div style="margin-bottom: 2rem;">
                     <label style="display: block; margin-bottom: 1rem; font-weight: 600; color: #333;">Select Payment Method</label>
                     
-                    <label style="display: flex; align-items: center; padding: 1rem; margin-bottom: 0.8rem; background: #fff; border: 2px solid #eee; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
-                        <input type="radio" name="payment_method" value="Credit Card" required style="margin-right: 0.8rem;">
+                    <!-- Credit Card -->
+                    <label class="payment-option" data-method="credit-card">
+                        <input type="radio" name="payment_method" value="Credit Card" required>
                         <span>💳 Credit Card</span>
                     </label>
+                    <div id="credit-card-details" class="payment-details">
+                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">💳 Enter Card Details</h4>
+                        <div class="form-group">
+                            <label>Card Number *</label>
+                            <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" pattern="\d{4} \d{4} \d{4} \d{4}">
+                        </div>
+                        <div class="form-group">
+                            <label>Cardholder Name *</label>
+                            <input type="text" id="card-name" placeholder="JOHN DOE">
+                        </div>
+                        <div class="card-input-group">
+                            <div class="form-group">
+                                <label>Expiry Date *</label>
+                                <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" pattern="\d{2}/\d{2}">
+                            </div>
+                            <div class="form-group">
+                                <label>CVV *</label>
+                                <input type="text" id="card-cvv" placeholder="123" maxlength="3" pattern="\d{3}">
+                            </div>
+                        </div>
+                    </div>
                     
-                    <label style="display: flex; align-items: center; padding: 1rem; margin-bottom: 0.8rem; background: #fff; border: 2px solid #eee; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
-                        <input type="radio" name="payment_method" value="Online Banking" required style="margin-right: 0.8rem;">
+                    <!-- Online Banking -->
+                    <label class="payment-option" data-method="online-banking">
+                        <input type="radio" name="payment_method" value="Online Banking" required>
                         <span>🏦 Online Banking</span>
                     </label>
+                    <div id="online-banking-details" class="payment-details">
+                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">🏦 Select Your Bank</h4>
+                        <div class="bank-grid">
+                            <label class="bank-option">
+                                <input type="radio" name="bank" value="Maybank">
+                                <span>Maybank</span>
+                            </label>
+                            <label class="bank-option">
+                                <input type="radio" name="bank" value="CIMB">
+                                <span>CIMB Bank</span>
+                            </label>
+                            <label class="bank-option">
+                                <input type="radio" name="bank" value="Public Bank">
+                                <span>Public Bank</span>
+                            </label>
+                            <label class="bank-option">
+                                <input type="radio" name="bank" value="RHB">
+                                <span>RHB Bank</span>
+                            </label>
+                            <label class="bank-option">
+                                <input type="radio" name="bank" value="Hong Leong">
+                                <span>Hong Leong Bank</span>
+                            </label>
+                            <label class="bank-option">
+                                <input type="radio" name="bank" value="AmBank">
+                                <span>AmBank</span>
+                            </label>
+                        </div>
+                        <p style="margin-top: 1rem; color: #666; font-size: 0.9rem; text-align: center;">
+                            You will be redirected to your bank's secure payment page
+                        </p>
+                    </div>
                     
-                    <label style="display: flex; align-items: center; padding: 1rem; margin-bottom: 0.8rem; background: #fff; border: 2px solid #eee; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
-                        <input type="radio" name="payment_method" value="E-Wallet" required style="margin-right: 0.8rem;">
+                    <!-- E-Wallet -->
+                    <label class="payment-option" data-method="e-wallet">
+                        <input type="radio" name="payment_method" value="E-Wallet" required>
                         <span>📱 E-Wallet</span>
                     </label>
+                    <div id="e-wallet-details" class="payment-details">
+                        <div class="qr-container">
+                            <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">📱 Scan QR Code to Pay</h4>
+                            <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                                Amount: <strong style="color: #D4AF37; font-size: 1.2rem;">RM <?= number_format($total, 2) ?></strong>
+                            </p>
+                            <div class="qr-code">
+                                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- QR Code Pattern -->
+                                    <rect width="200" height="200" fill="white"/>
+                                    <!-- Corner markers -->
+                                    <rect x="10" y="10" width="50" height="50" fill="black"/>
+                                    <rect x="20" y="20" width="30" height="30" fill="white"/>
+                                    <rect x="140" y="10" width="50" height="50" fill="black"/>
+                                    <rect x="150" y="20" width="30" height="30" fill="white"/>
+                                    <rect x="10" y="140" width="50" height="50" fill="black"/>
+                                    <rect x="20" y="150" width="30" height="30" fill="white"/>
+                                    <!-- Data pattern -->
+                                    <rect x="70" y="10" width="10" height="10" fill="black"/>
+                                    <rect x="90" y="10" width="10" height="10" fill="black"/>
+                                    <rect x="110" y="10" width="10" height="10" fill="black"/>
+                                    <rect x="70" y="30" width="10" height="10" fill="black"/>
+                                    <rect x="90" y="30" width="10" height="10" fill="black"/>
+                                    <rect x="110" y="30" width="10" height="10" fill="black"/>
+                                    <rect x="70" y="50" width="10" height="10" fill="black"/>
+                                    <rect x="110" y="50" width="10" height="10" fill="black"/>
+                                    <rect x="10" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="30" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="50" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="70" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="90" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="110" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="130" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="150" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="170" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="190" y="70" width="10" height="10" fill="black"/>
+                                </svg>
+                            </div>
+                            <p style="color: #666; font-size: 0.85rem; margin-top: 1rem;">
+                                Compatible with: Touch 'n Go, GrabPay, Boost, ShopeePay
+                            </p>
+                        </div>
+                    </div>
                     
-                    <label style="display: flex; align-items: center; padding: 1rem; margin-bottom: 0.8rem; background: #fff; border: 2px solid #eee; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
-                        <input type="radio" name="payment_method" value="Cash on Delivery" required style="margin-right: 0.8rem;">
+                    <!-- Cash on Delivery -->
+                    <label class="payment-option" data-method="cod">
+                        <input type="radio" name="payment_method" value="Cash on Delivery" required>
                         <span>💵 Cash on Delivery</span>
                     </label>
+                    <div id="cod-details" class="payment-details">
+                        <div style="text-align: center; padding: 1rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">💵</div>
+                            <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">Pay When You Receive</h4>
+                            <p style="color: #666; margin-bottom: 1rem;">
+                                Please prepare the exact amount for payment upon delivery.
+                            </p>
+                            <div style="background: #fffbf0; padding: 1rem; border-radius: 8px; border: 1px solid #D4AF37;">
+                                <p style="margin: 0; font-size: 0.9rem; color: #666;">
+                                    Amount to pay: <strong style="color: #D4AF37; font-size: 1.2rem;">RM <?= number_format($total, 2) ?></strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div style="border-top: 2px solid #ddd; padding-top: 1.5rem; margin-bottom: 1.5rem;">
@@ -308,7 +606,7 @@ include '../_head.php';
                     </div>
                 </div>
                 
-                <button type="submit" style="width: 100%; padding: 1.2rem; background: #000; color: #D4AF37; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all 0.3s ease;">
+                <button type="submit" id="submit-btn" style="width: 100%; padding: 1.2rem; background: #000; color: #D4AF37; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all 0.3s ease;">
                     Complete Order
                 </button>
                 
@@ -316,126 +614,100 @@ include '../_head.php';
                     ← Back to Cart
                 </a>
             </form>
-        </div>
-    </div>
-</div>
-
-<!-- Add Address Modal -->
-<div id="address-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; overflow-y: auto;">
-    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem;">
-        <div style="background: #fff; border-radius: 12px; max-width: 600px; width: 100%; padding: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0;">Add New Address</h3>
-                <button id="close-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-            </div>
-            
-            <form id="address-form" method="post" action="/api/add_address.php">
-                <div style="display: grid; gap: 1rem;">
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Address Label *</label>
-                        <input type="text" name="label" required placeholder="e.g., Home, Office" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
                     </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Recipient Name *</label>
-                            <input type="text" name="recipient_name" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Phone Number *</label>
-                            <input type="text" name="phone" required placeholder="e.g., 0123456789" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Address Line 1 *</label>
-                        <input type="text" name="address1" required placeholder="Street address" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Address Line 2</label>
-                        <input type="text" name="address2" placeholder="Apartment, suite, etc. (optional)" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">City *</label>
-                            <input type="text" name="city" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Postal Code *</label>
-                            <input type="text" name="postal_code" required placeholder="e.g., 50000" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">State *</label>
-                        <select name="state" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                            <option value="">Select State</option>
-                            <option>Johor</option>
-                            <option>Kedah</option>
-                            <option>Kelantan</option>
-                            <option>Melaka</option>
-                            <option>Negeri Sembilan</option>
-                            <option>Pahang</option>
-                            <option>Penang</option>
-                            <option>Perak</option>
-                            <option>Perlis</option>
-                            <option>Sabah</option>
-                            <option>Sarawak</option>
-                            <option>Selangor</option>
-                            <option>Terengganu</option>
-                            <option>Kuala Lumpur</option>
-                            <option>Labuan</option>
-                            <option>Putrajaya</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" name="is_default" value="1">
-                            <span>Set as default address</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button type="button" id="cancel-btn" style="flex: 1; padding: 1rem; background: #eee; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
-                    <button type="submit" style="flex: 1; padding: 1rem; background: #D4AF37; color: #000; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Save Address</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+    </div>  
 
 <script>
-$(document).ready(function() {
-    // Address selection
-    $('input[name="selected_address"]').on('change', function() {
-        $('#address_id').val($(this).val());
-        $('.address-card').css('border-color', '#eee');
-        $(this).closest('.address-card').css('border-color', '#D4AF37');
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* ===========================
+       ADDRESS SELECTION
+    ============================ */
+    const addressRadios = document.querySelectorAll('input[name="selected_address"]');
+    const addressInput = document.getElementById('address_id');
+
+    addressRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            addressInput.value = radio.value;
+        });
     });
-    
-    // Highlight default selected address
-    $('input[name="selected_address"]:checked').closest('.address-card').css('border-color', '#D4AF37');
-    
-    // Modal controls
-    $('#add-address-btn').click(() => $('#address-modal').fadeIn(200));
-    $('#close-modal, #cancel-btn').click(() => $('#address-modal').fadeOut(200));
-    
-    // Add address form
-    $('#address-form').on('submit', function(e) {
-        e.preventDefault();
-        $.post($(this).attr('action'), $(this).serialize(), function(res) {
-            if (res.success) {
-                location.reload();
-            } else {
-                alert(res.message || 'Failed to add address');
+
+    /* ===========================
+       PAYMENT METHOD TOGGLE
+    ============================ */
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    const paymentDetails = document.querySelectorAll('.payment-details');
+
+    paymentOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const radio = option.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            // Reset styles
+            paymentOptions.forEach(o => o.classList.remove('selected'));
+            paymentDetails.forEach(d => d.classList.remove('active'));
+
+            option.classList.add('selected');
+
+            const method = option.dataset.method;
+            const detailBox = document.getElementById(method + '-details');
+            if (detailBox) {
+                detailBox.classList.add('active');
             }
-        }, 'json').fail(() => alert('Connection error'));
+        });
     });
+
+    /* ===========================
+       BANK SELECTION (ONLINE BANKING)
+    ============================ */
+    const bankOptions = document.querySelectorAll('.bank-option');
+
+    bankOptions.forEach(bank => {
+        bank.addEventListener('click', () => {
+            const radio = bank.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            bankOptions.forEach(b => b.classList.remove('selected'));
+            bank.classList.add('selected');
+        });
+    });
+
+    /* ===========================
+       CARD INPUT FORMATTING
+    ============================ */
+    const cardNumber = document.getElementById('card-number');
+    const cardExpiry = document.getElementById('card-expiry');
+
+    if (cardNumber) {
+        cardNumber.addEventListener('input', () => {
+            let value = cardNumber.value.replace(/\D/g, '').substring(0,16);
+            value = value.match(/.{1,4}/g)?.join(' ') || value;
+            cardNumber.value = value;
+        });
+    }
+
+    if (cardExpiry) {
+        cardExpiry.addEventListener('input', () => {
+            let value = cardExpiry.value.replace(/\D/g, '').substring(0,4);
+            if (value.length >= 3) {
+                value = value.substring(0,2) + '/' + value.substring(2);
+            }
+            cardExpiry.value = value;
+        });
+    }
+
+    /* ===========================
+       ADD ADDRESS BUTTON (MODAL HOOK)
+    ============================ */
+    const addAddressBtn = document.getElementById('add-address-btn');
+    if (addAddressBtn) {
+        addAddressBtn.addEventListener('click', () => {
+            window.location.href = '/page/address_add.php?redirect=checkout';
+        });
+    }
+
 });
 </script>
+
 
 <?php include '../_foot.php'; ?>

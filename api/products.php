@@ -50,6 +50,9 @@ else:
                 <div class="product-image-overlay"></div>
                 <div class="view-details-badge">VIEW DETAILS</div>
                 <div class="series-badge"><?= htmlspecialchars($p['Series']) ?></div>
+
+                    <!-- ❤️ FAVORITE BUTTON -->
+                <button class="fav-btn" data-product-id="<?= $productId ?>">♡</button>
             </div>
             
             <div class="product-info">
@@ -62,12 +65,14 @@ else:
                     <span class="stock-dot <?= $stockDotClass ?>"></span>
                     <span><?= $stockText ?></span>
                 </div>
-                
+
+                <button class="fav-btn" data-product-id="<?= $productId ?>">♡</button>
                 <button class="add-to-cart-btn" 
                         data-product-id="<?= $productId ?>"
                         <?= $p['Stock'] <= 0 ? 'disabled' : '' ?>>
                     <?= $p['Stock'] <= 0 ? 'Out of Stock' : 'Add to Cart' ?>
                 </button>
+                
             </div>
         </div>
 <?php

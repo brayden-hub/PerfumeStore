@@ -37,8 +37,6 @@ $spot = $stm_spot->fetch();
     }
     window.scrollTo(0, 0);  
     document.addEventListener("DOMContentLoaded", () => window.scrollTo(0, 0));
-
-    
 </script>
 
 <section class="hero">
@@ -46,10 +44,10 @@ $spot = $stm_spot->fetch();
     <div class="hero-content">
         <span style="letter-spacing: 3px; color: #ddd; text-transform: uppercase;">New Arrival</span>
         <h2><?= $hero->ProductName ?></h2>
-        <p>“<?= $hero->Description ?>”</p>
-            <a href="/page/product_detail.php?id=<?= $hero->ProductID ?>">
-                <button class="btn-outline">Discover Now</button>
-            </a>
+        <p>"<?= $hero->Description ?>"</p>
+        <a href="/page/product_detail.php?id=<?= $hero->ProductID ?>">
+            <button class="btn-outline">Discover Now</button>
+        </a>
     </div>
 </section>
 
@@ -57,8 +55,8 @@ $spot = $stm_spot->fetch();
     <h3 class="section-title">Most Loved Scents</h3>
     <div class="bs-grid">
         <?php foreach ($top_products as $i => $prod): ?>
-                <a href="/page/product_detail.php?id=<?= $prod->ProductID ?>" class="bs-card">
-                    <?php if($i == 0): ?><div class="bs-tag">#1 Best Seller</div><?php endif; ?>
+            <a href="/page/product_detail.php?id=<?= $prod->ProductID ?>" class="bs-card">
+                <?php if($i == 0): ?><div class="bs-tag">#1 Best Seller</div><?php endif; ?>
                 <img src="/public/images/<?= $prod->Image ?>" alt="<?= htmlspecialchars($prod->ProductName) ?>">
                 <h4 style="margin: 10px 0; font-size: 1rem;"><?= $prod->ProductName ?></h4>
                 <p style="color: #666; font-size: 0.9rem;">RM <?= number_format($prod->Price, 2) ?></p>
@@ -96,9 +94,9 @@ $spot = $stm_spot->fetch();
             Experience the unique notes of the <?= $spot->Series ?> collection.<br>
             <strong>Description:</strong> <?= $spot->Description ?>
         </p>
-            <a href="/page/product_detail.php?id=<?= $spot->ProductID ?>">
-                <button class="btn-black">View Details</button>
-            </a>
+        <a href="/page/product_detail.php?id=<?= $spot->ProductID ?>">
+            <button class="btn-black">View Details</button>
+        </a>
     </div>
 </section>
 
@@ -120,19 +118,17 @@ $spot = $stm_spot->fetch();
         <!-- Video Container -->
         <div class="video-container" id="videoContainer">
             <div class="video-frame">
-                <video 
+                <!-- YouTube Iframe -->
+                <iframe 
                     id="showcaseVideo"
                     class="showcase-video"
-                    poster="/public/images/video-poster.jpg"
-                    muted
-                    loop
-                    playsinline
-                    preload="none"
+                    src="https://www.youtube.com/embed/MObnCjMmGS8?enablejsapi=1&controls=0&modestbranding=1&rel=0&showinfo=0&loop=1&playlist=MObnCjMmGS8&mute=1&autoplay=1"                                      title="N°9 Perfume Showcase"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
                     loading="lazy">
-                    <source src="/public/video/perfume-showcase.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                
+                </iframe>
+                                
                 <!-- Sound Toggle Button -->
                 <button class="sound-toggle" id="soundToggle" aria-label="Toggle sound">
                     <svg class="sound-icon sound-off" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -146,11 +142,6 @@ $spot = $stm_spot->fetch();
                         <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
                     </svg>
                 </button>
-                
-                <!-- Hover Hint -->
-                <div class="hover-hint" id="hoverHint">
-                    <span>Hover for Sound</span>
-                </div>
             </div>
         </div>
         
@@ -168,35 +159,40 @@ $spot = $stm_spot->fetch();
 </section>
 
 <script>
+// Load YouTube IFrame API
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
 // Cinematic Video Showcase Scripts
-(function() {
-    const video = document.getElementById('showcaseVideo');
+var player;
+var isMuted = true;
+var isPlayerReady = false;
+
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('showcaseVideo', {
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+
+function onPlayerReady(event) {
+    isPlayerReady = true;
     const container = document.getElementById('videoContainer');
     const soundToggle = document.getElementById('soundToggle');
     const hoverHint = document.getElementById('hoverHint');
     const parallaxBg = document.querySelector('.parallax-bg');
     
-    let isVideoLoaded = false;
-    let isVideoInView = false;
-    let isMuted = true;
-    
-    // Intersection Observer for lazy loading and autoplay
+    // Intersection Observer for autoplay
     const videoObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                isVideoInView = true;
-                
-                // Lazy load video
-                if (!isVideoLoaded) {
-                    video.load();
-                    isVideoLoaded = true;
-                }
-                
-                // Autoplay when in view
-                video.play().catch(err => console.log('Autoplay prevented:', err));
-            } else {
-                isVideoInView = false;
-                video.pause();
+            if (entry.isIntersecting && isPlayerReady) {
+                player.playVideo();
+            } else if (isPlayerReady) {
+                player.pauseVideo();
             }
         });
     }, { threshold: 0.5 });
@@ -206,8 +202,15 @@ $spot = $stm_spot->fetch();
     // Sound toggle
     soundToggle.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (!isPlayerReady) return;
+        
         isMuted = !isMuted;
-        video.muted = isMuted;
+        
+        if (isMuted) {
+            player.mute();
+        } else {
+            player.unMute();
+        }
         
         soundToggle.classList.toggle('active', !isMuted);
         
@@ -243,7 +246,6 @@ $spot = $stm_spot->fetch();
         const sectionHeight = parallaxSection.offsetHeight;
         const windowHeight = window.innerHeight;
         
-        // Check if section is in viewport
         if (scrolled + windowHeight > sectionTop && scrolled < sectionTop + sectionHeight) {
             const relativeScroll = scrolled - sectionTop + windowHeight;
             const parallaxSpeed = 0.5;
@@ -259,7 +261,14 @@ $spot = $stm_spot->fetch();
             hoverHint.style.opacity = '0';
         }
     }, 3000);
-})();
+}
+
+function onPlayerStateChange(event) {
+    // Keep video playing in loop
+    if (event.data === YT.PlayerState.ENDED) {
+        player.playVideo();
+    }
+}
 </script>
 
 <?php include '_foot.php'; ?>

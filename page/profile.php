@@ -83,7 +83,7 @@ include '../_head.php';
     <div style="margin-top:4rem; padding-top:2rem; border-top:2px solid #eee;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
             <h3 style="margin:0;">My Addresses</h3>
-            <a href="manage_addresses.php?action=add" 
+            <a href="manage_address.php?action=add" 
                style="padding:10px 20px; background:#000; color:#fff; text-decoration:none; border-radius:5px;">
                 + Add New Address
             </a>
@@ -128,12 +128,12 @@ include '../_head.php';
                             </div>
 
                             <div style="display:flex; gap:10px; margin-left:20px;">
-                                <a href="manage_addresses.php?action=edit&id=<?= $addr->AddressID ?>" 
+                                <a href="manage_address.php?action=edit&id=<?= $addr->AddressID ?>" 
                                    style="padding:8px 16px; background:#007bff; color:#fff; 
                                           text-decoration:none; border-radius:5px; font-size:0.9rem;">
                                     Edit
                                 </a>
-                                <a href="manage_addresses.php?action=delete&id=<?= $addr->AddressID ?>" 
+                                <a href="manage_address.php?action=delete&id=<?= $addr->AddressID ?>" 
                                    onclick="return confirm('Delete this address?')"
                                    style="padding:8px 16px; background:#dc3545; color:#fff; 
                                           text-decoration:none; border-radius:5px; font-size:0.9rem;">

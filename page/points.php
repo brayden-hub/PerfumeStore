@@ -1,36 +1,33 @@
 <?php
 require '../_base.php';
-if (!isset($_SESSION['user_id'])) redirect('login.php');
 
-$user_id = $_SESSION['user_id'];
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
 
 $stm = $_db->prepare("SELECT Points FROM user WHERE userID = ?");
-$stm->execute([$user_id]);
+$stm->execute([$_SESSION['user_id']]);
 $points = $stm->fetchColumn() ?? 0;
 
-$_title = 'My Points';
+$_title = 'My Points - Nº9 Perfume';
 include '../_head.php';
 ?>
 
-<div class="account-wrapper">
-    <?php include 'account_sidebar.php'; ?>
+<div style="max-width:600px; margin:3rem auto; padding:2rem;">
+    <h2>My Points</h2>
 
-    <div class="account-content">
-        <h2>My Points</h2>
-
-        <div style="margin-top:30px; padding:30px; border:1px solid #eee; border-radius:10px;">
-            <h1 style="font-size:3rem; margin:0;"><?= $points ?> pts</h1>
-            <p style="color:#666;">Earn 1 point for every RM1 spent.</p>
-        </div>
-
-        <div style="margin-top:30px;">
-            <h4>How to earn points?</h4>
-            <ul>
-                <li>RM1 spent = 1 point</li>
-                <li>Redeem vouchers using points</li>
-            </ul>
-        </div>
+    <div style="margin-top:2rem; padding:2rem; border-radius:10px;
+                background:linear-gradient(135deg,#000,#333); color:#fff;">
+        <p style="font-size:1.2rem;">Available Points</p>
+        <h1 style="font-size:3rem; margin:0;">
+            <?= (int)$points ?>
+        </h1>
     </div>
+
+    <p style="margin-top:2rem; color:#666;">
+        Earn points for every purchase and redeem vouchers!
+    </p>
 </div>
 
 <?php include '../_foot.php'; ?>

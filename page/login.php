@@ -1,6 +1,10 @@
 <?php
 
 require '../_base.php';
+if (isset($_SESSION['user_id'])) {
+    // 如果用户已登录，将他们发送到 profile.php，避免再次看到登录页面
+    redirect('profile.php');
+}
 
 $_err = [];
 

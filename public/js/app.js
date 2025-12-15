@@ -234,6 +234,29 @@ $(document).ready(function() {
         $(this).val($(this).val()); 
     });
     // === 格式化结束 ===
+    // === Profile Dropdown Toggle ===
+    const $toggle = $('#profile-menu-toggle');
+    const $menu = $('#profile-dropdown-menu');
+
+    // 1. 点击头像时切换菜单显示
+    $toggle.on('click', function(e) {
+        e.stopPropagation(); // 防止点击头像后立即触发 document click
+        $menu.toggleClass('show');
+    });
+
+    // 2. 点击菜单外部时隐藏菜单
+    $(document).on('click', function(e) {
+        // 如果点击的不是菜单或头像，则隐藏菜单
+        if (!$menu.is(e.target) && $menu.has(e.target).length === 0 && !$toggle.is(e.target)) {
+            $menu.removeClass('show');
+        }
+    });
+    
+    // 3. 确保点击菜单内的链接不会触发 document click 导致菜单立即关闭
+    $menu.on('click', function(e) {
+        e.stopPropagation();
+    });
+    // === Dropdown End ===
     
 });
 

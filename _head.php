@@ -41,17 +41,37 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
                 <li><a href="/page/productList.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'productList.php' ? 'active' : '' ?>">Product</a></li>
                 <li><a href="/page/user.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'user.php' ? 'active' : '' ?>">User</a></li>
                 <li><a href="/page/order.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'order.php' ? 'active' : '' ?>">Order</a></li>
-                <li><a href="/page/profile.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : '' ?>">Profile</a></li>
-                <li><a href="/logout.php">Logout</a></li>
+                
+                <?php if (isset($_SESSION['user_id'])): 
+                    // Admin 登录后也需要头像菜单
+                    $avatar_path = $_SESSION['Profile_Photo'] ?? 'default1.jpg';
+                ?>
+                    <li class="profile-dropdown-li">
+                        <img src="/images/avatars/<?= htmlspecialchars($avatar_path) ?>" 
+                             alt="Profile Avatar" 
+                             class="nav-avatar" 
+                             id="profile-menu-toggle">
+                        
+                        <div class="profile-dropdown-menu" id="profile-dropdown-menu">
+                            <p class="dropdown-username"><?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?></p>
+                            <hr>
+                            <a href="/page/profile.php" class="dropdown-item">
+                                Manage Your Profile
+                            </a>
+                            <a href="/logout.php" class="dropdown-item logout-link-btn">
+                                Logout
+                            </a>
+                        </div>
+                    </li>
+                <?php endif; ?>
 
-            <?php else: ?>
-                <li><a href="/page/product.php" class="<?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
 
-                <?php if (isset($_SESSION['user_id'])): ?>
+            <?php else: // Member or Guest ?>
+                <li><a href="/page/product.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
+
+                <?php if (isset($_SESSION['user_id'])): // Logged-in Member Links ?>
                     <li><a href="/page/order_history.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'order_history.php' ? 'active' : '' ?>">My Orders</a></li>
-                    <li><a href="/page/profile.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : '' ?>">Profile</a></li>
-                    <li><a href="/logout.php">Logout</a></li>
-                <?php else: ?>
+                    <?php else: // Guest Links ?>
                     <li><a href="/page/login.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'login.php' ? 'active' : '' ?>">Login</a></li>
                     <li><a href="/page/register.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'register.php' ? 'active' : '' ?>">Register</a></li>
                 <?php endif; ?>
@@ -64,6 +84,29 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
                         <?php endif; ?>
                     </a>
                 </li>
+            
+                <?php if (isset($_SESSION['user_id'])): 
+                    $avatar_path = $_SESSION['Profile_Photo'] ?? 'default1.jpg';
+                ?>
+                    <li class="profile-dropdown-li">
+                        <img src="/images/avatars/<?= htmlspecialchars($avatar_path) ?>" 
+                             alt="Profile Avatar" 
+                             class="nav-avatar" 
+                             id="profile-menu-toggle">
+                        
+                        <div class="profile-dropdown-menu" id="profile-dropdown-menu">
+                            <p class="dropdown-username"><?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?></p>
+                            <hr>
+                            <a href="/page/profile.php" class="dropdown-item">
+                                Manage Your Profile
+                            </a>
+                            <a href="/logout.php" class="dropdown-item logout-link-btn">
+                                Logout
+                            </a>
+                        </div>
+                    </li>
+                <?php endif; ?>
+
             <?php endif; ?>
         </ul>
     </nav>

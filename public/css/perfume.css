@@ -1779,3 +1779,111 @@ th a.sort-link {
 th a.sort-link:hover {
     color: #D4AF37;
 }
+/* --- New Profile Dropdown Styles --- */
+
+/* 1. 头像样式 */
+.nav-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid #D4AF37; /* Gold border */
+    transition: all 0.3s ease;
+    margin-left: 10px; /* 确保它与购物车/其他链接分开 */
+    
+}
+
+.nav-avatar:hover {
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.4); /* 外发光效果 */
+}
+
+/* 2. 包含头像的列表项，确保其相对定位 */
+/* 2. 包含头像的列表项，确保其相对定位 */
+.profile-dropdown-li {
+    position: relative;
+    /* 调整定位，使其与导航栏对齐 */
+    display: flex;
+    align-items: center;
+    line-height: normal !important; /* 重置行高，让头像居中 */
+    padding-right: 0 !important; /* 移除额外的右边距 */
+    margin-left: 1rem; /* 增加左边距 */
+    
+    /* === 重点修改在这里：向上精确微调 === */
+    /* 目标是将头像拉高到与文本链接的基线对齐 */
+    margin-top: -40px; 
+}
+/* ... 其他样式不变 ... */
+
+/* 3. 下拉菜单容器样式 */
+.profile-dropdown-menu {
+    position: absolute;
+    top: 60px; /* 菜单出现在头像下方 */
+    right: 0;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 2000; /* 确保在最上层 */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    padding: 10px 0;
+}
+
+/* 4. 菜单显示状态 (由 JS 控制) */
+.profile-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* 5. 用户名和分隔线 */
+.dropdown-username {
+    padding: 5px 15px; 
+    font-weight: bold;
+    color: #000;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    /* === 重点修改在这里：重置字母间距 === */
+    letter-spacing: normal; 
+    
+    /* 可选：如果仍然感觉松散，也可以添加 word-spacing */
+    word-spacing: normal;
+}
+
+.profile-dropdown-menu hr {
+    border: 0;
+    height: 1px;
+    background: #f0f0f0;
+    margin: 5px 0;
+}
+
+/* 6. 菜单项链接 */
+.dropdown-item {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none !important;
+    color: #333 !important;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+.dropdown-item:hover {
+    background: #f5f5f5;
+    color: #D4AF37 !important;
+}
+
+.dropdown-item.logout-link-btn {
+    color: #dc3545 !important;
+}
+.dropdown-item.logout-link-btn:hover {
+    background: #fde8e8;
+}

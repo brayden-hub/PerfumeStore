@@ -59,7 +59,8 @@ $page_size = 10;
 // Option A: If SimplePager.php is in PerfumeStore/lib/
 require_once '../lib/SimplePager.php'; // Assuming SimplePager exists in this location
 
-$sql = "SELECT userID, name, email, phone_number, role, Profile_Photo 
+// user.php (Around Line 64 - FIXED)
+$sql = "SELECT userID, name, email, phone_number, role, Profile_Photo, status 
         FROM user 
         $where_sql 
         ORDER BY $sort $dir";
@@ -116,9 +117,11 @@ include '../_head.php';
                 <th>Actions</th>
             </tr>
         </thead>
+        
         <tbody>
             <?php foreach ($arr as $u): ?>
             <?php 
+                // 1. 确保头像变量正确定义
                 $avatar = $u->Profile_Photo ?: 'default1.jpg';
             ?>
             <tr>
@@ -126,19 +129,33 @@ include '../_head.php';
                 <td><?= htmlspecialchars($u->name) ?></td>
                 <td><?= htmlspecialchars($u->email) ?></td>
                 <td><?= htmlspecialchars($u->phone_number ?: '-') ?></td>
+                
                 <td>
                     <img src="../images/avatars/<?= htmlspecialchars($avatar) ?>" 
                          class="thumb-img" 
                          alt="<?= htmlspecialchars($u->name) ?>"
                          style="border-radius:50%; width:60px; height:60px;">
                 </td>
-                <td>
-                    <button data-get="user_detail.php?userID=<?= $u->userID ?>" class="action-btn btn-edit">View</button>
-                    <button data-post="user_delete.php?userID=<?= $u->userID ?>" 
-                            data-confirm="Are you sure you want to delete member <?= htmlspecialchars($u->name) ?>?"
-                            class="action-btn btn-delete">
-                        Delete
-                    </button>
+                
+                <td style="white-space:nowrap;">
+                    <span style="font-weight:bold; color:<?= $u->status === 'Activated' ? '#28a745' : '#dc3545' ?>;">
+                        <?= $u->status ?>
+                    </span>
+                    <hr style="margin:5px 0; border-top:1px solid #eee;">
+                    
+                    <?php if ($u->status === 'Activated'): ?>
+                        <button data-post="user_deactivate.php?userID=<?= $u->userID ?>&status=Deactivated" 
+                                data-confirm="Are you sure you want to DEACTIVATE member <?= htmlspecialchars($u->name) ?>? They will not be able to log in."
+                                class="action-btn btn-delete">
+                            Deactivate
+                        </button>
+                    <?php else: ?>
+                        <button data-post="user_deactivate.php?userID=<?= $u->userID ?>&status=Activated" 
+                                data-confirm="Are you sure you want to ACTIVATE member <?= htmlspecialchars($u->name) ?>? They will regain access."
+                                class="action-btn btn-edit"> 
+                            Activate
+                        </button>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach ?>
@@ -148,7 +165,6 @@ include '../_head.php';
             <?php endif; ?>
         </tbody>
     </table>
-
     <br>
     
     <?php if (isset($p) && method_exists($p, 'html')): ?>

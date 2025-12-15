@@ -120,8 +120,12 @@ elseif (is_post() && $step == 5 && empty($_err)) {
             $avatar = $defaults[array_rand($defaults)];
             
             // 存储时只存储纯数字 ($phone_digits)
-            $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo) VALUES (?, ?, ?, ?, 'Member', ?)");
+            // === 重点修改在这里：添加 status 字段 ===
+            $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo, status) VALUES (?, ?, ?, ?, 'Member', ?, 'Activated')");
             $stm->execute([$email, $name, $phone_digits, $hashed, $avatar]); 
+
+            // 清除所有临时数据
+// ...
 
             // 清除所有临时数据
             unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone']);

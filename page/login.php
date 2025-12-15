@@ -35,12 +35,18 @@ if (is_post()) {
         else if (!password_verify($password, $user->password)) {
             $_err['password'] = 'Wrong password';
         } 
-        else if($user->role!=='Member'){
+        else if ($user->role !== 'Member') {
             $_err['email'] = 'Only member can in';
         }
+        // === 重点修改在这里：检查用户状态 ===
+        else if ($user->status !== 'Activated') { 
+            $_err['email'] = 'Your account has been deactivated. Please contact support.';
+        }
+        // ==================================
         else {
             // Login successful
             $_SESSION['user_id']   = $user->userID;
+// ... (其余代码不变)
             $_SESSION['user_name']  = $user->name;
             $_SESSION['email']     = $user->email;
             $_SESSION['phone']     = $user->phone_number ?? '';

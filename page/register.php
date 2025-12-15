@@ -1,6 +1,12 @@
 <?php
 require '../_base.php';
 
+// === 请将 YOUR_SECRET_KEY 替换为你的实际 Secret Key ===
+const RECAPTCHA_SECRET_KEY = '6LdrnSwsAAAAALWa_WN9Xl8i0SVpFJYwsXWbKUHK';
+// === 请将 YOUR_SITE_KEY 替换为你的实际 Site Key ===
+const RECAPTCHA_SITE_KEY   = '6LdrnSwsAAAAAMPFof5OMJw0bGbsL_OBjdktbhJv';
+
+
 $_err = [];
 $step = (int)req('step', 1);
 
@@ -70,75 +76,95 @@ elseif (is_post() && $step == 4 && empty($_err)) {
     }
 }
 
-// ===== Step 4: 验证 Phone + 最终注册 =====
+// ===== Step 4: 验证 Phone + reCAPTCHA + 最终注册 =====
 elseif (is_post() && $step == 5 && empty($_err)) {
     $phone    = req('phone_number');
     $password = req('password'); // 从表单重新读取密码
     
-    // --- 新的验证逻辑 ---
+    // --- (A) 手机号码验证开始 ---
     if ($phone == '') {
         $_err['phone_number'] = 'Required';
         $step = 4;
     } else {
-        // 1. 清理：移除所有非数字字符，得到纯数字字符串
         $phone_digits = preg_replace('/[^\d]/', '', trim($phone)); 
 
-        // 2. 验证纯数字长度 (必须是 11 位)
         if (strlen($phone_digits) != 11) {
             $_err['phone_number'] = 'Phone number must be exactly 11 digits.';
             $step = 4;
         } 
-        
-        // 3. 验证开头 (必须是 60 或 01)
-        // 正则表达式解释: ^(60|01)\d{9}$
-        // ^(60|01) : 必须以 60 或 01 开头
-        // \d{9}$ : 后面跟着 9 个数字，总共 11 位
         elseif (!preg_match('/^(60|01)\d{9}$/', $phone_digits)) {
             $_err['phone_number'] = 'Invalid starting digits. Must start with 60 or 01.';
             $step = 4;
         }
-        
-        // 4. (国内号码格式验证): 检查是否以 01 开头，且输入的原始数据 ($phone) 必须包含破折号
         elseif ($phone_digits[0] == '0' && !preg_match('/^01\d-\d{4}-\d{4}$/', $phone)) {
              $_err['phone_number'] = 'Domestic mobile format must be 01x-xxxx-xxxx.';
              $step = 4;
         }
-        
-        // 5. (国际号码格式验证): 检查是否以 60 开头，且输入的原始数据 ($phone) 不得包含破折号
         elseif ($phone_digits[0] == '6' && strpos($phone, '-') !== false) {
              $_err['phone_number'] = 'International format (60) must not contain dashes.';
              $step = 4;
         }
+    }
+    // --- (A) 手机号码验证结束 ---
+    
+    // --- (B) reCAPTCHA 验证 ---
+    // 只有在手机号验证通过时才进行 reCAPTCHA 验证
+    if ($step == 5) {
+        $recaptcha_response = post('g-recaptcha-response');
+        $verify_url = "https://www.google.com/recaptcha/api/siteverify";
         
-        else {
-            // 全部验证通过，执行注册
-            $name  = $_SESSION['reg_name'];
-            $email = $_SESSION['reg_email'];
+        if (!$recaptcha_response) {
+            $_err['recaptcha'] = 'Please check the "I\'m not a robot" box.';
+            $step = 4;
+        } else {
+            // 使用 cURL 进行安全验证
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $verify_url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+                'secret' => RECAPTCHA_SECRET_KEY,
+                'response' => $recaptcha_response,
+                'remoteip' => $_SERVER['REMOTE_ADDR']
+            ]));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             
-            $hashed = password_hash($password, PASSWORD_DEFAULT);
-            $defaults = ['default1.jpg','default2.jpg','default3.jpg','default4.jpg','default5.jpg','default6.jpg'];
-            $avatar = $defaults[array_rand($defaults)];
+            $response = curl_exec($ch);
+            curl_close($ch);
             
-            // 存储时只存储纯数字 ($phone_digits)
-            // === 重点修改在这里：添加 status 字段 ===
-            $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo, status) VALUES (?, ?, ?, ?, 'Member', ?, 'Activated')");
-            $stm->execute([$email, $name, $phone_digits, $hashed, $avatar]); 
-
-            // 清除所有临时数据
-// ...
-
-            // 清除所有临时数据
-            unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone']);
-
-            temp('info', 'Welcome aboard, ' . htmlspecialchars($name) . '! Account created successfully!');
-            redirect('login.php');
+            $data = json_decode($response);
+            
+            // 检查 $data 是否存在以及 success 字段是否为 true
+            if (!$data || !($data->success ?? false)) {
+                $_err['recaptcha'] = 'CAPTCHA verification failed. Try again.';
+                $step = 4;
+            }
         }
     }
-}
-// ... (其余代码不变)
+    // --- (B) reCAPTCHA 验证结束 ---
 
-// ===== 处理 Back 按钮（不验证，直接跳转） =====
-// 不需要特殊处理，因为 step 值已经在按钮里设置好了
+
+    // --- (C) 最终注册 ---
+    if ($step == 5) {
+        // CAPTCHA 和所有验证通过，执行注册
+        $name  = $_SESSION['reg_name'];
+        $email = $_SESSION['reg_email'];
+        
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $defaults = ['default1.jpg','default2.jpg','default3.jpg','default4.jpg','default5.jpg','default6.jpg'];
+        $avatar = $defaults[array_rand($defaults)];
+        
+        // 存储时只存储纯数字 ($phone_digits)
+        $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo, status) VALUES (?, ?, ?, ?, 'Member', ?, 'Activated')");
+        $stm->execute([$email, $name, $phone_digits, $hashed, $avatar]); 
+
+        // 清除所有临时数据
+        unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone']);
+
+        temp('info', 'Welcome aboard, ' . htmlspecialchars($name) . '! Account created successfully!');
+        redirect('login.php');
+    }
+}
+
 
 // 从 session 读取已保存的数据
 $name     = $_SESSION['reg_name']     ?? '';
@@ -150,11 +176,11 @@ $_title = 'Register - N°9 Perfume';
 include '../_head.php';
 ?>
 
+<script src="https://www.google.com/recaptcha/api.js" async defer></script> 
 <div style="max-width:460px; margin:70px auto 100px; font-family:system-ui,sans-serif;">
     <h2 style="text-align:center; margin-bottom:8px; font-weight:600;">Create your account</h2>
     <p style="text-align:center; color:#666; margin-bottom:35px;">Step <?= $step ?> of 4</p>
 
-    <!-- 进度条 -->
     <div style="display:flex; justify-content:space-between; margin-bottom:50px; position:relative;">
         <?php for($i=1; $i<=4; $i++): ?>
         <div style="text-align:center; flex:1;">
@@ -171,7 +197,6 @@ include '../_head.php';
     </div>
 
     <form method="post" novalidate>
-        <!-- Step 1: Name -->
         <?php if ($step == 1): ?>
             <div>
                 <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Full Name" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
@@ -180,7 +205,6 @@ include '../_head.php';
             <button type="submit" name="step" value="2" style="width:100%; padding:17px; background:#000; color:#fff; border:none; border-radius:10px; margin-top:30px; font-size:1.1rem; cursor:pointer;">Next</button>
         <?php endif; ?>
 
-        <!-- Step 2: Email -->
         <?php if ($step == 2): ?>
             <div>
                 <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="Email address" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
@@ -192,7 +216,6 @@ include '../_head.php';
             </div>
         <?php endif; ?>
 
-        <!-- Step 3: Password -->
         <?php if ($step == 3): ?>
             <div>
                 <div style="display: flex; align-items: center; gap: 5px; margin:10px 0;">
@@ -213,13 +236,16 @@ include '../_head.php';
             </div>
         <?php endif; ?>
 
-        <!-- Step 4: Phone -->
         <?php if ($step == 4): ?>
             <div>
-                <!-- 隐藏字段：保持密码在表单中传递 -->
                 <input type="hidden" name="password" value="<?= htmlspecialchars(req('password', '')) ?>">
                 <input type="tel" id="reg_phone_number" name="phone_number" value="<?= htmlspecialchars($phone) ?>" placeholder="Phone number" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
                 <?= err('phone_number') ?>
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <div class="g-recaptcha" data-sitekey="<?= RECAPTCHA_SITE_KEY ?>"></div> 
+                <?= err('recaptcha') ?> 
             </div>
             <p style="color:#666; font-size:0.92rem; margin:25px 0; line-height:1.5;">
                 By clicking Create Account, you agree to our <strong>Terms</strong> and <strong>Privacy Policy</strong>.

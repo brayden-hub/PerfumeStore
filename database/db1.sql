@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- 主机： 127.0.0.1
--- 生成日期： 2025-12-15 10:44:55
--- 服务器版本： 10.4.32-MariaDB
--- PHP 版本： 8.0.30
+-- Host: 127.0.0.1
+-- Generation Time: Dec 15, 2025 at 04:25 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,15 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- 数据库： `db1`
+-- Database: `db1`
 --
+CREATE DATABASE IF NOT EXISTS `db1` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `db1`;
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `cart`
+-- Table structure for table `cart`
 --
 
 CREATE TABLE `cart` (
@@ -36,16 +38,17 @@ CREATE TABLE `cart` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `cart`
+-- Dumping data for table `cart`
 --
 
 INSERT INTO `cart` (`CartID`, `UserID`, `ProductID`, `Quantity`, `AddedDate`) VALUES
-('C00001', 6, 'P0009', 1, '2025-12-14 10:09:48');
+('C00001', 6, 'P0009', 1, '2025-12-14 10:09:48'),
+('C00002', 7, 'P0025', 1, '2025-12-15 14:11:08');
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `order`
+-- Table structure for table `order`
 --
 
 CREATE TABLE `order` (
@@ -69,30 +72,18 @@ CREATE TABLE `order` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `order`
+-- Dumping data for table `order`
 --
 
 INSERT INTO `order` (`OrderID`, `UserID`, `ShippingAddressID`, `PurchaseDate`, `PaymentMethod`, `Status`, `StatusUpdatedAt`, `ProcessedAt`, `ShippedAt`, `DeliveredAt`, `EstimatedDelivery`, `TrackingNumber`, `GiftWrap`, `GiftMessage`, `HidePrice`, `GiftWrapCost`, `ShippingFee`) VALUES
-('O00001', 6, NULL, '2025-12-14', 'Cash on Delivery', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, 'luxury', '999', 1, 5.00, 30.00),
-('O00002', 6, NULL, '2025-12-14', 'Online Banking', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, 'luxury', 'pikachu', 1, 5.00, 30.00),
-('O00003', 6, NULL, '2025-12-14', 'E-Wallet', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, 'luxury', 'how are you i am fine tq ==', 0, 5.00, 30.00),
-('O00004', 6, NULL, '2025-12-14', 'Credit Card', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, 'luxury', 'ppppp', 1, 5.00, 30.00),
-('O00005', 6, NULL, '2025-12-14', 'Online Banking', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, 'luxury', 'ppppp', 1, 5.00, 30.00),
-('O00006', 6, 1, '2025-12-14', 'Credit Card', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, 'luxury', '999', 1, 5.00, 30.00),
-('O00007', 6, 1, '2025-12-14', 'Credit Card', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
-('O00008', 7, 5, '2025-12-14', 'Credit Card', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
-('O00009', 7, 5, '2025-12-14', 'Credit Card', 'Pending', '2025-12-13 16:00:00', NULL, NULL, NULL, NULL, NULL, 'luxury', NULL, 0, 5.00, 30.00),
-('O00010', 7, 5, '2025-12-15', 'Credit Card', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
-('O00011', 7, 5, '2025-12-15', 'Credit Card', 'Pending', '2025-12-14 17:43:16', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
-('O00012', 7, 5, '2025-12-15', 'Online Banking', 'Pending', '2025-12-14 17:45:52', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
-('O00013', 7, 5, '2025-12-15', 'Credit Card', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
-('O00014', 7, 5, '2025-12-15', 'E-Wallet', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, 'luxury', NULL, 0, 5.00, 30.00),
-('O00015', 7, 5, '2025-12-15', 'E-Wallet', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, 'luxury', NULL, 0, 5.00, 30.00);
+('O00001', 1, 6, '2025-12-15', 'Credit Card', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
+('O00002', 1, 6, '2025-12-15', 'Online Banking', 'Delivered', '2025-12-15 15:22:36', '2025-12-15 15:22:36', '2025-12-15 15:22:36', '2025-12-15 15:22:36', NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
+('O00003', 8, 7, '2025-12-15', 'Online Banking', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00);
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `product`
+-- Table structure for table `product`
 --
 
 CREATE TABLE `product` (
@@ -106,7 +97,7 @@ CREATE TABLE `product` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `product`
+-- Dumping data for table `product`
 --
 
 INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `Description`, `Image`) VALUES
@@ -118,7 +109,7 @@ INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `
 ('P0006', 'Fruity', 'N°9 Juicy Mirage', 250, 40, 'A playful mix of peach, apple, and pear with a hint of sweetness.', 'P0006.png'),
 ('P0007', 'Fruity', 'N°9 Berry Cascade', 270, 28, 'A fresh fruity scent bursting with raspberry, blackberry, and plum.', 'P0007.png'),
 ('P0008', 'Fruity', 'N°9 Tropical Aura', 260, 32, 'A sunny tropical blend of mango, pineapple, and coconut.', 'P0008.png'),
-('P0009', 'Fruity', 'N°9 Sweet Orchard', 230, 43, 'Crisp orchard fruits with a soft floral background; refreshing and light.', 'P0009.png'),
+('P0009', 'Fruity', 'N°9 Sweet Orchard', 230, 40, 'Crisp orchard fruits with a soft floral background; refreshing and light.', 'P0009.png'),
 ('P0010', 'Fruity', 'N°9 Candy Citrus', 240, 35, 'A bright citrus-fruity fragrance with orange, grapefruit, and sugar notes.', 'P0010.png'),
 ('P0011', 'Woody', 'N°9 Sandal Noir', 330, 20, 'A warm woody scent with sandalwood, musk, and soft amber.', 'P0011.png'),
 ('P0012', 'Woody', 'N°9 Cedar Realm', 310, 13, 'Earthy cedarwood with crisp herbal notes, calm and grounding.', 'P0012.png'),
@@ -130,16 +121,16 @@ INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `
 ('P0018', 'Fresh', 'N°9 Pure Daylight', 230, 35, 'A mild fresh scent with white tea and soft flowers.', 'P0018.png'),
 ('P0019', 'Fresh', 'N°9 Mist Horizon', 270, 22, 'Airy freshness with hints of mint and watery florals.', 'P0019.png'),
 ('P0020', 'Fresh', 'N°9 Spring Drift', 250, 40, 'Light, refreshing, and breezy with green citrus notes.', 'P0020.png'),
-('P0021', 'Green', 'N°9 Green Leaf Spirit', 200, 53, 'Herbal green scent with fresh-cut leaves and soft florals.', 'P0021.png'),
+('P0021', 'Green', 'N°9 Green Leaf Spirit', 200, 48, 'Herbal green scent with fresh-cut leaves and soft florals.', 'P0021.png'),
 ('P0022', 'Green', 'N°9 Bamboo Whisper', 260, 20, 'Clean bamboo and gentle floral notes, calming and natural.', 'P0022.png'),
-('P0023', 'Green', 'N°9 Meadow Fresh', 220, 32, 'Soft grassy scent inspired by morning dew on an open field.', 'P0023.png'),
+('P0023', 'Green', 'N°9 Meadow Fresh', 220, 26, 'Soft grassy scent inspired by morning dew on an open field.', 'P0023.png'),
 ('P0024', 'Green', 'N°9 Herbal Dew', 240, 26, 'Green herbs with mint and tea-like freshness.', 'P0024.png'),
 ('P0025', 'Green', 'N°9 Wild Garden', 210, 22, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.', 'P0025.png');
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `productorder`
+-- Table structure for table `productorder`
 --
 
 CREATE TABLE `productorder` (
@@ -151,35 +142,20 @@ CREATE TABLE `productorder` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `productorder`
+-- Dumping data for table `productorder`
 --
 
 INSERT INTO `productorder` (`ProductOrderID`, `OrderID`, `ProductID`, `Quantity`, `TotalPrice`) VALUES
-('PO00001', 'O00001', 'P0025', 1, 210),
-('PO00002', 'O00002', 'P0021', 1, 200),
-('PO00003', 'O00003', 'P0012', 1, 310),
-('PO00004', 'O00004', 'P0012', 1, 310),
-('PO00005', 'O00005', 'P0021', 1, 200),
-('PO00006', 'O00005', 'P0025', 1, 210),
-('PO00007', 'O00006', 'P0025', 1, 210),
-('PO00008', 'O00007', 'P0025', 1, 210),
-('PO00009', 'O00008', 'P0025', 1, 210),
-('PO00010', 'O00009', 'P0010', 1, 240),
-('PO00011', 'O00010', 'P0023', 1, 220),
-('PO00012', 'O00010', 'P0010', 1, 240),
-('PO00013', 'O00011', 'P0025', 1, 210),
-('PO00014', 'O00011', 'P0009', 1, 230),
-('PO00015', 'O00012', 'P0024', 1, 240),
-('PO00016', 'O00013', 'P0018', 1, 230),
-('PO00017', 'O00013', 'P0010', 1, 240),
-('PO00018', 'O00014', 'P0025', 1, 210),
-('PO00019', 'O00015', 'P0009', 1, 230),
-('PO00020', 'O00015', 'P0025', 1, 210);
+('PO00001', 'O00001', 'P0021', 3, 600),
+('PO00002', 'O00002', 'P0023', 5, 1100),
+('PO00003', 'O00002', 'P0009', 1, 230),
+('PO00004', 'O00003', 'P0023', 1, 220),
+('PO00005', 'O00003', 'P0009', 1, 230);
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `subscriber`
+-- Table structure for table `subscriber`
 --
 
 CREATE TABLE `subscriber` (
@@ -191,7 +167,7 @@ CREATE TABLE `subscriber` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `subscriber`
+-- Dumping data for table `subscriber`
 --
 
 INSERT INTO `subscriber` (`email`, `token_id`, `status`, `subscribed_at`, `created_at`) VALUES
@@ -200,7 +176,7 @@ INSERT INTO `subscriber` (`email`, `token_id`, `status`, `subscribed_at`, `creat
 -- --------------------------------------------------------
 
 --
--- 表的结构 `user`
+-- Table structure for table `user`
 --
 
 CREATE TABLE `user` (
@@ -215,7 +191,7 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `user`
+-- Dumping data for table `user`
 --
 
 INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role`, `remember_token`, `Profile_Photo`) VALUES
@@ -223,12 +199,13 @@ INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role
 (2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, ''),
 (5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, ''),
 (6, 'pop@gmail.com', 'pop@gmail.com', '$2y$10$Up7xPG91ut/2LSzwYgcjUOD.v6wDo1esV6kp3IHxdXUy4t8YKmcOW', '01154789654', 'Member', NULL, 'default5.jpg'),
-(7, 'raiko', 'donghuanlin25@gmail.com', '$2y$10$losLbM6UXgKtuQiKvyk1auuGoByWZeSqaZmXiosHiGYy.nN0CDUry', '104507792', 'Member', NULL, '7_1765728165.png');
+(7, 'raiko', 'donghuanlin25@gmail.com', '$2y$10$losLbM6UXgKtuQiKvyk1auuGoByWZeSqaZmXiosHiGYy.nN0CDUry', '104507792', 'Member', NULL, '7_1765728165.png'),
+(8, 's@gmail.com', 's@gmail.com', '$2y$10$yZvBp6JpC8pogwIQhfOZZO8Uy.Yfqxjso5d5zK2WBK5/959hnlyeO', '01233333333', 'Member', NULL, 'default2.jpg');
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `user_address`
+-- Table structure for table `user_address`
 --
 
 CREATE TABLE `user_address` (
@@ -248,7 +225,7 @@ CREATE TABLE `user_address` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `user_address`
+-- Dumping data for table `user_address`
 --
 
 INSERT INTO `user_address` (`AddressID`, `UserID`, `AddressLabel`, `RecipientName`, `PhoneNumber`, `AddressLine1`, `AddressLine2`, `City`, `State`, `PostalCode`, `Country`, `IsDefault`, `CreatedDate`) VALUES
@@ -256,14 +233,16 @@ INSERT INTO `user_address` (`AddressID`, `UserID`, `AddressLabel`, `RecipientNam
 (2, 6, 'Home', 'Brayden', '01154789632', 'qqqqqqqqqqqqq', 'qqqqqqqqqqqq', 'qqqqqqq', 'Selangor', '52011', 'Malaysia', 1, '2025-12-14 10:10:18'),
 (3, 6, 'Home', 'Brayden', '01154789632', 'No998, Jalan Kehantar,', 'qqqqqqqqqqqq', 'sa', 'Labuan', '84200', 'Malaysia', 0, '2025-12-14 10:13:08'),
 (4, 6, 'word', 'Brayden', '01154789632', 'No998, Jalan Kehantar,', 'Bukit nanti, Tangkak', 'sa', 'Terengganu', '52011', 'Malaysia', 0, '2025-12-14 10:13:26'),
-(5, 7, 'Home', 'nn', '0104507792', '11, taman gunung emas 3', '', 'Johor', 'Johor', '84900', 'Malaysia', 0, '2025-12-14 12:35:11');
+(5, 7, 'Home', 'nn', '0104507792', '11, taman gunung emas 3', '', 'Johor', 'Johor', '84900', 'Malaysia', 0, '2025-12-14 12:35:11'),
+(6, 1, 'jsholis', 'dd', 'f', 'f', '', 'f', 'Melaka', 'f', 'Malaysia', 1, '2025-12-15 15:01:12'),
+(7, 8, 'home', 'x', 's', 'scac', '', 'ds', 'Sarawak', 'rr', 'Malaysia', 0, '2025-12-15 15:13:46');
 
 --
--- 转储表的索引
+-- Indexes for dumped tables
 --
 
 --
--- 表的索引 `cart`
+-- Indexes for table `cart`
 --
 ALTER TABLE `cart`
   ADD PRIMARY KEY (`CartID`),
@@ -271,7 +250,7 @@ ALTER TABLE `cart`
   ADD KEY `ProductID` (`ProductID`);
 
 --
--- 表的索引 `order`
+-- Indexes for table `order`
 --
 ALTER TABLE `order`
   ADD PRIMARY KEY (`OrderID`),
@@ -279,13 +258,13 @@ ALTER TABLE `order`
   ADD KEY `ShippingAddressID` (`ShippingAddressID`);
 
 --
--- 表的索引 `product`
+-- Indexes for table `product`
 --
 ALTER TABLE `product`
   ADD PRIMARY KEY (`ProductID`);
 
 --
--- 表的索引 `productorder`
+-- Indexes for table `productorder`
 --
 ALTER TABLE `productorder`
   ADD PRIMARY KEY (`ProductOrderID`),
@@ -293,68 +272,68 @@ ALTER TABLE `productorder`
   ADD KEY `ProductID` (`ProductID`);
 
 --
--- 表的索引 `subscriber`
+-- Indexes for table `subscriber`
 --
 ALTER TABLE `subscriber`
   ADD PRIMARY KEY (`email`);
 
 --
--- 表的索引 `user`
+-- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`userID`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- 表的索引 `user_address`
+-- Indexes for table `user_address`
 --
 ALTER TABLE `user_address`
   ADD PRIMARY KEY (`AddressID`),
   ADD KEY `UserID` (`UserID`);
 
 --
--- 在导出的表使用AUTO_INCREMENT
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- 使用表AUTO_INCREMENT `user`
+-- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- 使用表AUTO_INCREMENT `user_address`
+-- AUTO_INCREMENT for table `user_address`
 --
 ALTER TABLE `user_address`
-  MODIFY `AddressID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `AddressID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
--- 限制导出的表
+-- Constraints for dumped tables
 --
 
 --
--- 限制表 `cart`
+-- Constraints for table `cart`
 --
 ALTER TABLE `cart`
   ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE,
   ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE;
 
 --
--- 限制表 `order`
+-- Constraints for table `order`
 --
 ALTER TABLE `order`
   ADD CONSTRAINT `order_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`),
   ADD CONSTRAINT `order_ibfk_2` FOREIGN KEY (`ShippingAddressID`) REFERENCES `user_address` (`AddressID`) ON DELETE SET NULL;
 
 --
--- 限制表 `productorder`
+-- Constraints for table `productorder`
 --
 ALTER TABLE `productorder`
   ADD CONSTRAINT `productorder_ibfk_1` FOREIGN KEY (`OrderID`) REFERENCES `order` (`OrderID`) ON DELETE CASCADE,
   ADD CONSTRAINT `productorder_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`);
 
 --
--- 限制表 `user_address`
+-- Constraints for table `user_address`
 --
 ALTER TABLE `user_address`
   ADD CONSTRAINT `user_address_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE;

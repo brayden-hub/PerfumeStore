@@ -10,6 +10,38 @@ include '../_head.php';
 
 <link rel="stylesheet" href="/public/css/product.css">
 
+<style>
+.product-image-wrapper {
+    position: relative;
+}
+
+.fav-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #999;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+}
+
+.fav-btn:hover {
+    transform: scale(1.1);
+}
+
+.fav-btn.active {
+    color: #e53935;
+}
+</style>
+
 <div class="homepage-main" style="display: flex; padding: 4rem 0;">
     <aside class="series-nav" style="flex: 0 0 250px; background: #f8f8f8; padding: 2rem 1rem; border-radius: 0 8px 8px 0;">
         <h3 style="font-size: 1rem; letter-spacing: 2px; margin-bottom: 1.5rem; color: #111;">SERIES</h3>
@@ -115,21 +147,27 @@ $(document).ready(function() {
 
     // Handle click on product card to view details
     $(document).on('click', '.product-card', function(e) {
-        // Don't navigate if clicking the add to cart button
-        if ($(e.target).hasClass('add-to-cart-btn') || $(e.target).closest('.add-to-cart-btn').length) {
-            return;
-        }
-        
-        const productId = $(this).data('product-id');
-        
-        // Debug: Check if productId exists
-        if (!productId) {
-            console.error('Product ID not found on card:', this);
-            return;
-        }
-        
+
+    // ❌ 如果点的是 Add to Cart 或 Favourite，就不要跳详情页
+    if (
+        $(e.target).hasClass('add-to-cart-btn') ||
+        $(e.target).closest('.add-to-cart-btn').length ||
+        $(e.target).hasClass('fav-btn') ||
+        $(e.target).closest('.fav-btn').length
+    ) {
+        return;
+    }
+
+    const productId = $(this).data('product-id');
+
+    if (!productId) {
+        console.error('Product ID not found on card:', this);
+        return;
+    }
+
         window.location.href = `/page/product_detail.php?id=${productId}`;
     });
+
 
     // Handle add to cart with event propagation stop
     $(document).on('click', '.add-to-cart-btn', function(e) {
@@ -167,6 +205,21 @@ $(document).ready(function() {
             btn.prop('disabled', false).text('Add to Cart');
         });
     });
+    // Handle add to favourites
+    $(document).on('click', '.fav-btn', function(e) {
+        e.stopPropagation(); // 不要触发 product card 跳转
+
+        const productId = $(this).data('product-id');
+        const btn = $(this);
+
+        $.post('/api/favorite_toggle.php', { product_id: productId }, function(res) {
+            if (res.success) {
+                btn.text(res.favorited ? '♥' : '♡');
+            } else {
+                alert('Please login to use favourites');
+            }
+        }, 'json');
+    });   
 });
 
 function loadProducts() {

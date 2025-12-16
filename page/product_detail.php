@@ -57,6 +57,15 @@ include '../_head.php';
             RM <?= number_format($p->Price, 2) ?>
         </p>
 
+        <button 
+            class="fav-btn-detail fav-heart" 
+            data-product-id="<?= $p->ProductID ?>"
+        >
+            ♡ Add to favourites
+        </button>
+
+
+
         <p style="color:<?= $p->Stock > 10 ? '#28a745' : ($p->Stock > 0 ? '#ff9800' : '#dc3545') ?>; font-weight: 600; margin-bottom: 1rem;">
             <?php if ($p->Stock > 10): ?>
                 ✓ In Stock (<?= $p->Stock ?> available)
@@ -251,6 +260,26 @@ $(document).on('click', '.quick-add-btn', function(e) {
     });
 });
 
+// Favourite toggle (detail page)
+$(document).on('click', '.fav-btn-detail', function() {
+
+    const btn = $(this);
+    const productId = btn.data('product-id');
+
+    $.post('/api/favorite_toggle.php', { product_id: productId }, function(res) {
+        if (res.success) {
+            if (res.favorited) {
+                btn.addClass('active').text('♥');
+            } else {
+                btn.removeClass('active').text('♡');
+            }
+        } else {
+            alert('Please login to use favourites');
+        }
+    }, 'json');
+
+});
+
 // Toast notification
 function showToast(message) {
     const toast = $(`
@@ -277,5 +306,21 @@ function showToast(message) {
     }, 2000);
 }
 </script>
+
+<style>
+.fav-heart {
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;          /* 默认灰色 */
+    transition: 0.2s;
+}
+
+.fav-heart.active {
+    color: #e60023;       /* ❤️ 红色 */
+}
+</style>
+
 
 <?php include '../_foot.php'; ?>

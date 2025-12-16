@@ -201,38 +201,3 @@ function get_mail() {
 
     return $m;
 }
-// --- ADD THIS BLOCK TO THE TOP OF _base.php ---
-
-// _base.php (Around Line 32 - After Auto-login and Database Setup)
-// --- 关键安全检查：检查已登录用户的状态，实现强制登出 ---
-
-if (isset($_SESSION['user_id'])) {
-    $user_id = $_SESSION['user_id'];
-    
-    // 1. 从数据库获取用户当前的 status
-    $stm = $_db->prepare("SELECT status FROM user WHERE userID = ?");
-    $stm->execute([$user_id]);
-    $current_status = $stm->fetchColumn();
-
-    // 2. 检查状态：如果用户被禁用 (status !== 'Activated')
-    if ($current_status !== 'Activated') {
-        
-        // 强制注销操作
-        temp('info', 'Your account has been disabled by the administrator. You have been logged out.');
-        
-        // 清理 session
-        $_SESSION = [];
-        session_destroy();
-        
-        // 清理 'Remember Me' cookie (如果存在)
-        if (isset($_COOKIE['remember_token'])) {
-            setcookie('remember_token', '', time() - 3600, '/');
-        }
-        
-        // 重定向到登录页面
-        redirect('/page/login.php');
-        exit(); 
-    }
-}
-
-// -----------------------------------------------------

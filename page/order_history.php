@@ -10,7 +10,6 @@ $user_id = $_SESSION['user_id'];
 // Get filter and sort parameters
 $sort_by = get('sort', 'date_desc');
 $filter_payment = get('payment', '');
-
 $search = get('search', '');
 
 // Build query with filters - Get first product info and shipping address
@@ -55,6 +54,12 @@ $sql .= " GROUP BY o.OrderID";
 
 // Add sorting
 switch ($sort_by) {
+    case 'orderid_asc':
+        $sql .= " ORDER BY o.OrderID ASC";
+        break;
+    case 'orderid_desc':
+        $sql .= " ORDER BY o.OrderID DESC";
+        break;
     case 'date_asc':
         $sql .= " ORDER BY o.PurchaseDate ASC";
         break;
@@ -193,6 +198,38 @@ include '../_head.php';
     margin-bottom: 1rem;
     opacity: 0.3;
 }
+
+/* Sortable column header styles */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 20px !important;
+}
+
+.sortable:hover {
+    background: #1a1a1a;
+}
+
+.sortable::after {
+    content: '⇅';
+    position: absolute;
+    right: 8px;
+    opacity: 0.5;
+    font-size: 0.8rem;
+}
+
+.sortable.asc::after {
+    content: '▲';
+    opacity: 1;
+    color: #D4AF37;
+}
+
+.sortable.desc::after {
+    content: '▼';
+    opacity: 1;
+    color: #D4AF37;
+}
 </style>
 
 <script>
@@ -228,6 +265,23 @@ $(document).ready(function() {
 if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
 }
+
+// Sortable column click handler
+function sortTable(column) {
+    const currentUrl = new URL(window.location.href);
+    const currentSort = currentUrl.searchParams.get('sort') || 'date_desc';
+    
+    // Determine new sort direction
+    let newSort;
+    if (currentSort === column + '_asc') {
+        newSort = column + '_desc';
+    } else {
+        newSort = column + '_asc';
+    }
+    
+    currentUrl.searchParams.set('sort', newSort);
+    window.location.href = currentUrl.toString();
+}
 </script>
 
 <div class="container" style="margin-top: 100px; min-height: 60vh;">
@@ -240,7 +294,7 @@ if (history.scrollRestoration) {
     <!-- Success Message -->
     <?php if ($msg = temp('success')): ?>
         <div style="padding: 1rem 1.5rem; background: #d4edda; color: #155724; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #28a745;">
-            <strong>✓</strong> <?= $msg ?>
+            <strong>✔</strong> <?= $msg ?>
         </div>
     <?php endif; ?>
     
@@ -277,8 +331,6 @@ if (history.scrollRestoration) {
                                placeholder="e.g., O00001" class="filter-input">
                     </div>
                     
-
-                    
                     <div>
                         <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: #333;">
                             💳 Payment Method
@@ -303,6 +355,8 @@ if (history.scrollRestoration) {
                             <option value="amount_asc" <?= $sort_by === 'amount_asc' ? 'selected' : '' ?>>Amount (Low to High)</option>
                             <option value="items_desc" <?= $sort_by === 'items_desc' ? 'selected' : '' ?>>Items (Most to Least)</option>
                             <option value="items_asc" <?= $sort_by === 'items_asc' ? 'selected' : '' ?>>Items (Least to Most)</option>
+                            <option value="orderid_asc" <?= $sort_by === 'orderid_asc' ? 'selected' : '' ?>>Order ID (A-Z)</option>
+                            <option value="orderid_desc" <?= $sort_by === 'orderid_desc' ? 'selected' : '' ?>>Order ID (Z-A)</option>
                         </select>
                     </div>
                 </div>
@@ -328,7 +382,10 @@ if (history.scrollRestoration) {
             <table class="product-table" style="margin-bottom: 0;">
                 <thead>
                     <tr style="background: #000; color: #fff;">
-                        <th style="padding: 1rem;">Order ID</th>
+                        <th class="sortable <?= strpos($sort_by, 'orderid') === 0 ? (strpos($sort_by, 'asc') ? 'asc' : 'desc') : '' ?>" 
+                            onclick="sortTable('orderid')" style="padding: 1rem;">
+                            Order ID
+                        </th>
                         <th>Product Preview</th>
                         <th>Date</th>
                         <th>Items</th>

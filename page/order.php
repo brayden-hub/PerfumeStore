@@ -8,12 +8,13 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'Admin') {
 
 // Get filter and sort parameters
 $sort_by = get('sort', 'date_desc');
+$filter_status = get('status', '');
 $filter_payment = get('payment', '');
 $search = get('search', '');
 
-// Build query with filters - Get first product info, customer details, and shipping address
+// Build query with filters - Get first product info, customer details, shipping address, and STATUS
 $sql = "
-    SELECT o.OrderID, o.PurchaseDate, o.PaymentMethod, o.GiftWrapCost, o.ShippingFee,
+    SELECT o.OrderID, o.PurchaseDate, o.PaymentMethod, o.Status, o.GiftWrapCost, o.ShippingFee,
            o.UserID, o.ShippingAddressID,
            u.name as CustomerName, u.email as CustomerEmail,
            SUM(po.TotalPrice) as ProductTotal,
@@ -47,6 +48,12 @@ if ($search !== '') {
     $params[] = "%$search%";
 }
 
+// Add status filter
+if ($filter_status !== '') {
+    $sql .= " AND o.Status = ?";
+    $params[] = $filter_status;
+}
+
 // Add payment method filter
 if ($filter_payment !== '') {
     $sql .= " AND o.PaymentMethod = ?";
@@ -57,6 +64,12 @@ $sql .= " GROUP BY o.OrderID";
 
 // Add sorting
 switch ($sort_by) {
+    case 'orderid_asc':
+        $sql .= " ORDER BY o.OrderID ASC";
+        break;
+    case 'orderid_desc':
+        $sql .= " ORDER BY o.OrderID DESC";
+        break;
     case 'date_asc':
         $sql .= " ORDER BY o.PurchaseDate ASC";
         break;
@@ -78,6 +91,12 @@ switch ($sort_by) {
     case 'customer_desc':
         $sql .= " ORDER BY u.name DESC";
         break;
+    case 'status_asc':
+        $sql .= " ORDER BY o.Status ASC";
+        break;
+    case 'status_desc':
+        $sql .= " ORDER BY o.Status DESC";
+        break;
     default: // date_desc
         $sql .= " ORDER BY o.PurchaseDate DESC";
 }
@@ -90,12 +109,27 @@ $orders = $stmt->fetchAll();
 $total_revenue = 0;
 $total_orders = count($orders);
 $total_items = 0;
+$status_counts = ['Pending' => 0, 'Processing' => 0, 'Shipped' => 0, 'Delivered' => 0, 'Cancelled' => 0];
 
 foreach ($orders as $order) {
     $order_total = $order->ProductTotal + ($order->GiftWrapCost ?? 0) + ($order->ShippingFee ?? 0);
     $total_revenue += $order_total;
     $total_items += $order->ItemCount;
+    
+    $status = $order->Status ?? 'Pending';
+    if (isset($status_counts[$status])) {
+        $status_counts[$status]++;
+    }
 }
+
+// Status icons
+$status_icons = [
+    'Pending' => '⏳',
+    'Processing' => '📦',
+    'Shipped' => '🚚',
+    'Delivered' => '✅',
+    'Cancelled' => '❌'
+];
 
 $_title = 'Order Management - N°9 Perfume';
 include '../_head.php';
@@ -127,6 +161,46 @@ include '../_head.php';
     font-size: 2rem;
     font-weight: bold;
     margin: 0;
+}
+
+.status-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.status-summary-item {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.status-summary-item:hover {
+    transform: translateY(-3px);
+}
+
+.status-summary-item.pending { background: #fff3e0; }
+.status-summary-item.processing { background: #e3f2fd; }
+.status-summary-item.shipped { background: #f3e5f5; }
+.status-summary-item.delivered { background: #e8f5e9; }
+.status-summary-item.cancelled { background: #ffebee; }
+
+.status-summary-count {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.status-summary-label {
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 .filter-section {
@@ -172,6 +246,12 @@ include '../_head.php';
 .badge-ewallet { background: #fff3e0; color: #f57c00; }
 .badge-cod { background: #fce4ec; color: #c2185b; }
 
+.status-pending { background: #fff3e0; color: #ff9800; }
+.status-processing { background: #e3f2fd; color: #2196f3; }
+.status-shipped { background: #f3e5f5; color: #9c27b0; }
+.status-delivered { background: #e8f5e9; color: #4caf50; }
+.status-cancelled { background: #ffebee; color: #f44336; }
+
 .order-row {
     transition: all 0.3s;
     cursor: pointer;
@@ -195,6 +275,38 @@ include '../_head.php';
     font-size: 4rem;
     margin-bottom: 1rem;
     opacity: 0.3;
+}
+
+/* Sortable column header styles */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 20px !important;
+}
+
+.sortable:hover {
+    background: #1a1a1a;
+}
+
+.sortable::after {
+    content: '⇅';
+    position: absolute;
+    right: 8px;
+    opacity: 0.5;
+    font-size: 0.8rem;
+}
+
+.sortable.asc::after {
+    content: '▲';
+    opacity: 1;
+    color: #D4AF37;
+}
+
+.sortable.desc::after {
+    content: '▼';
+    opacity: 1;
+    color: #D4AF37;
 }
 </style>
 
@@ -220,10 +332,35 @@ $(document).ready(function() {
     $('.order-row a, .order-row button').on('click', function(e) {
         e.stopPropagation();
     });
+    
+    // Status summary click to filter
+    $('.status-summary-item').on('click', function() {
+        const status = $(this).data('status');
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('status', status);
+        window.location.href = currentUrl.toString();
+    });
 });
 
 if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
+}
+
+// Sortable column click handler
+function sortTable(column) {
+    const currentUrl = new URL(window.location.href);
+    const currentSort = currentUrl.searchParams.get('sort') || 'date_desc';
+    
+    // Determine new sort direction
+    let newSort;
+    if (currentSort === column + '_asc') {
+        newSort = column + '_desc';
+    } else {
+        newSort = column + '_asc';
+    }
+    
+    currentUrl.searchParams.set('sort', newSort);
+    window.location.href = currentUrl.toString();
 }
 </script>
 
@@ -268,6 +405,30 @@ if (history.scrollRestoration) {
             </div>
         </div>
 
+        <!-- Status Summary -->
+        <div class="status-summary">
+            <div class="status-summary-item pending" data-status="Pending">
+                <div class="status-summary-count" style="color: #ff9800;">⏳ <?= $status_counts['Pending'] ?></div>
+                <div class="status-summary-label" style="color: #e65100;">Pending</div>
+            </div>
+            <div class="status-summary-item processing" data-status="Processing">
+                <div class="status-summary-count" style="color: #2196f3;">📦 <?= $status_counts['Processing'] ?></div>
+                <div class="status-summary-label" style="color: #1565c0;">Processing</div>
+            </div>
+            <div class="status-summary-item shipped" data-status="Shipped">
+                <div class="status-summary-count" style="color: #9c27b0;">🚚 <?= $status_counts['Shipped'] ?></div>
+                <div class="status-summary-label" style="color: #6a1b9a;">Shipped</div>
+            </div>
+            <div class="status-summary-item delivered" data-status="Delivered">
+                <div class="status-summary-count" style="color: #4caf50;">✅ <?= $status_counts['Delivered'] ?></div>
+                <div class="status-summary-label" style="color: #2e7d32;">Delivered</div>
+            </div>
+            <div class="status-summary-item cancelled" data-status="Cancelled">
+                <div class="status-summary-count" style="color: #f44336;">❌ <?= $status_counts['Cancelled'] ?></div>
+                <div class="status-summary-label" style="color: #c62828;">Cancelled</div>
+            </div>
+        </div>
+
         <!-- Filter and Sort Section -->
         <div class="filter-section">
             <form method="get" action="">
@@ -278,6 +439,20 @@ if (history.scrollRestoration) {
                         </label>
                         <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" 
                                placeholder="Order ID, Customer Name or Email" class="filter-input">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: #333;">
+                            📊 Status
+                        </label>
+                        <select name="status" class="filter-input">
+                            <option value="">All Status</option>
+                            <option value="Pending" <?= $filter_status === 'Pending' ? 'selected' : '' ?>>⏳ Pending</option>
+                            <option value="Processing" <?= $filter_status === 'Processing' ? 'selected' : '' ?>>📦 Processing</option>
+                            <option value="Shipped" <?= $filter_status === 'Shipped' ? 'selected' : '' ?>>🚚 Shipped</option>
+                            <option value="Delivered" <?= $filter_status === 'Delivered' ? 'selected' : '' ?>>✅ Delivered</option>
+                            <option value="Cancelled" <?= $filter_status === 'Cancelled' ? 'selected' : '' ?>>❌ Cancelled</option>
+                        </select>
                     </div>
                     
                     <div>
@@ -306,6 +481,10 @@ if (history.scrollRestoration) {
                             <option value="items_asc" <?= $sort_by === 'items_asc' ? 'selected' : '' ?>>Items (Least to Most)</option>
                             <option value="customer_asc" <?= $sort_by === 'customer_asc' ? 'selected' : '' ?>>Customer (A-Z)</option>
                             <option value="customer_desc" <?= $sort_by === 'customer_desc' ? 'selected' : '' ?>>Customer (Z-A)</option>
+                            <option value="orderid_asc" <?= $sort_by === 'orderid_asc' ? 'selected' : '' ?>>Order ID (A-Z)</option>
+                            <option value="orderid_desc" <?= $sort_by === 'orderid_desc' ? 'selected' : '' ?>>Order ID (Z-A)</option>
+                            <option value="status_asc" <?= $sort_by === 'status_asc' ? 'selected' : '' ?>>Status (A-Z)</option>
+                            <option value="status_desc" <?= $sort_by === 'status_desc' ? 'selected' : '' ?>>Status (Z-A)</option>
                         </select>
                     </div>
                 </div>
@@ -331,10 +510,17 @@ if (history.scrollRestoration) {
             <table class="product-table" style="margin-bottom: 0;">
                 <thead>
                     <tr style="background: #000; color: #fff;">
-                        <th style="padding: 1rem;">Order ID</th>
+                        <th class="sortable <?= strpos($sort_by, 'orderid') === 0 ? (strpos($sort_by, 'asc') ? 'asc' : 'desc') : '' ?>" 
+                            onclick="sortTable('orderid')" style="padding: 1rem;">
+                            Order ID
+                        </th>
                         <th>Product Preview</th>
                         <th>Customer</th>
                         <th>Date</th>
+                        <th class="sortable <?= strpos($sort_by, 'status') === 0 ? (strpos($sort_by, 'asc') ? 'asc' : 'desc') : '' ?>" 
+                            onclick="sortTable('status')">
+                            Status
+                        </th>
                         <th>Items</th>
                         <th>Payment Method</th>
                         <th>Grand Total</th>
@@ -353,6 +539,11 @@ if (history.scrollRestoration) {
                         if ($order->PaymentMethod === 'Online Banking') $badge_class = 'badge-banking';
                         elseif ($order->PaymentMethod === 'E-Wallet') $badge_class = 'badge-ewallet';
                         elseif ($order->PaymentMethod === 'Cash on Delivery') $badge_class = 'badge-cod';
+                        
+                        // Status badge class
+                        $status = $order->Status ?? 'Pending';
+                        $status_class = 'status-' . strtolower($status);
+                        $status_icon = $status_icons[$status] ?? '⏳';
                     ?>
                     <tr class="order-row">
                         <td style="font-weight: 700; color: #D4AF37; font-size: 1rem;">
@@ -387,6 +578,11 @@ if (history.scrollRestoration) {
                             <div style="font-weight: 600;"><?= date('d M Y', strtotime($order->PurchaseDate)) ?></div>
                             <div style="font-size: 0.8rem; color: #999;"><?= date('g:i A', strtotime($order->PurchaseDate)) ?></div>
                         </td>
+                        <td>
+                            <span class="order-badge <?= $status_class ?>">
+                                <?= $status_icon ?> <?= htmlspecialchars($status) ?>
+                            </span>
+                        </td>
                         <td style="text-align: center;">
                             <span style="background: #f0f0f0; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">
                                 <?= $order->ItemCount ?> item<?= $order->ItemCount > 1 ? 's' : '' ?>
@@ -418,11 +614,8 @@ if (history.scrollRestoration) {
                     <!-- Shipping Details Row (Collapsible) -->
                     <?php if ($order->ShippingAddressID): ?>
                     <tr class="shipping-row" id="shipping-<?= $order->OrderID ?>" style="display: none;">
-                        <td colspan="8" style="background: #f8f9fa; padding: 1.5rem;">
-                            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem; align-items: center;">
-                                <!-- Store Address -->
-                                <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 2px solid #D4AF37;">
-                                    <h4 style="color: #D4AF37; margin: 0 0 1rem 0; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <td colspan="9" style="background: #f8f9fa; padding: 1.5rem;">
+                            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem; align-items: center; gap: 0.5rem;">
                                         🏪 <strong>Ship From</strong>
                                     </h4>
                                     <div style="color: #333; line-height: 1.6;">

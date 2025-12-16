@@ -264,5 +264,43 @@ $(document).ready(function() {
     });
     // === Dropdown End ===
     
+
+// === Drag and Drop Image Upload Logic ===
+    const $dropZone = $('label.upload');
+
+    // 1. Prevent default browser behavior (prevents opening the file in tab)
+    $dropZone.on('dragenter dragover dragleave drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    // 2. Add visual highlight when dragging over
+    $dropZone.on('dragenter dragover', function() {
+        $(this).addClass('dragover');
+    });
+
+    // 3. Remove highlight when dragging away or dropped
+    $dropZone.on('dragleave drop', function() {
+        $(this).removeClass('dragover');
+    });
+
+    // 4. Handle the file drop
+    $dropZone.on('drop', function(e) {
+        // Retrieve the files from the drag event
+        const dt = e.originalEvent.dataTransfer;
+        const files = dt.files;
+        const fileInput = $(this).find('input[type="file"]');
+
+        if (files.length > 0) {
+            // Assign dropped files to the hidden input element
+            // Note: .files property is supported in all modern browsers
+            fileInput[0].files = files;
+
+            // Trigger the manual 'change' event
+            // This runs your EXISTING preview logic (FileReader) defined in app.js
+            fileInput.trigger('change');
+        }
+    });
+
 });
 

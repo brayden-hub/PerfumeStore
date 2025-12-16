@@ -116,10 +116,10 @@ include '../_head.php';
 
         <label>Product Image</label>
         <label class="upload">
-            <input type="file" name="productImage" accept="image/*">
-            <img src="/public/images/photo.jpg" alt="Click to upload">
+        <input type="file" name="productImage" accept="image/*">
+        <img src="/public/images/photo.jpg" alt="Click or Drag & Drop to upload">
         </label>
-        <small>Click image to upload. (Saved as <?= generateNewProductID() ?>.jpg)</small>
+        <small>Click or <strong>Drag & Drop</strong> image here. (Saved as <?= generateNewProductID() ?>.jpg)</small>
         <?= err('productImage') ?>
 
         <button type="submit" class="btn-submit">Add Product</button>

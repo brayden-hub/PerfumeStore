@@ -1125,10 +1125,19 @@ table a:hover {
     display: block;
 }
 
+label.upload.dragover {
+    border: 2px dashed #D4AF37; 
+    background-color: #fffbf0; 
+    opacity: 1; 
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
 /* PHOTO UPLOAD PREVIEW STYLES */
 label.upload {
     display: inline-block;
     cursor: pointer; /* Shows hand icon */
+    transition: all 0.3s ease;
 }
 
 /* Hide the actual file input button */

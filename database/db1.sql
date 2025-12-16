@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 15, 2025 at 04:25 PM
+-- Generation Time: Dec 16, 2025 at 11:04 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -44,6 +44,27 @@ CREATE TABLE `cart` (
 INSERT INTO `cart` (`CartID`, `UserID`, `ProductID`, `Quantity`, `AddedDate`) VALUES
 ('C00001', 6, 'P0009', 1, '2025-12-14 10:09:48'),
 ('C00002', 7, 'P0025', 1, '2025-12-15 14:11:08');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `favorites`
+--
+
+CREATE TABLE `favorites` (
+  `FavoriteID` int(11) NOT NULL,
+  `UserID` int(11) NOT NULL,
+  `ProductID` char(5) NOT NULL,
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `favorites`
+--
+
+INSERT INTO `favorites` (`FavoriteID`, `UserID`, `ProductID`, `CreatedAt`) VALUES
+(1, 1, 'P0021', '2025-12-16 09:48:07'),
+(2, 1, 'P0025', '2025-12-16 09:48:08');
 
 -- --------------------------------------------------------
 
@@ -93,39 +114,40 @@ CREATE TABLE `product` (
   `Price` float NOT NULL,
   `Stock` int(10) NOT NULL,
   `Description` varchar(100) NOT NULL,
-  `Image` varchar(100) NOT NULL
+  `Image` varchar(100) NOT NULL,
+  `Status` varchar(20) NOT NULL DEFAULT '''Available'''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `product`
 --
 
-INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `Description`, `Image`) VALUES
-('P0001', 'Floral', 'N°9 Bloom Whisper', 280, 30, 'A soft floral blend of rose petals and white jasmine, elegant and romantic.', 'P0001.png'),
-('P0002', 'Floral', 'N°9 Petal Symphony', 320, 25, 'A graceful bouquet of peony, lily, and iris, perfect for feminine charm.', 'P0002.png'),
-('P0003', 'Floral', 'N°9 Rose Étoile', 300, 22, 'A modern rose fragrance with bright floral tones and subtle sweetness.', 'P0003.png'),
-('P0004', 'Floral', 'N°9 Velvet Blossom', 350, 18, 'Warm and luxurious floral scent with velvet rose and creamy magnolia.', 'P0004.png'),
-('P0005', 'Floral', 'N°9 Garden Muse', 260, 35, 'A lively blend of garden flowers, fresh and youthful.', 'P0005.png'),
-('P0006', 'Fruity', 'N°9 Juicy Mirage', 250, 40, 'A playful mix of peach, apple, and pear with a hint of sweetness.', 'P0006.png'),
-('P0007', 'Fruity', 'N°9 Berry Cascade', 270, 28, 'A fresh fruity scent bursting with raspberry, blackberry, and plum.', 'P0007.png'),
-('P0008', 'Fruity', 'N°9 Tropical Aura', 260, 32, 'A sunny tropical blend of mango, pineapple, and coconut.', 'P0008.png'),
-('P0009', 'Fruity', 'N°9 Sweet Orchard', 230, 40, 'Crisp orchard fruits with a soft floral background; refreshing and light.', 'P0009.png'),
-('P0010', 'Fruity', 'N°9 Candy Citrus', 240, 35, 'A bright citrus-fruity fragrance with orange, grapefruit, and sugar notes.', 'P0010.png'),
-('P0011', 'Woody', 'N°9 Sandal Noir', 330, 20, 'A warm woody scent with sandalwood, musk, and soft amber.', 'P0011.png'),
-('P0012', 'Woody', 'N°9 Cedar Realm', 310, 13, 'Earthy cedarwood with crisp herbal notes, calm and grounding.', 'P0012.png'),
-('P0013', 'Woody', 'N°9 Urban Shadow', 350, 18, 'A modern woody fragrance with smoky notes and masculine depth.', 'P0013.png'),
-('P0014', 'Woody', 'N°9 Amber Trail', 380, 14, 'Amber, patchouli, and dry woods create a rich, sensual scent.', 'P0014.png'),
-('P0015', 'Woody', 'N°9 Forest Velvet', 300, 24, 'Soft forest woods with a creamy finish, comforting and elegant.', 'P0015.png'),
-('P0016', 'Fresh', 'N°9 Aqua Breeze', 240, 42, 'A cool aquatic fragrance with sea notes and light citrus.', 'P0016.png'),
-('P0017', 'Fresh', 'N°9 Crystal Morning', 260, 28, 'Clean and bright citrus freshness with lemon and bergamot.', 'P0017.png'),
-('P0018', 'Fresh', 'N°9 Pure Daylight', 230, 35, 'A mild fresh scent with white tea and soft flowers.', 'P0018.png'),
-('P0019', 'Fresh', 'N°9 Mist Horizon', 270, 22, 'Airy freshness with hints of mint and watery florals.', 'P0019.png'),
-('P0020', 'Fresh', 'N°9 Spring Drift', 250, 40, 'Light, refreshing, and breezy with green citrus notes.', 'P0020.png'),
-('P0021', 'Green', 'N°9 Green Leaf Spirit', 200, 48, 'Herbal green scent with fresh-cut leaves and soft florals.', 'P0021.png'),
-('P0022', 'Green', 'N°9 Bamboo Whisper', 260, 20, 'Clean bamboo and gentle floral notes, calming and natural.', 'P0022.png'),
-('P0023', 'Green', 'N°9 Meadow Fresh', 220, 26, 'Soft grassy scent inspired by morning dew on an open field.', 'P0023.png'),
-('P0024', 'Green', 'N°9 Herbal Dew', 240, 26, 'Green herbs with mint and tea-like freshness.', 'P0024.png'),
-('P0025', 'Green', 'N°9 Wild Garden', 210, 22, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.', 'P0025.png');
+INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `Description`, `Image`, `Status`) VALUES
+('P0001', 'Floral', 'N°9 Bloom Whisper', 280, 30, 'A soft floral blend of rose petals and white jasmine, elegant and romantic.', 'P0001.png', '\'Available\''),
+('P0002', 'Floral', 'N°9 Petal Symphony', 320, 25, 'A graceful bouquet of peony, lily, and iris, perfect for feminine charm.', 'P0002.png', '\'Available\''),
+('P0003', 'Floral', 'N°9 Rose Étoile', 300, 22, 'A modern rose fragrance with bright floral tones and subtle sweetness.', 'P0003.png', '\'Available\''),
+('P0004', 'Floral', 'N°9 Velvet Blossom', 350, 18, 'Warm and luxurious floral scent with velvet rose and creamy magnolia.', 'P0004.png', '\'Available\''),
+('P0005', 'Floral', 'N°9 Garden Muse', 260, 35, 'A lively blend of garden flowers, fresh and youthful.', 'P0005.png', '\'Available\''),
+('P0006', 'Fruity', 'N°9 Juicy Mirage', 250, 40, 'A playful mix of peach, apple, and pear with a hint of sweetness.', 'P0006.png', '\'Available\''),
+('P0007', 'Fruity', 'N°9 Berry Cascade', 270, 28, 'A fresh fruity scent bursting with raspberry, blackberry, and plum.', 'P0007.png', '\'Available\''),
+('P0008', 'Fruity', 'N°9 Tropical Aura', 260, 32, 'A sunny tropical blend of mango, pineapple, and coconut.', 'P0008.png', '\'Available\''),
+('P0009', 'Fruity', 'N°9 Sweet Orchard', 230, 40, 'Crisp orchard fruits with a soft floral background; refreshing and light.', 'P0009.png', '\'Available\''),
+('P0010', 'Fruity', 'N°9 Candy Citrus', 240, 35, 'A bright citrus-fruity fragrance with orange, grapefruit, and sugar notes.', 'P0010.png', '\'Available\''),
+('P0011', 'Woody', 'N°9 Sandal Noir', 330, 20, 'A warm woody scent with sandalwood, musk, and soft amber.', 'P0011.png', '\'Available\''),
+('P0012', 'Woody', 'N°9 Cedar Realm', 310, 13, 'Earthy cedarwood with crisp herbal notes, calm and grounding.', 'P0012.png', '\'Available\''),
+('P0013', 'Woody', 'N°9 Urban Shadow', 350, 18, 'A modern woody fragrance with smoky notes and masculine depth.', 'P0013.png', '\'Available\''),
+('P0014', 'Woody', 'N°9 Amber Trail', 380, 14, 'Amber, patchouli, and dry woods create a rich, sensual scent.', 'P0014.png', '\'Available\''),
+('P0015', 'Woody', 'N°9 Forest Velvet', 300, 24, 'Soft forest woods with a creamy finish, comforting and elegant.', 'P0015.png', '\'Available\''),
+('P0016', 'Fresh', 'N°9 Aqua Breeze', 240, 42, 'A cool aquatic fragrance with sea notes and light citrus.', 'P0016.png', '\'Available\''),
+('P0017', 'Fresh', 'N°9 Crystal Morning', 260, 28, 'Clean and bright citrus freshness with lemon and bergamot.', 'P0017.png', '\'Available\''),
+('P0018', 'Fresh', 'N°9 Pure Daylight', 230, 35, 'A mild fresh scent with white tea and soft flowers.', 'P0018.png', '\'Available\''),
+('P0019', 'Fresh', 'N°9 Mist Horizon', 270, 22, 'Airy freshness with hints of mint and watery florals.', 'P0019.png', '\'Available\''),
+('P0020', 'Fresh', 'N°9 Spring Drift', 250, 40, 'Light, refreshing, and breezy with green citrus notes.', 'P0020.png', '\'Available\''),
+('P0021', 'Green', 'N°9 Green Leaf Spirit', 200, 48, 'Herbal green scent with fresh-cut leaves and soft florals.', 'P0021.png', '\'Available\''),
+('P0022', 'Green', 'N°9 Bamboo Whisper', 260, 20, 'Clean bamboo and gentle floral notes, calming and natural.', 'P0022.png', '\'Available\''),
+('P0023', 'Green', 'N°9 Meadow Fresh', 220, 26, 'Soft grassy scent inspired by morning dew on an open field.', 'P0023.png', '\'Available\''),
+('P0024', 'Green', 'N°9 Herbal Dew', 240, 26, 'Green herbs with mint and tea-like freshness.', 'P0024.png', '\'Available\''),
+('P0025', 'Green', 'N°9 Wild Garden', 210, 22, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.', 'P0025.png', '\'Available\'');
 
 -- --------------------------------------------------------
 
@@ -187,20 +209,22 @@ CREATE TABLE `user` (
   `phone_number` varchar(100) NOT NULL,
   `role` varchar(30) NOT NULL,
   `remember_token` varchar(64) DEFAULT NULL,
-  `Profile_Photo` varchar(100) NOT NULL DEFAULT ''
+  `Profile_Photo` varchar(100) NOT NULL DEFAULT '',
+  `status` varchar(20) NOT NULL DEFAULT 'Active',
+  `Points` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role`, `remember_token`, `Profile_Photo`) VALUES
-(1, 'ali', 'chongzhengzhe@gmail.com', '$2y$10$4Vew8Q.0PKoM74By9ime9.MjXuci6pO/REtKZ.HAnoOWZsMUwfU16', '018000000', 'Member', NULL, ''),
-(2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, ''),
-(5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, ''),
-(6, 'pop@gmail.com', 'pop@gmail.com', '$2y$10$Up7xPG91ut/2LSzwYgcjUOD.v6wDo1esV6kp3IHxdXUy4t8YKmcOW', '01154789654', 'Member', NULL, 'default5.jpg'),
-(7, 'raiko', 'donghuanlin25@gmail.com', '$2y$10$losLbM6UXgKtuQiKvyk1auuGoByWZeSqaZmXiosHiGYy.nN0CDUry', '104507792', 'Member', NULL, '7_1765728165.png'),
-(8, 's@gmail.com', 's@gmail.com', '$2y$10$yZvBp6JpC8pogwIQhfOZZO8Uy.Yfqxjso5d5zK2WBK5/959hnlyeO', '01233333333', 'Member', NULL, 'default2.jpg');
+INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role`, `remember_token`, `Profile_Photo`, `status`, `Points`) VALUES
+(1, 'ali', 'chongzhengzhe@gmail.com', '$2y$10$4Vew8Q.0PKoM74By9ime9.MjXuci6pO/REtKZ.HAnoOWZsMUwfU16', '018000000', 'Member', NULL, '', 'Activated', 0),
+(2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, '', 'Active', 0),
+(5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, '', 'Activated', 0),
+(6, 'pop@gmail.com', 'pop@gmail.com', '$2y$10$Up7xPG91ut/2LSzwYgcjUOD.v6wDo1esV6kp3IHxdXUy4t8YKmcOW', '01154789654', 'Member', NULL, 'default5.jpg', 'Activated', 0),
+(7, 'raiko', 'donghuanlin25@gmail.com', '$2y$10$losLbM6UXgKtuQiKvyk1auuGoByWZeSqaZmXiosHiGYy.nN0CDUry', '104507792', 'Member', NULL, '7_1765728165.png', 'Activated', 0),
+(8, 's@gmail.com', 's@gmail.com', '$2y$10$yZvBp6JpC8pogwIQhfOZZO8Uy.Yfqxjso5d5zK2WBK5/959hnlyeO', '01233333333', 'Member', NULL, 'default2.jpg', 'Activated', 0);
 
 -- --------------------------------------------------------
 
@@ -250,6 +274,14 @@ ALTER TABLE `cart`
   ADD KEY `ProductID` (`ProductID`);
 
 --
+-- Indexes for table `favorites`
+--
+ALTER TABLE `favorites`
+  ADD PRIMARY KEY (`FavoriteID`),
+  ADD UNIQUE KEY `UserID` (`UserID`,`ProductID`),
+  ADD KEY `fk_fav_product` (`ProductID`);
+
+--
 -- Indexes for table `order`
 --
 ALTER TABLE `order`
@@ -296,6 +328,12 @@ ALTER TABLE `user_address`
 --
 
 --
+-- AUTO_INCREMENT for table `favorites`
+--
+ALTER TABLE `favorites`
+  MODIFY `FavoriteID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
@@ -317,6 +355,13 @@ ALTER TABLE `user_address`
 ALTER TABLE `cart`
   ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE,
   ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `favorites`
+--
+ALTER TABLE `favorites`
+  ADD CONSTRAINT `fk_fav_product` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_fav_user` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `order`
@@ -342,26 +387,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-CREATE TABLE favorites (
-    FavoriteID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
-    ProductID CHAR(5) NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_fav_user
-        FOREIGN KEY (UserID) REFERENCES user(userID)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_fav_product
-        FOREIGN KEY (ProductID) REFERENCES product(ProductID)
-        ON DELETE CASCADE,
-
-    UNIQUE (UserID, ProductID)
-);
-
-ALTER TABLE user
-ADD status VARCHAR(20) NOT NULL DEFAULT 'Active';
-
-ALTER TABLE user
-ADD Points INT NOT NULL DEFAULT 0;

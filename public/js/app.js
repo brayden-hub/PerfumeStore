@@ -49,18 +49,23 @@ $(() => {
         const url = e.target.dataset.get;
         location = url || location;
     });
-/*
+
     // Initiate POST request
     $('[data-post]').on('click', e => {
         e.preventDefault();
-        const url = e.target.dataset.post;
+        const msg = $(this).data('OK');
+        if (msg && !confirm(msg)) {
+            return; 
+        }
+        const url = $(this).data('post');
         const f = $('<form>').appendTo(document.body)[0];
         f.method = 'POST';
         f.action = url || location;
         f.submit();
     });
-*/  
 
+
+/*
     $(document).on('click', '[data-post]', function(e) {
         e.preventDefault();
         const msg = $(this).data('confirm');
@@ -73,6 +78,7 @@ $(() => {
                              .attr('action', url);
         f.submit();
     });
+*/
 
     $('label.upload input[type=file]').on('change', e => {
         const f = e.target.files[0]; // <input type="file">

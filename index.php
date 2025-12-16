@@ -3,7 +3,7 @@ require '_base.php';
 include '_head.php';
 
 // 1. HERO
-$stm_hero = $_db->query("SELECT * FROM product ORDER BY ProductID DESC LIMIT 1");
+$stm_hero = $_db->query("SELECT * FROM product WHERE Status NOT LIKE '%Not%' ORDER BY ProductID DESC LIMIT 1");
 $hero = $stm_hero->fetch();
 
 // 2. TOP SALES
@@ -11,6 +11,7 @@ $sql_top = "
     SELECT p.*, COALESCE(SUM(po.Quantity), 0) as total_sold 
     FROM product p 
     LEFT JOIN productorder po ON p.ProductID = po.ProductID 
+    WHERE p.Status NOT LIKE '%Not%'
     GROUP BY p.ProductID 
     ORDER BY total_sold DESC 
     LIMIT 4

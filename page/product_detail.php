@@ -1,4 +1,4 @@
-<?php
+<<?php
 require '../_base.php';
 $id = get('id');
 if (!$id) redirect('/page/product.php');
@@ -7,8 +7,11 @@ $stmt = $_db->prepare("SELECT * FROM product WHERE ProductID = ?");
 $stmt->execute([$id]);
 $p = $stmt->fetch();
 
-if (!$p) {
-    echo "<h2 style='text-align:center;padding:5rem;'>Product not found</h2>";
+// MODIFIED: Check if product exists AND if it is "Not Available"
+// If it contains "Not" in the status, we treat it as not found
+if (!$p || str_contains($p->Status, 'Not')) {
+    echo "<h2 style='text-align:center;padding:5rem;'>Product not found or unavailable.</h2>";
+    echo "<div style='text-align:center;'><a href='/page/product.php'>Return to Shop</a></div>";
     return;
 }
 

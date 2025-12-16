@@ -6,8 +6,13 @@ $min = (int)get('min', 0);
 $max = (int)get('max', 400);
 $sort = get('sort', 'asc');
 
-// Build query with filters
-$sql = "SELECT * FROM product WHERE Price BETWEEN ? AND ?";
+// 1. MODIFIED SQL: Added check for Status to exclude 'Not Available'
+// We check if Status contains 'Available' AND does NOT contain 'Not'
+$sql = "SELECT * FROM product 
+        WHERE Price BETWEEN ? AND ? 
+        AND Status LIKE '%Available%' 
+        AND Status NOT LIKE '%Not%'";
+
 $params = [$min, $max];
 
 if ($series !== '') {
@@ -36,6 +41,7 @@ if (empty($products)):
 <?php
 else:
     foreach ($products as $p):
+        // (The rest of the display logic remains exactly the same)
         $stockStatus = $p['Stock'] > 10 ? 'in-stock' : ($p['Stock'] > 0 ? 'low-stock' : 'out-of-stock');
         $stockText = $p['Stock'] > 10 ? 'In Stock' : ($p['Stock'] > 0 ? "Only {$p['Stock']} left" : 'Out of Stock');
         $stockDotClass = $p['Stock'] > 10 ? '' : ($p['Stock'] > 0 ? 'low' : 'out');

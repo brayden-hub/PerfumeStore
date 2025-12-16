@@ -24,6 +24,7 @@ $stmt = $_db->prepare("
            ua.AddressLabel, ua.RecipientName, ua.PhoneNumber as ShippingPhone,
            ua.AddressLine1, ua.AddressLine2, ua.City, ua.State, ua.PostalCode, ua.Country
     FROM `order` o
+    JOIN order_status os ON o.OrderID = os.OrderID
     JOIN user u ON o.UserID = u.userID
     LEFT JOIN user_address ua ON o.ShippingAddressID = ua.AddressID
     WHERE o.OrderID = ?

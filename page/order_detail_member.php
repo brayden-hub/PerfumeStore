@@ -14,8 +14,9 @@ if (!$order_id) {
 
 // Fetch order details
 $stmt = $_db->prepare("
-    SELECT o.*, u.name as CustomerName, u.email, u.phone_number
+    SELECT o.*, os.*, u.name as CustomerName, u.email, u.phone_number
     FROM `order` o
+    JOIN order_status os ON o.OrderID = os.OrderID
     JOIN user u ON o.UserID = u.userID
     WHERE o.OrderID = ? AND o.UserID = ?
 ");

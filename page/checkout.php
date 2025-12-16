@@ -94,6 +94,10 @@ if (is_post()) {
                 $shipping_fee
             ]);
             
+            // NEW: Insert into order_status table
+            $stmt = $_db->prepare("INSERT INTO order_status (OrderID, Status) VALUES (?, 'Pending')");
+            $stmt->execute([$order_id]);
+
             // Create order items and update stock
             foreach ($cart_items as $item) {
                 $stmt = $_db->query("SELECT ProductOrderID FROM productorder ORDER BY ProductOrderID DESC LIMIT 1");
@@ -702,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addAddressBtn = document.getElementById('add-address-btn');
     if (addAddressBtn) {
         addAddressBtn.addEventListener('click', () => {
-            window.location.href = '/page/address_add.php?redirect=checkout';
+            window.location.href = '/page/manage_address.php? action=add redirect=checkout';
         });
     }
 

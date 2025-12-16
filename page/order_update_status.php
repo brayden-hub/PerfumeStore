@@ -19,7 +19,11 @@ if (!$order_id) {
 }
 
 // Fetch order details
-$stmt = $_db->prepare("SELECT * FROM `order` WHERE OrderID = ?");
+$stmt = $_db->prepare("
+    SELECT o.*, os.* FROM `order` o
+    JOIN order_status os ON o.OrderID = os.OrderID
+    WHERE o.OrderID = ?
+");
 $stmt->execute([$order_id]);
 $order = $stmt->fetch();
 
@@ -70,7 +74,7 @@ if (is_post()) {
             
             $params[] = $order_id;
             
-            $sql = "UPDATE `order` SET " . implode(', ', $update_fields) . " WHERE OrderID = ?";
+            $sql = "UPDATE order_status SET " . implode(', ', $update_fields) . " WHERE OrderID = ?";
             $stmt = $_db->prepare($sql);
             $stmt->execute($params);
             

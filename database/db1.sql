@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 16, 2025 at 11:04 AM
+-- Generation Time: Dec 16, 2025 at 05:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -63,8 +63,9 @@ CREATE TABLE `favorites` (
 --
 
 INSERT INTO `favorites` (`FavoriteID`, `UserID`, `ProductID`, `CreatedAt`) VALUES
-(1, 1, 'P0021', '2025-12-16 09:48:07'),
-(2, 1, 'P0025', '2025-12-16 09:48:08');
+(2, 1, 'P0025', '2025-12-16 09:48:08'),
+(5, 1, 'P0021', '2025-12-16 15:51:24'),
+(7, 1, 'P0010', '2025-12-16 15:51:26');
 
 -- --------------------------------------------------------
 
@@ -78,13 +79,6 @@ CREATE TABLE `order` (
   `ShippingAddressID` int(11) DEFAULT NULL,
   `PurchaseDate` date NOT NULL,
   `PaymentMethod` varchar(20) NOT NULL,
-  `Status` enum('Pending','Processing','Shipped','Delivered','Cancelled') NOT NULL DEFAULT 'Pending',
-  `StatusUpdatedAt` timestamp NULL DEFAULT NULL,
-  `ProcessedAt` timestamp NULL DEFAULT NULL,
-  `ShippedAt` timestamp NULL DEFAULT NULL,
-  `DeliveredAt` timestamp NULL DEFAULT NULL,
-  `EstimatedDelivery` date DEFAULT NULL,
-  `TrackingNumber` varchar(100) DEFAULT NULL,
   `GiftWrap` varchar(20) DEFAULT NULL COMMENT 'standard or luxury',
   `GiftMessage` text DEFAULT NULL COMMENT 'Gift message text',
   `HidePrice` tinyint(1) DEFAULT 0 COMMENT 'Hide price on receipt',
@@ -96,10 +90,55 @@ CREATE TABLE `order` (
 -- Dumping data for table `order`
 --
 
-INSERT INTO `order` (`OrderID`, `UserID`, `ShippingAddressID`, `PurchaseDate`, `PaymentMethod`, `Status`, `StatusUpdatedAt`, `ProcessedAt`, `ShippedAt`, `DeliveredAt`, `EstimatedDelivery`, `TrackingNumber`, `GiftWrap`, `GiftMessage`, `HidePrice`, `GiftWrapCost`, `ShippingFee`) VALUES
-('O00001', 1, 6, '2025-12-15', 'Credit Card', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
-('O00002', 1, 6, '2025-12-15', 'Online Banking', 'Delivered', '2025-12-15 15:22:36', '2025-12-15 15:22:36', '2025-12-15 15:22:36', '2025-12-15 15:22:36', NULL, NULL, NULL, NULL, 0, 0.00, 30.00),
-('O00003', 8, 7, '2025-12-15', 'Online Banking', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0.00, 30.00);
+INSERT INTO `order` (`OrderID`, `UserID`, `ShippingAddressID`, `PurchaseDate`, `PaymentMethod`, `GiftWrap`, `GiftMessage`, `HidePrice`, `GiftWrapCost`, `ShippingFee`) VALUES
+('O00001', 1, 6, '2025-12-16', 'Cash on Delivery', NULL, NULL, 0, 0.00, 30.00),
+('O00002', 8, 7, '2025-12-16', 'E-Wallet', NULL, NULL, 0, 0.00, 30.00),
+('O00003', 8, 7, '2025-12-16', 'Cash on Delivery', NULL, NULL, 0, 0.00, 30.00),
+('O00004', 8, 7, '2025-12-16', 'E-Wallet', NULL, NULL, 0, 0.00, 30.00),
+('O00005', 8, 7, '2025-12-16', 'Cash on Delivery', NULL, NULL, 0, 0.00, 30.00),
+('O00006', 1, 6, '2025-12-17', 'E-Wallet', NULL, NULL, 0, 0.00, 30.00),
+('O00007', 1, 6, '2025-12-17', 'Cash on Delivery', NULL, NULL, 0, 0.00, 30.00),
+('O00008', 1, 6, '2025-12-17', 'Online Banking', NULL, NULL, 0, 0.00, 30.00),
+('O00009', 1, 6, '2025-12-17', 'Cash on Delivery', NULL, NULL, 0, 0.00, 30.00),
+('O00010', 1, 6, '2025-12-17', 'Online Banking', NULL, NULL, 0, 0.00, 30.00),
+('O00011', 8, 7, '2025-12-17', 'Cash on Delivery', NULL, NULL, 0, 0.00, 30.00),
+('O00012', 8, 7, '2025-12-17', 'Cash on Delivery', NULL, NULL, 0, 0.00, 30.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_status`
+--
+
+CREATE TABLE `order_status` (
+  `StatusID` int(11) NOT NULL,
+  `OrderID` char(6) NOT NULL,
+  `Status` enum('Pending','Processing','Shipped','Delivered','Cancelled') NOT NULL DEFAULT 'Pending',
+  `StatusUpdatedAt` timestamp NULL DEFAULT NULL,
+  `ProcessedAt` timestamp NULL DEFAULT NULL,
+  `ShippedAt` timestamp NULL DEFAULT NULL,
+  `DeliveredAt` timestamp NULL DEFAULT NULL,
+  `EstimatedDelivery` date DEFAULT NULL,
+  `TrackingNumber` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_status`
+--
+
+INSERT INTO `order_status` (`StatusID`, `OrderID`, `Status`, `StatusUpdatedAt`, `ProcessedAt`, `ShippedAt`, `DeliveredAt`, `EstimatedDelivery`, `TrackingNumber`) VALUES
+(8, 'O00001', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(9, 'O00002', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(10, 'O00003', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(11, 'O00004', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(12, 'O00005', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(13, 'O00006', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(14, 'O00007', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(15, 'O00008', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(16, 'O00009', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(17, 'O00010', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(18, 'O00011', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL),
+(19, 'O00012', 'Pending', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -128,26 +167,26 @@ INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `
 ('P0003', 'Floral', 'N°9 Rose Étoile', 300, 22, 'A modern rose fragrance with bright floral tones and subtle sweetness.', 'P0003.png', '\'Available\''),
 ('P0004', 'Floral', 'N°9 Velvet Blossom', 350, 18, 'Warm and luxurious floral scent with velvet rose and creamy magnolia.', 'P0004.png', '\'Available\''),
 ('P0005', 'Floral', 'N°9 Garden Muse', 260, 35, 'A lively blend of garden flowers, fresh and youthful.', 'P0005.png', '\'Available\''),
-('P0006', 'Fruity', 'N°9 Juicy Mirage', 250, 40, 'A playful mix of peach, apple, and pear with a hint of sweetness.', 'P0006.png', '\'Available\''),
+('P0006', 'Fruity', 'N°9 Juicy Mirage', 250, 37, 'A playful mix of peach, apple, and pear with a hint of sweetness.', 'P0006.png', '\'Available\''),
 ('P0007', 'Fruity', 'N°9 Berry Cascade', 270, 28, 'A fresh fruity scent bursting with raspberry, blackberry, and plum.', 'P0007.png', '\'Available\''),
 ('P0008', 'Fruity', 'N°9 Tropical Aura', 260, 32, 'A sunny tropical blend of mango, pineapple, and coconut.', 'P0008.png', '\'Available\''),
-('P0009', 'Fruity', 'N°9 Sweet Orchard', 230, 40, 'Crisp orchard fruits with a soft floral background; refreshing and light.', 'P0009.png', '\'Available\''),
-('P0010', 'Fruity', 'N°9 Candy Citrus', 240, 35, 'A bright citrus-fruity fragrance with orange, grapefruit, and sugar notes.', 'P0010.png', '\'Available\''),
+('P0009', 'Fruity', 'N°9 Sweet Orchard', 230, 38, 'Crisp orchard fruits with a soft floral background; refreshing and light.', 'P0009.png', '\'Available\''),
+('P0010', 'Fruity', 'N°9 Candy Citrus', 240, 34, 'A bright citrus-fruity fragrance with orange, grapefruit, and sugar notes.', 'P0010.png', '\'Available\''),
 ('P0011', 'Woody', 'N°9 Sandal Noir', 330, 20, 'A warm woody scent with sandalwood, musk, and soft amber.', 'P0011.png', '\'Available\''),
 ('P0012', 'Woody', 'N°9 Cedar Realm', 310, 13, 'Earthy cedarwood with crisp herbal notes, calm and grounding.', 'P0012.png', '\'Available\''),
 ('P0013', 'Woody', 'N°9 Urban Shadow', 350, 18, 'A modern woody fragrance with smoky notes and masculine depth.', 'P0013.png', '\'Available\''),
-('P0014', 'Woody', 'N°9 Amber Trail', 380, 14, 'Amber, patchouli, and dry woods create a rich, sensual scent.', 'P0014.png', '\'Available\''),
-('P0015', 'Woody', 'N°9 Forest Velvet', 300, 24, 'Soft forest woods with a creamy finish, comforting and elegant.', 'P0015.png', '\'Available\''),
-('P0016', 'Fresh', 'N°9 Aqua Breeze', 240, 42, 'A cool aquatic fragrance with sea notes and light citrus.', 'P0016.png', '\'Available\''),
+('P0014', 'Woody', 'N°9 Amber Trail', 380, 13, 'Amber, patchouli, and dry woods create a rich, sensual scent.', 'P0014.png', '\'Available\''),
+('P0015', 'Woody', 'N°9 Forest Velvet', 300, 22, 'Soft forest woods with a creamy finish, comforting and elegant.', 'P0015.png', '\'Available\''),
+('P0016', 'Fresh', 'N°9 Aqua Breeze', 240, 39, 'A cool aquatic fragrance with sea notes and light citrus.', 'P0016.png', '\'Available\''),
 ('P0017', 'Fresh', 'N°9 Crystal Morning', 260, 28, 'Clean and bright citrus freshness with lemon and bergamot.', 'P0017.png', '\'Available\''),
-('P0018', 'Fresh', 'N°9 Pure Daylight', 230, 35, 'A mild fresh scent with white tea and soft flowers.', 'P0018.png', '\'Available\''),
+('P0018', 'Fresh', 'N°9 Pure Daylight', 230, 34, 'A mild fresh scent with white tea and soft flowers.', 'P0018.png', '\'Available\''),
 ('P0019', 'Fresh', 'N°9 Mist Horizon', 270, 22, 'Airy freshness with hints of mint and watery florals.', 'P0019.png', '\'Available\''),
 ('P0020', 'Fresh', 'N°9 Spring Drift', 250, 40, 'Light, refreshing, and breezy with green citrus notes.', 'P0020.png', '\'Available\''),
-('P0021', 'Green', 'N°9 Green Leaf Spirit', 200, 48, 'Herbal green scent with fresh-cut leaves and soft florals.', 'P0021.png', '\'Available\''),
+('P0021', 'Green', 'N°9 Green Leaf Spirit', 200, 39, 'Herbal green scent with fresh-cut leaves and soft florals.', 'P0021.png', '\'Available\''),
 ('P0022', 'Green', 'N°9 Bamboo Whisper', 260, 20, 'Clean bamboo and gentle floral notes, calming and natural.', 'P0022.png', '\'Available\''),
-('P0023', 'Green', 'N°9 Meadow Fresh', 220, 26, 'Soft grassy scent inspired by morning dew on an open field.', 'P0023.png', '\'Available\''),
-('P0024', 'Green', 'N°9 Herbal Dew', 240, 26, 'Green herbs with mint and tea-like freshness.', 'P0024.png', '\'Available\''),
-('P0025', 'Green', 'N°9 Wild Garden', 210, 22, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.', 'P0025.png', '\'Available\'');
+('P0023', 'Green', 'N°9 Meadow Fresh', 220, 22, 'Soft grassy scent inspired by morning dew on an open field.', 'P0023.png', '\'Available\''),
+('P0024', 'Green', 'N°9 Herbal Dew', 240, 25, 'Green herbs with mint and tea-like freshness.', 'P0024.png', '\'Available\''),
+('P0025', 'Green', 'N°9 Wild Garden', 210, 17, 'A vibrant, natural green fragrance with stems, leaves, and soft flowers.', 'P0025.png', 'Available');
 
 -- --------------------------------------------------------
 
@@ -168,11 +207,24 @@ CREATE TABLE `productorder` (
 --
 
 INSERT INTO `productorder` (`ProductOrderID`, `OrderID`, `ProductID`, `Quantity`, `TotalPrice`) VALUES
-('PO00001', 'O00001', 'P0021', 3, 600),
-('PO00002', 'O00002', 'P0023', 5, 1100),
-('PO00003', 'O00002', 'P0009', 1, 230),
-('PO00004', 'O00003', 'P0023', 1, 220),
-('PO00005', 'O00003', 'P0009', 1, 230);
+('PO00001', 'O00001', 'P0021', 1, 200),
+('PO00002', 'O00001', 'P0025', 1, 210),
+('PO00003', 'O00001', 'P0023', 1, 220),
+('PO00004', 'O00002', 'P0025', 1, 210),
+('PO00005', 'O00002', 'P0018', 1, 230),
+('PO00006', 'O00002', 'P0024', 1, 240),
+('PO00007', 'O00003', 'P0009', 1, 230),
+('PO00008', 'O00004', 'P0023', 1, 220),
+('PO00009', 'O00005', 'P0014', 1, 380),
+('PO00010', 'O00006', 'P0021', 1, 200),
+('PO00011', 'O00007', 'P0025', 1, 210),
+('PO00012', 'O00008', 'P0021', 1, 200),
+('PO00013', 'O00009', 'P0010', 1, 240),
+('PO00014', 'O00010', 'P0021', 1, 200),
+('PO00015', 'O00011', 'P0009', 1, 230),
+('PO00016', 'O00012', 'P0016', 3, 720),
+('PO00017', 'O00012', 'P0006', 3, 750),
+('PO00018', 'O00012', 'P0015', 2, 600);
 
 -- --------------------------------------------------------
 
@@ -290,6 +342,13 @@ ALTER TABLE `order`
   ADD KEY `ShippingAddressID` (`ShippingAddressID`);
 
 --
+-- Indexes for table `order_status`
+--
+ALTER TABLE `order_status`
+  ADD PRIMARY KEY (`StatusID`),
+  ADD UNIQUE KEY `unique_order` (`OrderID`);
+
+--
 -- Indexes for table `product`
 --
 ALTER TABLE `product`
@@ -331,7 +390,13 @@ ALTER TABLE `user_address`
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `FavoriteID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `FavoriteID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `order_status`
+--
+ALTER TABLE `order_status`
+  MODIFY `StatusID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `user`
@@ -343,7 +408,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `user_address`
 --
 ALTER TABLE `user_address`
-  MODIFY `AddressID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `AddressID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
@@ -369,6 +434,12 @@ ALTER TABLE `favorites`
 ALTER TABLE `order`
   ADD CONSTRAINT `order_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`),
   ADD CONSTRAINT `order_ibfk_2` FOREIGN KEY (`ShippingAddressID`) REFERENCES `user_address` (`AddressID`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `order_status`
+--
+ALTER TABLE `order_status`
+  ADD CONSTRAINT `fk_status_order` FOREIGN KEY (`OrderID`) REFERENCES `order` (`OrderID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `productorder`

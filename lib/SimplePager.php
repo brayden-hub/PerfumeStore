@@ -16,7 +16,8 @@ class SimplePager {
         $this->page = ctype_digit($page) ? max($page, 1) : 1;
 
         // Set [item count]
-        $q = preg_replace('/SELECT.+FROM/', 'SELECT COUNT(*) FROM', $query, 1);
+        // 'i' = Case Insensitive, 's' = Allow matching across multiple lines
+        $q = preg_replace('/SELECT.+FROM/is', 'SELECT COUNT(*) FROM', $query, 1);
         $stm = $_db->prepare($q);
         $stm->execute($params);
         $this->item_count = $stm->fetchColumn();

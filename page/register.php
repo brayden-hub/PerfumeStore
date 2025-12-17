@@ -81,28 +81,36 @@ elseif (is_post() && $step == 5 && empty($_err)) {
     $phone    = req('phone_number');
     $password = req('password'); // 从表单重新读取密码
     
-    // --- (A) 手机号码验证开始 ---
+    // register.php - 后端同步验证规则
     if ($phone == '') {
         $_err['phone_number'] = 'Required';
         $step = 4;
     } else {
-        $phone_digits = preg_replace('/[^\d]/', '', trim($phone)); 
+        $phone_digits = preg_replace('/[^\d]/', '', trim($phone)); // 获取纯数字
+        $phone_len = strlen($phone_digits);
 
-        if (strlen($phone_digits) != 11) {
-            $_err['phone_number'] = 'Phone number must be exactly 11 digits.';
-            $step = 4;
+        if (str_starts_with($phone_digits, '60')) {
+            // 60 开头：11-12位
+            if ($phone_len < 11 || $phone_len > 12) {
+                $_err['phone_number'] = '60 format must be 11-12 digits.';
+                $step = 4;
+            }
         } 
-        elseif (!preg_match('/^(60|01)\d{9}$/', $phone_digits)) {
-            $_err['phone_number'] = 'Invalid starting digits. Must start with 60 or 01.';
+        elseif (str_starts_with($phone_digits, '01')) {
+            // 01 开头：10-11位
+            if ($phone_len < 10 || $phone_len > 11) {
+                $_err['phone_number'] = '01 format must be 10-11 digits.';
+                $step = 4;
+            }
+            // 检查格式：必须在第3位后面有一个破折号
+            elseif (!preg_match('/^01\d-\d{7,8}$/', $phone)) {
+                 $_err['phone_number'] = 'Format must be 01x-xxxxxxx.';
+                 $step = 4;
+            }
+        }
+        else {
+            $_err['phone_number'] = 'Must start with 60 or 01.';
             $step = 4;
-        }
-        elseif ($phone_digits[0] == '0' && !preg_match('/^01\d-\d{4}-\d{4}$/', $phone)) {
-             $_err['phone_number'] = 'Domestic mobile format must be 01x-xxxx-xxxx.';
-             $step = 4;
-        }
-        elseif ($phone_digits[0] == '6' && strpos($phone, '-') !== false) {
-             $_err['phone_number'] = 'International format (60) must not contain dashes.';
-             $step = 4;
         }
     }
     // --- (A) 手机号码验证结束 ---

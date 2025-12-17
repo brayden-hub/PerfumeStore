@@ -25,19 +25,20 @@ if (is_post()) {
         $u = $stm->fetch();
 
         // (2) Generate token id
-        $id = sha1(uniqid() . rand());
+        
+        $token_id = sha1(uniqid() . rand()); // 变量名建议也改掉，方便理解
 
         // (3) Delete old and insert new token
         $stm = $_db->prepare('
             DELETE FROM token WHERE userID = ?;
             
-            INSERT INTO token (id, expire, userID)
+            INSERT INTO token (token_id, expire, userID) 
             VALUES (?, ADDTIME(NOW(), "00:05:00"), ?);
-        ');
-        $stm->execute([$u->userID, $id, $u->userID]);
+        '); // 将 id 改为 token_id
+        $stm->execute([$u->userID, $token_id, $u->userID]);
 
         // (4) Generate token url
-        $url = "http://" . $_SERVER['HTTP_HOST'] . "/page/reset_password.php?id=$id";
+        $url = "http://" . $_SERVER['HTTP_HOST'] . "/page/reset_password.php?id=$token_id";
 
         // (5) Send email
         $m = get_mail();

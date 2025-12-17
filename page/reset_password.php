@@ -4,10 +4,12 @@ require '../_base.php';
 // (1) Delete expired tokens
 $_db->query('DELETE FROM token WHERE expire < NOW()');
 
-$id = req('id');
+
+
+$id = req('id'); // URL 里的参数名可以保持 'id'，但数据库字段名要改
 
 // (2) Is token id valid?
-if (!is_exists($id, 'token', 'id')) {
+if (!is_exists($id, 'token', 'token_id')) { // 将 id 改为 token_id
     temp('info', 'Invalid or expired token. Please request a new password reset link.');
     redirect('forgot_password.php');
 }
@@ -49,7 +51,7 @@ if (is_post()) {
     // DB operation
     if (!$_err) {
         // Get user info from token
-        $stm = $_db->prepare('SELECT userID FROM token WHERE id = ?');
+        $stm = $_db->prepare('SELECT userID FROM token WHERE token_id = ?'); // 将 id 改为 token_id
         $stm->execute([$id]);
         $token = $stm->fetch();
         
@@ -64,10 +66,10 @@ if (is_post()) {
         $stm->execute([$hashed, $token->userID]);
         
         // Delete the used token
-        $stm = $_db->prepare('DELETE FROM token WHERE id = ?');
+        $stm = $_db->prepare('DELETE FROM token WHERE token_id = ?'); // 将 id 改为 token_id
         $stm->execute([$id]);
 
-        temp('info', 'Password successfully reset! You can now login with your new password.');
+        temp('info', 'Password successfully reset!');
         redirect('login.php');
     }
 }

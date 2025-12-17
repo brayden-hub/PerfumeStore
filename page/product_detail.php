@@ -14,6 +14,13 @@ if (!$p || str_contains($p->Status, 'Not')) {
     return;
 }
 
+$stm_gal = $_db->prepare("SELECT Filename FROM product_images WHERE ProductID = ?");
+$stm_gal->execute([$id]);
+$gallery_images = $stm_gal->fetchAll(PDO::FETCH_COLUMN);
+
+// Add main image to the start of the list so it appears in thumbnails too
+array_unshift($gallery_images, $p->Image);
+
 $_title = $p->ProductName . " - N°9 Perfume";
 include '../_head.php';
 
@@ -42,9 +49,23 @@ if (isset($_SESSION['user_id'])) {
 
 <div class="detail-container" style="max-width:1400px;margin:0 auto;padding:4rem 5%;display:flex;gap:6rem;flex-wrap:wrap;align-items:flex-start;">
     <div class="detail-image" style="flex:1;min-width:400px;">
-        <img src="/public/images/<?= htmlspecialchars($p->ProductID) ?>.png" 
-             alt="<?= htmlspecialchars($p->ProductName) ?>" 
-             style="width:100%;height:auto;border-radius:8px;box-shadow:0 20px 40px rgba(0,0,0,0.1);">
+        <div style="position: relative; overflow: hidden; border-radius: 8px; margin-bottom: 15px;">
+            <img id="main-display-img" 
+                 src="/public/images/<?= htmlspecialchars($p->Image) ?>" 
+                 alt="<?= htmlspecialchars($p->ProductName) ?>" 
+                 style="width:100%; height:auto; display: block; box-shadow:0 10px 30px rgba(0,0,0,0.1); transition: opacity 0.3s ease;">
+        </div>
+
+        <?php if (count($gallery_images) > 1): ?>
+        <div class="gallery-thumbs" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
+            <?php foreach ($gallery_images as $img): ?>
+                <img src="/public/images/<?= htmlspecialchars($img) ?>" 
+                     class="thumb-img" 
+                     onclick="changeImage(this)"
+                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; opacity: 0.7; transition: all 0.2s;">
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
     </div>
 
     <div class="detail-info" style="flex:1;min-width:350px;">
@@ -352,5 +373,115 @@ function showToast(message) {
     background: #fff0f0;
 }
 </style>
+
+<script>
+// Function to swap the main image
+function changeImage(element) {
+    var mainImg = document.getElementById('main-display-img');
+    var newSrc = element.src;
+    
+    // Fade out effect
+    mainImg.style.opacity = 0.8;
+    
+    setTimeout(function(){
+        mainImg.src = newSrc;
+        mainImg.style.opacity = 1;
+    }, 150);
+
+    // Update active border style
+    var thumbs = document.getElementsByClassName('thumb-img');
+    for (var i = 0; i < thumbs.length; i++) {
+        thumbs[i].style.border = '2px solid transparent';
+        thumbs[i].style.opacity = '0.7';
+    }
+    element.style.border = '2px solid #D4AF37'; // Gold border
+    element.style.opacity = '1';
+}
+
+// Highlight the first thumbnail on load
+document.addEventListener("DOMContentLoaded", function() {
+    var thumbs = document.getElementsByClassName('thumb-img');
+    if(thumbs.length > 0) {
+        thumbs[0].style.border = '2px solid #D4AF37';
+        thumbs[0].style.opacity = '1';
+    }
+});
+
+// =========================================
+// Dynamic Product Slider Script
+// =========================================
+
+// 1. Setup Globals
+let slideshowInterval; // Variable to hold the timer
+let currentIndex = 0;  // Track current image index
+// Get all thumbnails (returns an HTMLCollection like an array)
+const thumbs = document.getElementsByClassName('thumb-img');
+const totalImages = thumbs.length;
+const mainImg = document.getElementById('main-display-img');
+
+
+// 2. Main function to switch images (used by manual click AND auto-slide)
+function changeImage(element) {
+    // --- Crucial: Reset the auto-timer on manual interaction ---
+    // This prevents the image from jumping right after a user clicks one.
+    startSlideshow();
+
+    // Synchronize index: Find out which thumbnail index was clicked
+    // (We convert the HTMLCollection 'thumbs' to a real Array to use .indexOf)
+    currentIndex = Array.from(thumbs).indexOf(element);
+
+    // --- Visual Swap Logic (Fade effect) ---
+    mainImg.style.opacity = 0.8; // Start fade out
+
+    setTimeout(function(){
+        // Change source
+        mainImg.src = element.src;
+        // Fade back in
+        mainImg.style.opacity = 1;
+    }, 150); // Wait 150ms for the fade-out before swapping
+
+    // --- Update Active Thumbnail Border Styles ---
+    for (var i = 0; i < totalImages; i++) {
+        thumbs[i].style.border = '2px solid transparent';
+        thumbs[i].style.opacity = '0.7';
+    }
+    // Highlight the active one
+    element.style.border = '2px solid #D4AF37'; // Gold border
+    element.style.opacity = '1';
+}
+
+
+// 3. Function to handle the 5-second timer
+function startSlideshow() {
+    // Always clear existing timer first to avoid duplicates
+    clearInterval(slideshowInterval);
+
+    // Only run auto-slide if there is more than 1 image
+    if (totalImages > 1) {
+        slideshowInterval = setInterval(function() {
+            // Calculate next index. The modulo (%) operator makes it loop back to 0 at the end.
+            // e.g., if total is 3: index goes 0 -> 1 -> 2 -> 0 -> 1...
+            let nextIndex = (currentIndex + 1) % totalImages;
+
+            // Trigger the change function on the next thumbnail element
+            changeImage(thumbs[nextIndex]);
+
+        }, 4500); // 5000 milliseconds = 5 seconds
+    }
+}
+
+
+// 4. Initialize on Page Load
+document.addEventListener("DOMContentLoaded", function() {
+    if (totalImages > 0) {
+        // Ensure the first image is highlighted initially
+        thumbs[0].style.border = '2px solid #D4AF37';
+        thumbs[0].style.opacity = '1';
+
+        // Kick off the auto-rotation
+        startSlideshow();
+    }
+});
+</script>
 
 <?php include '../_foot.php'; ?>

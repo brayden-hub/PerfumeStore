@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 16, 2025 at 05:54 PM
+-- Generation Time: Dec 17, 2025 at 09:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -162,7 +162,7 @@ CREATE TABLE `product` (
 --
 
 INSERT INTO `product` (`ProductID`, `Series`, `ProductName`, `Price`, `Stock`, `Description`, `Image`, `Status`) VALUES
-('P0001', 'Floral', 'N°9 Bloom Whisper', 280, 30, 'A soft floral blend of rose petals and white jasmine, elegant and romantic.', 'P0001.png', '\'Available\''),
+('P0001', 'Floral', 'N°9 Bloom Whisper', 280, 30, 'A soft floral blend of rose petals and white jasmine, elegant and romantic.', 'P0001.png', 'Available'),
 ('P0002', 'Floral', 'N°9 Petal Symphony', 320, 25, 'A graceful bouquet of peony, lily, and iris, perfect for feminine charm.', 'P0002.png', '\'Available\''),
 ('P0003', 'Floral', 'N°9 Rose Étoile', 300, 22, 'A modern rose fragrance with bright floral tones and subtle sweetness.', 'P0003.png', '\'Available\''),
 ('P0004', 'Floral', 'N°9 Velvet Blossom', 350, 18, 'Warm and luxurious floral scent with velvet rose and creamy magnolia.', 'P0004.png', '\'Available\''),
@@ -229,6 +229,72 @@ INSERT INTO `productorder` (`ProductOrderID`, `OrderID`, `ProductID`, `Quantity`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `product_images`
+--
+
+CREATE TABLE `product_images` (
+  `ImageID` int(11) NOT NULL,
+  `ProductID` char(5) NOT NULL,
+  `Filename` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_images`
+--
+
+INSERT INTO `product_images` (`ImageID`, `ProductID`, `Filename`) VALUES
+(1, 'P0001', 'P0001_6942fb287b40b.png'),
+(3, 'P0002', 'P0002_6942fc9996f37.png'),
+(4, 'P0002', 'P0002_6942fca1143d8.jpg'),
+(5, 'P0003', 'P0003_6942fce4c3987.png'),
+(6, 'P0003', 'P0003_6942fcef3f130.jpg'),
+(7, 'P0004', 'P0004_6942fd16206de.png'),
+(8, 'P0004', 'P0004_6942fd2361d06.jpg'),
+(9, 'P0005', 'P0005_6942fd37be377.png'),
+(10, 'P0005', 'P0005_6942fd4df4153.jpg'),
+(13, 'P0007', 'P0007_6942fd8a48387.png'),
+(14, 'P0007', 'P0007_6942fd9a80234.jpg'),
+(15, 'P0006', 'P0006_6942fdd37f859.png'),
+(16, 'P0006', 'P0006_6942fde80fd27.jpg'),
+(17, 'P0008', 'P0008_6942fdf863cc7.png'),
+(18, 'P0008', 'P0008_6942fe01cf2f7.jpg'),
+(19, 'P0009', 'P0009_6942fe17efddd.png'),
+(20, 'P0009', 'P0009_6942fe22a721e.jpg'),
+(21, 'P0010', 'P0010_6942fe370765d.png'),
+(22, 'P0010', 'P0010_6942fe3d98cdd.jpg'),
+(23, 'P0011', 'P0011_6942fe4ecba69.png'),
+(24, 'P0011', 'P0011_6942fe574b845.jpg'),
+(25, 'P0012', 'P0012_6942fe6952aa6.png'),
+(26, 'P0012', 'P0012_6942fe740c1ee.jpg'),
+(27, 'P0013', 'P0013_6942fe7fa240f.png'),
+(28, 'P0013', 'P0013_6942fe8806eaf.jpg'),
+(29, 'P0014', 'P0014_6942fe9c7ddb8.png'),
+(30, 'P0014', 'P0014_6942fea737872.jpg'),
+(31, 'P0025', 'P0025_6942fec222606.png'),
+(32, 'P0025', 'P0025_6942fec961187.jpg'),
+(33, 'P0024', 'P0024_6942fed66e62a.png'),
+(34, 'P0024', 'P0024_6942fedd9813f.jpg'),
+(35, 'P0023', 'P0023_6942fef7827a1.png'),
+(36, 'P0023', 'P0023_6942ff0019008.jpg'),
+(37, 'P0022', 'P0022_6942ff118d938.png'),
+(38, 'P0022', 'P0022_6942ff1bf09ac.jpg'),
+(39, 'P0021', 'P0021_6942ff2ee15a5.png'),
+(40, 'P0021', 'P0021_6942ff3a638ff.jpg'),
+(41, 'P0020', 'P0020_6942ff546e3de.png'),
+(42, 'P0020', 'P0020_6942ff71552f9.jpg'),
+(43, 'P0018', 'P0018_6942ff8236514.png'),
+(44, 'P0018', 'P0018_6942ff8be6e5f.jpg'),
+(45, 'P0017', 'P0017_6942ffa04e982.png'),
+(46, 'P0017', 'P0017_6942ffa9e2e1a.jpg'),
+(47, 'P0016', 'P0016_6942ffbac4b99.png'),
+(48, 'P0016', 'P0016_6942ffc4241e4.jpg'),
+(49, 'P0019', 'P0019_6942ffe4e145f.png'),
+(50, 'P0019', 'P0019_6942ffed7f8c8.jpg'),
+(51, 'P0001', 'P0001_69430390b1d65.jpg');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `subscriber`
 --
 
@@ -250,6 +316,18 @@ INSERT INTO `subscriber` (`email`, `token_id`, `status`, `subscribed_at`, `creat
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `token`
+--
+
+CREATE TABLE `token` (
+  `token_id` varchar(100) NOT NULL,
+  `expire` datetime NOT NULL,
+  `userID` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user`
 --
 
@@ -262,21 +340,37 @@ CREATE TABLE `user` (
   `role` varchar(30) NOT NULL,
   `remember_token` varchar(64) DEFAULT NULL,
   `Profile_Photo` varchar(100) NOT NULL DEFAULT '',
-  `status` varchar(20) NOT NULL DEFAULT 'Active',
-  `Points` int(11) NOT NULL DEFAULT 0
+  `status` varchar(20) NOT NULL DEFAULT 'Pending',
+  `Points` int(11) NOT NULL DEFAULT 0,
+  `login_attempts` int(11) NOT NULL DEFAULT 0,
+  `attempt_time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role`, `remember_token`, `Profile_Photo`, `status`, `Points`) VALUES
-(1, 'ali', 'chongzhengzhe@gmail.com', '$2y$10$4Vew8Q.0PKoM74By9ime9.MjXuci6pO/REtKZ.HAnoOWZsMUwfU16', '018000000', 'Member', NULL, '', 'Activated', 0),
-(2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, '', 'Active', 0),
-(5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, '', 'Activated', 0),
-(6, 'pop@gmail.com', 'pop@gmail.com', '$2y$10$Up7xPG91ut/2LSzwYgcjUOD.v6wDo1esV6kp3IHxdXUy4t8YKmcOW', '01154789654', 'Member', NULL, 'default5.jpg', 'Activated', 0),
-(7, 'raiko', 'donghuanlin25@gmail.com', '$2y$10$losLbM6UXgKtuQiKvyk1auuGoByWZeSqaZmXiosHiGYy.nN0CDUry', '104507792', 'Member', NULL, '7_1765728165.png', 'Activated', 0),
-(8, 's@gmail.com', 's@gmail.com', '$2y$10$yZvBp6JpC8pogwIQhfOZZO8Uy.Yfqxjso5d5zK2WBK5/959hnlyeO', '01233333333', 'Member', NULL, 'default2.jpg', 'Activated', 0);
+INSERT INTO `user` (`userID`, `name`, `email`, `password`, `phone_number`, `role`, `remember_token`, `Profile_Photo`, `status`, `Points`, `login_attempts`, `attempt_time`) VALUES
+(1, 'ali', 'c@gmail.com', '$2y$10$BbEc4QFyUknPYR.WaaJAyO1W7bn.75sjcY1ukowx.N.7jv05aF0uS', '018000000', 'Member', NULL, '', 'Deactivated', 0, 0, NULL),
+(2, 'Yee Zu Yao', 'yeezy-wp23@student.tarc.edu.my', '$2y$10$RTmdWLSYfQZE5Tk9MBRVAeJnZ7XRetrqd6gDJ.sFwX3AyvzVQR9w6', '0111111111', 'Admin', NULL, '', 'Activated', 0, 0, NULL),
+(5, 'Brayden Toh Zhi Kang', 'Brayden@gmail.com', '$2y$10$mNrkJaxhI/AzLaVpSx/r/e4lSyOU4K5kDh9hbi1hjDmG9AIRP84Ca', '0111111112', 'Member', NULL, '', 'Activated', 0, 0, NULL),
+(6, 'pop@gmail.com', 'pop@gmail.com', '$2y$10$Up7xPG91ut/2LSzwYgcjUOD.v6wDo1esV6kp3IHxdXUy4t8YKmcOW', '01154789654', 'Member', NULL, 'default5.jpg', 'Activated', 0, 0, NULL),
+(7, 'raiko', 'donghuanlin25@gmail.com', '$2y$10$losLbM6UXgKtuQiKvyk1auuGoByWZeSqaZmXiosHiGYy.nN0CDUry', '104507792', 'Member', NULL, '7_1765728165.png', 'Activated', 0, 0, NULL),
+(8, 's@gmail.com', 's@gmail.com', '$2y$10$yZvBp6JpC8pogwIQhfOZZO8Uy.Yfqxjso5d5zK2WBK5/959hnlyeO', '01233333333', 'Member', NULL, 'default2.jpg', 'Activated', 0, 0, NULL),
+(9, 'c', 'css@gmail.com', '$2y$10$SZr4Syll8vGjSc3EWoKpaOWE8OpRpvisHuptnsnJ26ueSim90szu2', '60182222222', 'Member', NULL, 'default2.jpg', 'Activated', 0, 0, NULL),
+(10, 'f', 'zz@gmail.com', '$2y$10$Inzw2G4x5NjucoEiYPChq.Sv/.OlfMrkke2SOmhgVuhqKW8xBJVOi', '0156666666', 'Member', NULL, 'default5.jpg', 'Activated', 0, 0, NULL),
+(11, 'fgdf', 'f@gmail.com', '$2y$10$onRRZlsyuacS38l7CQVeye4bhlnewt76R/gi2gdqhZPlkVj1vb10u', '604990000000', 'Member', NULL, 'default3.jpg', 'Activated', 0, 0, NULL),
+(12, 'fg', 'r@gmail.com', '$2y$10$BrNQ2KLcyfYCSgVpCJT3oenjEMXao5JhiCQMNo8d5Xn1aeyl1HcJa', '0124334433', 'Member', NULL, 'default2.jpg', 'Activated', 0, 0, NULL),
+(13, 'c', 'cd@gmail.com', '$2y$10$JmsH.gMTqbD.VeSmT.TCxOe20VK6JW6nO5xOZlKgrSylNCFi/Djfe', '0187777777', 'Member', NULL, 'default5.jpg', 'Activated', 0, 0, NULL),
+(14, 'c', 'chong@gmail.com', '$2y$10$LbM2lFaYeGK9OizogL8glePwd6/fFiJatcOhn/60//h0UIH5.ejeW', '01222222222', 'Member', NULL, 'default5.jpg', 'Activated', 0, 0, NULL),
+(15, 'gbc bvm', 'cho@gmail.com', '$2y$10$vM0CuK7VXk58tKvd4SKpnOSjBWK.hQARDgj1Q688FAFNh1SH8nlGu', '01920000000', 'Member', NULL, 'default3.jpg', 'Activated', 0, 0, NULL),
+(16, 'cfl', 'chongzhengkzhe@gmail.com', '$2y$10$bNWmgIZlmynTlQ3iv3DPvuZMt1XHdQ1nEkJRjibQweIPPL1zK2fNm', '01233333333', 'Member', NULL, 'default5.jpg', 'Activated', 0, 0, NULL),
+(17, 'd', 'chongzhengzl\r\nhe@gmail.com', '$2y$10$Yx949ILoT4todMbC2en3Xuo2uBHzNf7y1rMf9JxzgoJPF.89Gtsm.', '0122222222', 'Member', NULL, 'default5.jpg', 'Activated', 0, 0, NULL),
+(18, 'fgdf', 'chojngzhengzhe@gmail.com', '$2y$10$Q269KUVD1HKlaoFJfvFhF.9ZjitReumSSylJx2gfNO9tpVWT.CfSm', '01222222222', 'Member', NULL, 'default1.jpg', 'Activated', 0, 0, NULL),
+(19, 'fg', 'chongzhqeadengzhe@gmail.com', '$2y$10$HLxge4gOPDJohSPLaFw5iOWEJXtr59SeXWWZIbToSywe7J7dUruDa', '0182222222', 'Member', NULL, 'default3.jpg', 'Activated', 0, 0, NULL),
+(20, 'ccccccc', 'chongzfsxfsxhengzhe@gmail.com', '$2y$10$frkYW0gghOQyYtq.CXhQ4.mpiX9t.H6tkTKI30VUBRjZOYpuGVlD2', '01844444444', 'Member', NULL, 'default2.jpg', 'Activated', 0, 0, NULL),
+(21, 'cdxc', 'chongzhejnkngzhe@gmail.com', '$2y$10$dWgvbUzv7tnFn/761oqFXe0/6ieY3aGQHTtBxM757Fv5wwfIle1XG', '01222222222', 'Member', NULL, 'default2.jpg', 'Activated', 0, 0, NULL),
+(22, 'c', 'chongzhengzhe@gmail.com', '$2y$10$hXBefLI2X4UbdANHq4shFO1shKn59YthG8J.Of6j99gE6CtipVaqC', '01222222222', 'Member', NULL, 'default6.jpg', 'Activated', 0, 3, '2025-12-18 02:33:24');
 
 -- --------------------------------------------------------
 
@@ -363,10 +457,24 @@ ALTER TABLE `productorder`
   ADD KEY `ProductID` (`ProductID`);
 
 --
+-- Indexes for table `product_images`
+--
+ALTER TABLE `product_images`
+  ADD PRIMARY KEY (`ImageID`),
+  ADD KEY `ProductID` (`ProductID`);
+
+--
 -- Indexes for table `subscriber`
 --
 ALTER TABLE `subscriber`
   ADD PRIMARY KEY (`email`);
+
+--
+-- Indexes for table `token`
+--
+ALTER TABLE `token`
+  ADD PRIMARY KEY (`token_id`),
+  ADD KEY `userID` (`userID`);
 
 --
 -- Indexes for table `user`
@@ -399,10 +507,16 @@ ALTER TABLE `order_status`
   MODIFY `StatusID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
+-- AUTO_INCREMENT for table `product_images`
+--
+ALTER TABLE `product_images`
+  MODIFY `ImageID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+
+--
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `user_address`
@@ -447,6 +561,18 @@ ALTER TABLE `order_status`
 ALTER TABLE `productorder`
   ADD CONSTRAINT `productorder_ibfk_1` FOREIGN KEY (`OrderID`) REFERENCES `order` (`OrderID`) ON DELETE CASCADE,
   ADD CONSTRAINT `productorder_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`);
+
+--
+-- Constraints for table `product_images`
+--
+ALTER TABLE `product_images`
+  ADD CONSTRAINT `product_images_ibfk_1` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`);
+
+--
+-- Constraints for table `token`
+--
+ALTER TABLE `token`
+  ADD CONSTRAINT `token_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `user` (`userID`);
 
 --
 -- Constraints for table `user_address`

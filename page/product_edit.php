@@ -163,7 +163,7 @@ include '../_head.php';
                          class="img-preview-thumb">
                     
                     <button type="button" 
-                            data-post="product_image_delete.php?id=<?= $img->ImageID ?>" 
+                            data-post="product_delete_image.php?id=<?= $img->ImageID ?>" 
                             data-confirm="Delete this image?"
                             class="btn-img-delete">
                         ✕

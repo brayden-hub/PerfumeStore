@@ -191,54 +191,42 @@ $(document).ready(function() {
         });
     }
 // === 电话号码自动格式化 (register.php - Step 4) ===
-    $("#reg_phone_number").on("input", function() {
-        let input = $(this).val().replace(/[^0-9]/g, ''); // 移除所有非数字字符
+    // app.js - 修复：60(12-13位)，01(10-11位且只有一个破折号)
+$("#reg_phone_number").on("input", function() {
+    let input = $(this).val().replace(/[^0-9]/g, ''); // 提取纯数字
 
-        if (input.startsWith('60')) {
-            // Case 1: 以 60 开头 (国际格式)，保持纯数字，限制在 11 位
-            if (input.length > 11) {
-                input = input.substring(0, 11);
-            }
-            $(this).val(input);
-
-        } else if (input.startsWith('01')) {
-            // Case 2: 以 01 开头 (国内手机格式)，进行自动插入破折号
-            let formatted = '';
-
-            // 第一部分：3位数字 (01x)
-            formatted += input.substring(0, 3);
-            
-            if (input.length >= 4) {
-                formatted += '-';
-                
-                // 第二部分：4位数字
-                formatted += input.substring(3, 7);
-            }
-            
-            if (input.length >= 8) {
-                 // 第三部分：4位数字
-                formatted += '-';
-                formatted += input.substring(7, 11);
-            }
-            
-            // 限制总数字不超过 11 位
-            if (formatted.length > 13) {
-                 formatted = formatted.substring(0, 13);
-            }
-
-            $(this).val(formatted);
-
-        } else {
-            // 如果既不是 60 也不是 01 开头，则保持纯数字，限制长度，或者阻止输入
-            if (input.length > 11) {
-                 input = input.substring(0, 11);
-            }
-            $(this).val(input);
+    if (input.startsWith('60')) {
+        // Case 1: 60 开头，限制 13 位纯数字
+        if (input.length > 13) {
+            input = input.substring(0, 13);
         }
-    }).on("blur", function() {
-        // 确保光标停留在正确位置
-        $(this).val($(this).val()); 
-    });
+        $(this).val(input);
+
+    } else if (input.startsWith('01')) {
+        // Case 2: 01 开头，限制 11 位纯数字
+        if (input.length > 11) {
+            input = input.substring(0, 11);
+        }
+
+        let formatted = '';
+        if (input.length > 3) {
+            // 只在第3位后面加一个破折号
+            formatted = input.substring(0, 3) + '-' + input.substring(3);
+        } else {
+            formatted = input;
+        }
+        $(this).val(formatted);
+
+    } else {
+        // 其他情况默认限制 11 位
+        if (input.length > 11) {
+             input = input.substring(0, 11);
+        }
+        $(this).val(input);
+    }
+}).on("blur", function() {
+    $(this).val($(this).val()); 
+});
     // === 格式化结束 ===
     // === Profile Dropdown Toggle ===
     const $toggle = $('#profile-menu-toggle');

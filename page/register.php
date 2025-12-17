@@ -81,28 +81,36 @@ elseif (is_post() && $step == 5 && empty($_err)) {
     $phone    = req('phone_number');
     $password = req('password'); // 从表单重新读取密码
     
-    // --- (A) 手机号码验证开始 ---
+    // register.php - 后端同步验证规则
     if ($phone == '') {
         $_err['phone_number'] = 'Required';
         $step = 4;
     } else {
-        $phone_digits = preg_replace('/[^\d]/', '', trim($phone)); 
+        $phone_digits = preg_replace('/[^\d]/', '', trim($phone)); // 获取纯数字
+        $phone_len = strlen($phone_digits);
 
-        if (strlen($phone_digits) != 11) {
-            $_err['phone_number'] = 'Phone number must be exactly 11 digits.';
-            $step = 4;
+        if (str_starts_with($phone_digits, '60')) {
+            // 60 开头：11-12位
+            if ($phone_len < 11 || $phone_len > 12) {
+                $_err['phone_number'] = '60 format must be 11-12 digits.';
+                $step = 4;
+            }
         } 
-        elseif (!preg_match('/^(60|01)\d{9}$/', $phone_digits)) {
-            $_err['phone_number'] = 'Invalid starting digits. Must start with 60 or 01.';
+        elseif (str_starts_with($phone_digits, '01')) {
+            // 01 开头：10-11位
+            if ($phone_len < 10 || $phone_len > 11) {
+                $_err['phone_number'] = '01 format must be 10-11 digits.';
+                $step = 4;
+            }
+            // 检查格式：必须在第3位后面有一个破折号
+            elseif (!preg_match('/^01\d-\d{7,8}$/', $phone)) {
+                 $_err['phone_number'] = 'Format must be 01x-xxxxxxx.';
+                 $step = 4;
+            }
+        }
+        else {
+            $_err['phone_number'] = 'Must start with 60 or 01.';
             $step = 4;
-        }
-        elseif ($phone_digits[0] == '0' && !preg_match('/^01\d-\d{4}-\d{4}$/', $phone)) {
-             $_err['phone_number'] = 'Domestic mobile format must be 01x-xxxx-xxxx.';
-             $step = 4;
-        }
-        elseif ($phone_digits[0] == '6' && strpos($phone, '-') !== false) {
-             $_err['phone_number'] = 'International format (60) must not contain dashes.';
-             $step = 4;
         }
     }
     // --- (A) 手机号码验证结束 ---
@@ -153,14 +161,31 @@ elseif (is_post() && $step == 5 && empty($_err)) {
         $defaults = ['default1.jpg','default2.jpg','default3.jpg','default4.jpg','default5.jpg','default6.jpg'];
         $avatar = $defaults[array_rand($defaults)];
         
-        // 存储时只存储纯数字 ($phone_digits)
-        $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo, status) VALUES (?, ?, ?, ?, 'Member', ?, 'Activated')");
-        $stm->execute([$email, $name, $phone_digits, $hashed, $avatar]); 
+        $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo, status) VALUES (?, ?, ?, ?, 'Member', ?, 'Pending')");
+        $stm->execute([$email, $name, $phone_digits, $hashed, $avatar]);
 
-        // 清除所有临时数据
-        unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone']);
+        // 获取刚插入的用户 ID
+        $userID = $_db->lastInsertId();
 
-        temp('info', 'Welcome aboard, ' . htmlspecialchars($name) . '! Account created successfully!');
+        // 2. 生成验证/登录 Token
+        $token_id = sha1(uniqid() . rand());
+        $stm = $_db->prepare('INSERT INTO token (token_id, expire, userID) VALUES (?, ADDTIME(NOW(), "00:10:00"), ?)');
+        $stm->execute([$token_id, $userID]);
+
+        // 3. 生成自动登录链接
+        $url = "http://" . $_SERVER['HTTP_HOST'] . "/page/verify_register.php?id=$token_id";
+
+        // 4. 发送邮件
+        $m = get_mail();
+        $m->addAddress($email, $name);
+        $m->isHTML(true);
+        $m->Subject = 'Verify Your Account - Nº9 Perfume';
+        $m->Body = "<h1>Welcome $name!</h1><p>Please click below to verify and log in:</p><a href='$url'>VERIFY & LOGIN NOW</a>";
+        $m->send();
+
+        // 5. 跳转到一个提示页面，告诉用户去查收邮件
+        unset($_SESSION['reg_name'], $_SESSION['reg_email']);
+        temp('info', 'Registration successful! Please check your email to verify and access your account.');
         redirect('login.php');
     }
 }

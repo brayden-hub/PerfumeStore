@@ -158,15 +158,15 @@ include '../_head.php';
         <label style="margin-top:30px;">Current Gallery Images</label>
         <div class="gallery-preview-container" style="margin-bottom: 20px;">
             <?php foreach ($gallery_images as $img): ?>
-                <div style="position: relative; display: inline-block;">
+                <div class="img-preview-wrapper">
                     <img src="/public/images/<?= htmlspecialchars($img->Filename) ?>" 
-                         class="gallery-preview-item" 
-                         style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd;">
+                         class="img-preview-thumb">
                     
-                    <button data-post="product_delete_image.php?id=<?= $img->ImageID ?>" 
+                    <button type="button" 
+                            data-post="product_image_delete.php?id=<?= $img->ImageID ?>" 
                             data-confirm="Delete this image?"
-                            style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; line-height: 1; font-size: 12px; display: flex; align-items: center; justify-content: center;">
-                        X
+                            class="btn-img-delete">
+                        ✕
                     </button>
                 </div>
             <?php endforeach; ?>

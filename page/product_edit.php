@@ -163,7 +163,7 @@ include '../_head.php';
                          class="gallery-preview-item" 
                          style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd;">
                     
-                    <button data-post="product_image_delete.php?id=<?= $img->ImageID ?>" 
+                    <button data-post="product_delete_image.php?id=<?= $img->ImageID ?>" 
                             data-confirm="Delete this image?"
                             style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; line-height: 1; font-size: 12px; display: flex; align-items: center; justify-content: center;">
                         X

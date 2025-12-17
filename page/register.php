@@ -161,14 +161,31 @@ elseif (is_post() && $step == 5 && empty($_err)) {
         $defaults = ['default1.jpg','default2.jpg','default3.jpg','default4.jpg','default5.jpg','default6.jpg'];
         $avatar = $defaults[array_rand($defaults)];
         
-        // 存储时只存储纯数字 ($phone_digits)
-        $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo, status) VALUES (?, ?, ?, ?, 'Member', ?, 'Activated')");
-        $stm->execute([$email, $name, $phone_digits, $hashed, $avatar]); 
+        $stm = $_db->prepare("INSERT INTO user (email, name, phone_number, password, role, Profile_Photo, status) VALUES (?, ?, ?, ?, 'Member', ?, 'Pending')");
+        $stm->execute([$email, $name, $phone_digits, $hashed, $avatar]);
 
-        // 清除所有临时数据
-        unset($_SESSION['reg_name'], $_SESSION['reg_email'], $_SESSION['reg_phone']);
+        // 获取刚插入的用户 ID
+        $userID = $_db->lastInsertId();
 
-        temp('info', 'Welcome aboard, ' . htmlspecialchars($name) . '! Account created successfully!');
+        // 2. 生成验证/登录 Token
+        $token_id = sha1(uniqid() . rand());
+        $stm = $_db->prepare('INSERT INTO token (token_id, expire, userID) VALUES (?, ADDTIME(NOW(), "00:10:00"), ?)');
+        $stm->execute([$token_id, $userID]);
+
+        // 3. 生成自动登录链接
+        $url = "http://" . $_SERVER['HTTP_HOST'] . "/page/verify_register.php?id=$token_id";
+
+        // 4. 发送邮件
+        $m = get_mail();
+        $m->addAddress($email, $name);
+        $m->isHTML(true);
+        $m->Subject = 'Verify Your Account - Nº9 Perfume';
+        $m->Body = "<h1>Welcome $name!</h1><p>Please click below to verify and log in:</p><a href='$url'>VERIFY & LOGIN NOW</a>";
+        $m->send();
+
+        // 5. 跳转到一个提示页面，告诉用户去查收邮件
+        unset($_SESSION['reg_name'], $_SESSION['reg_email']);
+        temp('info', 'Registration successful! Please check your email to verify and access your account.');
         redirect('login.php');
     }
 }

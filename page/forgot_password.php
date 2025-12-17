@@ -6,6 +6,8 @@ $_err = [];
 if (is_post()) {
     $email = req('email');
 
+    
+
     // Validate: email
     if ($email == '') {
         $_err['email'] = 'Required';
@@ -13,8 +15,20 @@ if (is_post()) {
     else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_err['email'] = 'Invalid email';
     }
+    // 1. 先检查邮箱是否存在
     else if (!is_exists($email, 'user', 'email')) {
         $_err['email'] = 'Email not registered';
+    }
+    else {
+        // 2. 核心修复：检查该邮箱对应的账户状态是否为 Activated
+        $stm = $_db->prepare('SELECT status FROM user WHERE email = ?');
+        $stm->execute([$email]);
+        $status = $stm->fetchColumn();
+
+        if ($status !== 'Activated') {
+            // 如果账户被禁用，不允许发送重置链接
+            $_err['email'] = 'Your account has been deactivated. Please contact support.';
+        }
     }
 
     // Send reset token (if valid)

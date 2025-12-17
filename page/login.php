@@ -38,11 +38,15 @@ if (is_post()) {
         else if ($user->role !== 'Member') {
             $_err['email'] = 'Only member can in';
         }
-        // === 重点修改在这里：检查用户状态 ===
-        else if ($user->status !== 'Activated') { 
+        // 1. 检查是否是被封禁 (Deactivated)
+        else if ($user->status === 'Deactivated') { 
             $_err['email'] = 'Your account has been deactivated. Please contact support.';
         }
-        // ==================================
+        
+        // 2. 检查是否是未激活 (Pending)
+        else if ($user->status === 'Pending') {
+            $_err['email'] = 'Your account is not active yet. Please check your email and click the verification link.';
+        }
         else {
             // Login successful
             $_SESSION['user_id']   = $user->userID;

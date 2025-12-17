@@ -16,6 +16,12 @@ if (!$product_id || $quantity < 1) {
     exit;
 }
 
+// check if user is admin before allowing to add to cart
+if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin') {
+    echo json_encode(['success' => false, 'message' => 'Admin accounts cannot purchase products']);
+    exit;
+}
+
 // Check if product exists and has stock
 $stmt = $_db->prepare("SELECT Stock FROM product WHERE ProductID = ?");
 $stmt->execute([$product_id]);

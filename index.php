@@ -32,12 +32,6 @@ $spot = $stm_spot->fetch();
     $(document).ready(function() {
         window.scrollTo(0, 0);
     });
-
-    if (history.scrollRestoration) {
-        history.scrollRestoration = 'manual';
-    }
-    window.scrollTo(0, 0);  
-    document.addEventListener("DOMContentLoaded", () => window.scrollTo(0, 0));
 </script>
 
 <section class="hero">

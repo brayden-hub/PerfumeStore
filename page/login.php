@@ -32,25 +32,38 @@ if (is_post()) {
         if (!$user) {
             $_err['email'] = 'Email not registered';
         } 
+        // === 新增：检查是否处于锁定时间 (5分钟锁定) ===
+        else if ($user->login_attempts >= 3 && (time() - strtotime($user->attempt_time)) < 300) {
+            $remaining = 300 - (time() - strtotime($user->attempt_time));
+            $_err['email'] = "Too many failed attempts. Please try again in " . ceil($remaining/60) . " minute(s).";
+        }
         else if (!password_verify($password, $user->password)) {
-            $_err['password'] = 'Wrong password';
+            // === 新增：密码错误时增加计数器并记录时间 ===
+            $new_attempts = $user->login_attempts + 1;
+            $stm = $_db->prepare("UPDATE user SET login_attempts = ?, attempt_time = NOW() WHERE userID = ?");
+            $stm->execute([$new_attempts, $user->userID]);
+            
+            $_err['password'] = "Wrong password. Attempts left: " . (3 - $new_attempts);
+            if ($new_attempts >= 3) {
+                $_err['email'] = "Your account is locked for 5 minutes due to too many failed attempts.";
+            }
         } 
         else if ($user->role !== 'Member') {
             $_err['email'] = 'Only member can in';
         }
-        // 1. 检查是否是被封禁 (Deactivated)
         else if ($user->status === 'Deactivated') { 
             $_err['email'] = 'Your account has been deactivated. Please contact support.';
         }
-        
-        // 2. 检查是否是未激活 (Pending)
         else if ($user->status === 'Pending') {
-            $_err['email'] = 'Your account is not active yet. Please check your email and click the verification link.';
+            $_err['email'] = 'Your account is not active yet. Please check your email.';
         }
         else {
-            // Login successful
+            // === 登录成功：重置计数器和时间 ===
+            $stm = $_db->prepare("UPDATE user SET login_attempts = 0, attempt_time = NULL WHERE userID = ?");
+            $stm->execute([$user->userID]);
+        
             $_SESSION['user_id']   = $user->userID;
-// ... (其余代码不变)
+
             $_SESSION['user_name']  = $user->name;
             $_SESSION['email']     = $user->email;
             $_SESSION['phone']     = $user->phone_number ?? '';

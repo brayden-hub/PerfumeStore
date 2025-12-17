@@ -82,61 +82,59 @@ $_title = 'Login';
 include '../_head.php';
 ?>
 
-<div class="container" style="max-width:450px; margin:100px auto; padding:30px; background:#f9f9f9; border-radius:10px;">
-    <h2 style="text-align:center; margin-bottom:20px;">Login</h2>
+<div class="auth-container">
+    <h2 class="auth-title">Login</h2>
     
     <?php if ($info_message): ?>
-        <div style="padding:12px; background:#d4edda; color:#155724; border-radius:5px; margin-bottom:15px; border-left: 4px solid #28a745;">
+        <div class="alert-info">
             ✓ <?= htmlspecialchars($info_message) ?>
         </div>
     <?php endif; ?>
 
     <form method="post">
-        <div style="margin-bottom:15px;">
+        <div class="auth-input-group">
             <input type="email" 
                    name="email" 
+                   class="auth-input"
                    placeholder="Email" 
-                   value="<?= encode(req('email')) ?>" 
-                   style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px;">
+                   value="<?= encode(req('email')) ?>">
             <?= err('email') ?>
         </div>
 
-        <div style="margin-bottom:15px;">
-            <div style="display: flex; align-items: center; gap: 5px;">
+        <div class="auth-input-group">
+            <div class="auth-pass-wrapper">
                 <input type="password" 
                        id="login_password" 
                        name="password"
-                       placeholder="Password"
-                       style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px;">
+                       class="auth-input"
+                       placeholder="Password">
                 <button type="button" 
-                        class="show-pass" 
-                        data-target="#login_password" 
-                        style="cursor:pointer; padding:12px; background:#f0f0f0; border:1px solid #ddd; border-radius:5px;">
+                        class="show-pass auth-btn-show" 
+                        data-target="#login_password">
                     👁️
                 </button>
             </div>
             <?= err('password') ?>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:20px;">
-            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+        <div class="auth-options">
+            <label class="auth-remember">
                 <input type="checkbox" name="remember" value="1"> 
                 <span>Remember me</span>
             </label>
-            <a href="forgot_password.php" style="color:#666; text-decoration:none; font-size:14px;">
+            <a href="forgot_password.php" class="auth-link-forgot">
                 Forgot Password?
             </a>
         </div>
         <?= err('remember') ?>
 
-        <button type="submit" 
-                style="width:100%; padding:12px; background:#000; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:16px; margin-bottom:15px;">
+        <button type="submit" class="auth-btn-login">
             Login
         </button>
 
-        <div style="text-align:center;">
+        <div class="auth-footer">
             <span style="color:#666;">Don't have an account? </span>
-            <a href="register.php" style="color:#000; text-decoration:none; font-weight:bold;">Register</a>
+            <a href="register.php" class="auth-link-reg">Register</a>
         </div>
     </form>
 </div>

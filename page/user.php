@@ -77,27 +77,28 @@ $_title = 'User Management - N°9 Perfume';
 include '../_head.php';
 ?>
 
-<div class="container" style="margin-top: 30px;">
+<div class="admin-container">
     
-    <div class="admin-header">
+    <div class="admin-toolbar">
         <h2>Member Management</h2>
         
-        <form method="get" style="display:inline-flex; gap:10px; margin-left: auto;">
-            <input type="text" name="search" placeholder="Search Name/Email/Phone" 
-                   value="<?= htmlspecialchars($search ?? '') ?>"
-                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            <button type="submit" style="padding: 10px 15px; background: #000; color: #D4AF37; border: none; border-radius: 4px; cursor: pointer;">
-                Search
-            </button>
+        <form method="get" class="admin-search-form">
+            <input type="text" name="search" class="admin-input-search" 
+                   placeholder="Search Name/Email/Phone" 
+                   value="<?= htmlspecialchars($search ?? '') ?>">
+            
+            <button type="submit" class="admin-btn-search">Search</button>
+            
             <?php if ($search): ?>
-            <a href="user.php" style="padding: 8px 15px; color: #666; text-decoration: none;">Clear</a>
+                <a href="user.php" class="admin-link-clear">Clear</a>
             <?php endif; ?>
+            
             <input type="hidden" name="sort" value="<?= htmlspecialchars($sort) ?>">
             <input type="hidden" name="dir" value="<?= htmlspecialchars($dir) ?>">
         </form>
     </div>
 
-    <p>
+    <p style="color: #666; font-size: 0.9rem;">
         <?= $p->count ?> of <?= $p->item_count ?> record(s) |
         Page <?= $p->page ?> of <?= $p->page_count ?>
     </p>
@@ -105,10 +106,6 @@ include '../_head.php';
     <table class="product-table">
         <thead>
             <tr>
-                <?php
-                    // Arguments: fields, current_sort, current_dir, additional_params (without 'page')
-                    $header_params = rtrim($href_params . 'dir=' . $dir, '&');
-                ?>
                 <th><?= admin_sort_link('userID', $sort, $dir, $search, $p->page) ?></th>
                 <th><?= admin_sort_link('name', $sort, $dir, $search, $p->page) ?></th>
                 <th><?= admin_sort_link('email', $sort, $dir, $search, $p->page) ?></th>
@@ -120,10 +117,7 @@ include '../_head.php';
         
         <tbody>
             <?php foreach ($arr as $u): ?>
-            <?php 
-                // 1. 确保头像变量正确定义
-                $avatar = $u->Profile_Photo ?: 'default1.jpg';
-            ?>
+            <?php $avatar = $u->Profile_Photo ?: 'default1.jpg'; ?>
             <tr>
                 <td><?= htmlspecialchars($u->userID) ?></td>
                 <td><?= htmlspecialchars($u->name) ?></td>
@@ -132,26 +126,25 @@ include '../_head.php';
                 
                 <td>
                     <img src="../images/avatars/<?= htmlspecialchars($avatar) ?>" 
-                         class="thumb-img" 
-                         alt="<?= htmlspecialchars($u->name) ?>"
-                         style="border-radius:50%; width:60px; height:60px;">
+                         class="admin-user-avatar" 
+                         alt="<?= htmlspecialchars($u->name) ?>">
                 </td>
                 
-                <td style="white-space:nowrap;">
-                    <span style="font-weight:bold; color:<?= $u->status === 'Activated' ? '#28a745' : '#dc3545' ?>;">
+                <td class="admin-table-actions">
+                    <span class="admin-status-text <?= $u->status === 'Activated' ? 'admin-status-active' : 'admin-status-inactive' ?>">
                         <?= $u->status ?>
                     </span>
-                    <hr style="margin:5px 0; border-top:1px solid #eee;">
+                    <hr class="admin-divider">
                     
                     <?php if ($u->status === 'Activated'): ?>
                         <button data-post="user_deactivate.php?userID=<?= $u->userID ?>&status=Deactivated" 
-                                data-confirm="Are you sure you want to DEACTIVATE member <?= htmlspecialchars($u->name) ?>? They will not be able to log in."
+                                data-confirm="Are you sure you want to DEACTIVATE member <?= htmlspecialchars($u->name) ?>?"
                                 class="action-btn btn-delete">
                             Deactivate
                         </button>
                     <?php else: ?>
                         <button data-post="user_deactivate.php?userID=<?= $u->userID ?>&status=Activated" 
-                                data-confirm="Are you sure you want to ACTIVATE member <?= htmlspecialchars($u->name) ?>? They will regain access."
+                                data-confirm="Are you sure you want to ACTIVATE member <?= htmlspecialchars($u->name) ?>?"
                                 class="action-btn btn-edit"> 
                             Activate
                         </button>
@@ -159,29 +152,10 @@ include '../_head.php';
                 </td>
             </tr>
             <?php endforeach ?>
-            
-            <?php if(count($arr) == 0): ?>
-                <tr><td colspan="6" style="text-align:center;">No members found.</td></tr>
-            <?php endif; ?>
         </tbody>
     </table>
-    <br>
     
-    <?php if (isset($p) && method_exists($p, 'html')): ?>
-        <?= $p->html($pager_href) ?>
-    <?php else: ?>
-        <div style="text-align:center; margin-top:20px;">
-            <?php for($i = 1; $i <= $p->page_count; $i++): 
-                $link = "user.php?page=$i&$pager_href";
-                $style = $i == $p->page ? 'background-color:#000; color:#fff; border-color:#000;' : 'background-color:#f0f0f0; color:#000;';
-            ?>
-                <a href="<?= $link ?>" 
-                   style="padding: 8px 12px; margin: 0 5px; border: 1px solid #ccc; border-radius: 4px; text-decoration: none; <?= $style ?>">
-                    <?= $i ?>
-                </a>
-            <?php endfor; ?>
-        </div>
-    <?php endif; ?>
+    </div>
     
 </div>
 

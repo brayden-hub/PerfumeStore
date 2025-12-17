@@ -1952,3 +1952,470 @@ th a.sort-link:hover {
 .dropdown-item.logout-link-btn:hover {
     background: #fde8e8;
 }
+/* --- Register Page Styles Start --- */
+.register-container {
+    max-width: 460px;
+    margin: 70px auto 100px;
+    font-family: system-ui, sans-serif;
+}
+
+.register-title {
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.register-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 35px;
+}
+
+/* 进度条样式 */
+.stepper-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.step-item {
+    text-align: center;
+    flex: 1;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    line-height: 40px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.step-label {
+    font-size: 0.9rem;
+}
+
+.stepper-bg-line {
+    position: absolute;
+    top: 20px;
+    left: 50px;
+    right: 50px;
+    height: 3px;
+    background: #e0e0e0;
+    z-index: -1;
+}
+
+.stepper-progress-line {
+    position: absolute;
+    top: 20px;
+    left: 50px;
+    height: 3px;
+    background: #000;
+    transition: 0.4s;
+    z-index: -1;
+}
+
+/* 表单控件样式 */
+.reg-input {
+    width: 100%;
+    padding: 17px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    box-sizing: border-box; /* 确保 padding 不撑大宽度 */
+}
+
+.password-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 17px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    flex: 1;
+    padding: 15px;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-next {
+    flex: 2;
+    padding: 15px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.terms-text {
+    color: #666;
+    font-size: 0.92rem;
+    margin: 25px 0;
+    line-height: 1.5;
+}
+/* --- Register Page Styles End --- */
+/* --- Login Page Styles Start--- */
+.auth-container {
+    max-width: 450px;
+    margin: 100px auto;
+    padding: 30px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.auth-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.auth-input-group {
+    margin-bottom: 15px;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.auth-pass-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.auth-btn-show {
+    cursor: pointer;
+    padding: 12px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.auth-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.auth-remember {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.auth-link-forgot {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.auth-btn-login {
+    width: 100%;
+    padding: 12px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.auth-footer {
+    text-align: center;
+}
+
+.auth-link-reg {
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* 消息提示框样式 */
+.alert-info {
+    padding: 12px;
+    background: #d4edda;
+    color: #155724;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    border-left: 4px solid #28a745;
+}
+/* --- Login Page Styles End--- */
+/* --- Shared Auth & Forgot Password Styles Start --- */
+.auth-container {
+    max-width: 450px;
+    margin: 100px auto;
+    padding: 30px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-sizing: border-box; /* 确保 padding 不影响宽度 */
+}
+
+.auth-title {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #111;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.auth-label {
+    display: block; 
+    margin-bottom: 8px; 
+    color: #333; 
+    font-weight: 500;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.auth-btn-gold {
+    width: 100%;
+    padding: 14px;
+    background: #000;
+    color: #D4AF37;
+    border: 2px solid #D4AF37;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.auth-btn-gold:hover {
+    background: #D4AF37;
+    color: #000;
+}
+
+.auth-footer {
+    text-align: center;
+}
+
+.auth-link-back {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+/* --- Shared Auth & Forgot Password Styles Start --- */
+/* resetpassword start*/
+
+/* 独立容器，避免撞名主页面的 .container */
+.auth-container {
+    max-width: 450px;
+    margin: 100px auto;
+    padding: 30px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.auth-title {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #111;
+    font-weight: 600;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.auth-input-group {
+    margin-bottom: 15px;
+}
+
+.auth-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.auth-pass-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.auth-btn-show {
+    cursor: pointer;
+    padding: 12px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.auth-btn-main {
+    width: 100%;
+    padding: 14px;
+    background: #000;
+    color: #D4AF37;
+    border: 2px solid #D4AF37;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.auth-btn-main:hover {
+    background: #D4AF37;
+    color: #000;
+}
+
+.auth-help-text {
+    display: block;
+    margin-top: 8px;
+    color: #999;
+    font-size: 13px;
+}
+/* resetpassword end*/
+/* =========================================
+   ADMIN USER MANAGEMENT STYLES start
+   ========================================= */
+
+/* 1. 后台主容器 */
+.admin-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* 2. 顶部搜索栏区域 */
+.admin-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.admin-search-form {
+    display: inline-flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.admin-input-search {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    min-width: 250px;
+}
+
+.admin-btn-search {
+    padding: 8px 15px;
+    background: #000;
+    color: #D4AF37;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.admin-btn-search:hover {
+    background: #333;
+}
+
+.admin-link-clear {
+    padding: 8px 10px;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    align-self: center;
+}
+
+/* 3. 用户头像样式 */
+.admin-user-avatar {
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 1px solid #eee;
+}
+
+/* 4. 状态标签与操作按钮 */
+.admin-status-text {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.admin-status-active { color: #28a745; }
+.admin-status-inactive { color: #dc3545; }
+
+.admin-divider {
+    margin: 8px 0;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+/* 覆盖 product-table 在 user.php 的特殊布局 */
+.admin-table-actions {
+    white-space: nowrap;
+}
+/* =========================================
+   ADMIN USER MANAGEMENT STYLES end
+   ========================================= */

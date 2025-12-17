@@ -134,33 +134,30 @@ $_title = 'Forgot Password - Nº9 Perfume';
 include '../_head.php';
 ?>
 
-<div style="max-width: 450px; margin: 100px auto; padding: 30px; background: #f9f9f9; border-radius: 10px;">
-    <h2 style="text-align: center; margin-bottom: 10px; color: #111;">Forgot Password?</h2>
-    <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 14px;">
+<div class="auth-container">
+    <h2 class="auth-title">Forgot Password?</h2>
+    <p class="auth-subtitle">
         Enter your email address and we'll send you a link to reset your password.
     </p>
 
     <form method="post">
         <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Email Address</label>
+            <label class="auth-label">Email Address</label>
             <input type="email" 
                    name="email" 
+                   class="auth-input"
                    placeholder="Enter your email" 
                    value="<?= encode(req('email')) ?>" 
-                   autofocus
-                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+                   autofocus>
             <?= err('email') ?>
         </div>
 
-        <button type="submit" 
-                style="width: 100%; padding: 14px; background: #000; color: #D4AF37; border: 2px solid #D4AF37; 
-                       border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; 
-                       letter-spacing: 1px; margin-bottom: 15px;">
+        <button type="submit" class="auth-btn-gold">
             SEND RESET LINK
         </button>
 
-        <div style="text-align: center;">
-            <a href="login.php" style="color: #666; text-decoration: none; font-size: 14px;">
+        <div class="auth-footer">
+            <a href="login.php" class="auth-link-back">
                 ← Back to Login
             </a>
         </div>

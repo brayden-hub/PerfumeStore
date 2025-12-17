@@ -78,59 +78,52 @@ $_title = 'Reset Password - Nº9 Perfume';
 include '../_head.php';
 ?>
 
-<div style="max-width: 450px; margin: 100px auto; padding: 30px; background: #f9f9f9; border-radius: 10px;">
-    <h2 style="text-align: center; margin-bottom: 10px; color: #111;">Create New Password</h2>
-    <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 14px;">
+<div class="auth-container">
+    <h2 class="auth-title">Create New Password</h2>
+    <p class="auth-subtitle">
         Please enter your new password below.
     </p>
 
     <form method="post">
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">New Password</label>
-            <div style="display: flex; align-items: center; gap: 5px;">
+        <div class="auth-input-group">
+            <label class="auth-label">New Password</label>
+            <div class="auth-pass-wrapper">
                 <input type="password" 
                        id="reset_password" 
                        name="password"
+                       class="auth-input"
                        placeholder="Enter new password"
-                       autofocus
-                       style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+                       autofocus>
                 <button type="button" 
-                        class="show-pass" 
-                        data-target="#reset_password" 
-                        style="cursor: pointer; padding: 12px; background: #f0f0f0; border: 1px solid #ddd; 
-                               border-radius: 5px; font-size: 1.2rem;">
+                        class="show-pass auth-btn-show" 
+                        data-target="#reset_password">
                     👁️
                 </button>
             </div>
             <?= err('password') ?>
-            <small style="display: block; margin-top: 8px; color: #999; font-size: 13px;">
+            <small class="auth-help-text">
                 Must be 8-20 characters with uppercase, lowercase, number and special character
             </small>
         </div>
 
-        <div style="margin-bottom: 25px;">
-            <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Confirm Password</label>
-            <div style="display: flex; align-items: center; gap: 5px;">
+        <div class="auth-input-group" style="margin-bottom: 25px;">
+            <label class="auth-label">Confirm Password</label>
+            <div class="auth-pass-wrapper">
                 <input type="password" 
                        id="reset_confirm" 
                        name="confirm"
-                       placeholder="Confirm new password"
-                       style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+                       class="auth-input"
+                       placeholder="Confirm new password">
                 <button type="button" 
-                        class="show-pass" 
-                        data-target="#reset_confirm" 
-                        style="cursor: pointer; padding: 12px; background: #f0f0f0; border: 1px solid #ddd; 
-                               border-radius: 5px; font-size: 1.2rem;">
+                        class="show-pass auth-btn-show" 
+                        data-target="#reset_confirm">
                     👁️
                 </button>
             </div>
             <?= err('confirm') ?>
         </div>
 
-        <button type="submit" 
-                style="width: 100%; padding: 14px; background: #000; color: #D4AF37; border: 2px solid #D4AF37; 
-                       border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; 
-                       letter-spacing: 1px;">
+        <button type="submit" class="auth-btn-main">
             RESET PASSWORD
         </button>
     </form>

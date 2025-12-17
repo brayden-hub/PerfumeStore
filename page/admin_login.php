@@ -1,8 +1,8 @@
 <?php
-
 require '../_base.php';
+
+// 如果已登录，重定向到个人资料页
 if (isset($_SESSION['user_id'])) {
-    // 如果用户已登录，将他们发送到 profile.php，避免再次看到登录页面
     redirect('profile.php');
 }
 
@@ -12,7 +12,7 @@ if (is_post()) {
     $email = req('email');
     $password = req('password');
 
-    // Validate input
+    // 验证输入
     if ($email == '') {
         $_err['email'] = 'Email required';
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -23,107 +23,81 @@ if (is_post()) {
         $_err['password'] = 'Password required';
     }
 
-    // If no validate error → check DB
     if (!$_err) {
         $stm = $_db->prepare("SELECT * FROM user WHERE email = ?");
         $stm->execute([$email]);
         $user = $stm->fetch();
 
+        // 核心验证逻辑
         if (!$user) {
             $_err['email'] = 'Email not registered';
         } 
         else if (!password_verify($password, $user->password)) {
             $_err['password'] = 'Wrong password';
         } 
+        // 1. 角色检查：必须是 Admin
+        else if ($user->role !== 'Admin') {
+            $_err['email'] = 'Only administrators can access this page.';
+        }
+        // 2. 状态检查：必须是 Activated
+        else if ($user->status !== 'Activated') {
+            $_err['email'] = 'This admin account is not active.';
+        }
         else {
-            // Login successful
-            $_SESSION['user_id']   = $user->userID;
-            $_SESSION['user_name']  = $user->name;
-            $_SESSION['email']     = $user->email;
-            $_SESSION['phone']     = $user->phone_number ?? '';
-            $_SESSION['user_role']      = $user->role;
+            // 登录成功：设置 Session
+            $_SESSION['user_id']       = $user->userID;
+            $_SESSION['user_name']     = $user->name;
+            $_SESSION['email']         = $user->email;
+            $_SESSION['phone']         = $user->phone_number ?? '';
+            $_SESSION['user_role']     = $user->role;
             $_SESSION['Profile_Photo'] = $user->Profile_Photo ?? 'default1.jpg';
 
-            temp('info', 'Login successful!');
+            temp('info', 'Welcome back, Administrator.');
 
-            // Remember Me functionality
-            if (req('remember') == '1' && $user->role === 'Member') {
-                $token = bin2hex(random_bytes(32));
-                $stm = $_db->prepare("UPDATE user SET remember_token = ? WHERE userID = ?");
-                $stm->execute([$token, $user->userID]);
-                setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/');
-            } else if (req('remember') == '1' && $user->role !== 'Member') {
-                $_err['remember'] = 'Only Members can use Remember Me';
-            }
-
-            redirect('profile.php');
+            // 建议：跳转到管理员后台首页而不是 profile.php
+            redirect('profile.php'); 
         }
     }
 }
 
-// Get temp message ONCE and store it
 $info_message = temp('info');
-
-// Page view
-$_title = 'Login';
+$_title = 'Admin Login';
 include '../_head.php';
 ?>
 
-<div class="container" style="max-width:450px; margin:100px auto; padding:30px; background:#f9f9f9; border-radius:10px;">
-    <h2 style="text-align:center; margin-bottom:20px;">Login</h2>
+<div class="auth-container">
+    <h2 class="auth-title">Admin Portal</h2>
     
     <?php if ($info_message): ?>
-        <div style="padding:12px; background:#d4edda; color:#155724; border-radius:5px; margin-bottom:15px; border-left: 4px solid #28a745;">
+        <div class="alert-info">
             ✓ <?= htmlspecialchars($info_message) ?>
         </div>
     <?php endif; ?>
 
     <form method="post">
-        <div style="margin-bottom:15px;">
-            <input type="email" 
-                   name="email" 
-                   placeholder="Email" 
-                   value="<?= encode(req('email')) ?>" 
-                   style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px;">
+        <div class="auth-input-group">
+            <input type="email" name="email" class="auth-input" placeholder="Admin Email" value="<?= encode(req('email')) ?>">
             <?= err('email') ?>
         </div>
 
-        <div style="margin-bottom:15px;">
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <input type="password" 
-                       id="login_password" 
-                       name="password"
-                       placeholder="Password"
-                       style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px;">
-                <button type="button" 
-                        class="show-pass" 
-                        data-target="#login_password" 
-                        style="cursor:pointer; padding:12px; background:#f0f0f0; border:1px solid #ddd; border-radius:5px;">
+        <div class="auth-input-group" style="margin-bottom: 25px;">
+            <div class="auth-pass-wrapper">
+                <input type="password" id="login_password" name="password" class="auth-input" placeholder="Password">
+                <button type="button" class="show-pass auth-btn-show" data-target="#login_password">
                     👁️
                 </button>
             </div>
             <?= err('password') ?>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:20px;">
-            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                <input type="checkbox" name="remember" value="1"> 
-                <span>Remember me</span>
-            </label>
-            <a href="forgot_password.php" style="color:#666; text-decoration:none; font-size:14px;">
-                Forgot Password?
-            </a>
-        </div>
-        <?= err('remember') ?>
-
-        <button type="submit" 
-                style="width:100%; padding:12px; background:#000; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:16px; margin-bottom:15px;">
-            Login
+        <button type="submit" class="auth-btn-login">
+            Login as Admin
         </button>
 
-        <div style="text-align:center;">
-            <span style="color:#666;">Don't have an account? </span>
-            <a href="register.php" style="color:#000; text-decoration:none; font-weight:bold;">Register</a>
+        <div class="auth-footer">
+            <a href="login.php" class="auth-link-forgot">
+                ← Back to Member Login
+            </a>
         </div>
     </form>
 </div>

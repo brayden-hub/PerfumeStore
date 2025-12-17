@@ -1,5 +1,11 @@
 <?php
 require '../_base.php';
+if (isset($_SESSION['user_id'])) {
+    // 如果已经登录，直接重定向到首页或个人中心
+    temp('info', 'You are already logged in.');
+    redirect('profile.php'); 
+    exit();
+}
 
 // === 请将 YOUR_SECRET_KEY 替换为你的实际 Secret Key ===
 const RECAPTCHA_SECRET_KEY = '6LdrnSwsAAAAALWa_WN9Xl8i0SVpFJYwsXWbKUHK';
@@ -202,69 +208,70 @@ include '../_head.php';
 ?>
 
 <script src="https://www.google.com/recaptcha/api.js" async defer></script> 
-<div style="max-width:460px; margin:70px auto 100px; font-family:system-ui,sans-serif;">
-    <h2 style="text-align:center; margin-bottom:8px; font-weight:600;">Create your account</h2>
-    <p style="text-align:center; color:#666; margin-bottom:35px;">Step <?= $step ?> of 4</p>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script> 
 
-    <div style="display:flex; justify-content:space-between; margin-bottom:50px; position:relative;">
+<div class="register-container">
+    <h2 class="register-title">Create your account</h2>
+    <p class="register-subtitle">Step <?= $step ?> of 4</p>
+
+    <div class="stepper-wrapper">
         <?php for($i=1; $i<=4; $i++): ?>
-        <div style="text-align:center; flex:1;">
-            <div style="width:40px; height:40px; margin:0 auto 10px; background:<?= $step>=$i?'#000':'#e0e0e0' ?>; color:#fff; border-radius:50%; line-height:40px; font-weight:bold; font-size:1.1rem;">
+        <div class="step-item">
+            <div class="step-circle" style="background:<?= $step>=$i?'#000':'#e0e0e0' ?>;">
                 <?= $step > $i ? '✓' : $i ?>
             </div>
-            <div style="font-size:0.9rem; color:<?= $step>=$i?'#000':'#999' ?>;">
+            <div class="step-label" style="color:<?= $step>=$i?'#000':'#999' ?>;">
                 <?= ['Name','Email','Password','Phone'][$i-1] ?>
             </div>
         </div>
         <?php endfor; ?>
-        <div style="position:absolute; top:20px; left:50px; right:50px; height:3px; background:#e0e0e0; z-index:-1;"></div>
-        <div style="position:absolute; top:20px; left:50px; width:<?= ($step-1)/3*100 ?>%; height:3px; background:#000; transition:0.4s; z-index:-1;"></div>
+        <div class="stepper-bg-line"></div>
+        <div class="stepper-progress-line" style="width:<?= ($step-1)/3*100 ?>%;"></div>
     </div>
 
     <form method="post" novalidate>
         <?php if ($step == 1): ?>
             <div>
-                <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Full Name" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
+                <input type="text" name="name" class="reg-input" value="<?= htmlspecialchars($name) ?>" placeholder="Full Name" autofocus>
                 <?= err('name') ?>
             </div>
-            <button type="submit" name="step" value="2" style="width:100%; padding:17px; background:#000; color:#fff; border:none; border-radius:10px; margin-top:30px; font-size:1.1rem; cursor:pointer;">Next</button>
+            <button type="submit" name="step" value="2" class="btn-primary" style="margin-top:30px;">Next</button>
         <?php endif; ?>
 
         <?php if ($step == 2): ?>
             <div>
-                <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="Email address" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
+                <input type="email" name="email" class="reg-input" value="<?= htmlspecialchars($email) ?>" placeholder="Email address" autofocus>
                 <?= err('email') ?>
             </div>
             <div style="display:flex; flex-direction:row-reverse; gap:12px; margin-top:30px;">
-                <button type="submit" name="step" value="3" style="flex:2; padding:15px; background:#000; color:#fff; border:none; border-radius:10px;">Next</button>
-                <button type="submit" name="back" value="1" style="flex:1; padding:15px; background:#f8f8f8; border:1px solid #ddd; border-radius:10px;">Back</button>
+                <button type="submit" name="step" value="3" class="btn-next">Next</button>
+                <button type="submit" name="back" value="1" class="btn-secondary">Back</button>
             </div>
         <?php endif; ?>
 
         <?php if ($step == 3): ?>
             <div>
-                <div style="display: flex; align-items: center; gap: 5px; margin:10px 0;">
-                    <input type="password" id="reg_password" name="password" placeholder="Create password" autofocus style="width:100%; padding:17px; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
-                    <button type="button" class="show-pass" data-target="#reg_password" style="cursor:pointer; padding:10px; border:1px solid #ccc; border-radius:10px; background:#f8f8f8; font-size:1.2rem;">👁︎</button>
+                <div class="password-group">
+                    <input type="password" id="reg_password" name="password" class="reg-input" placeholder="Create password" autofocus style="margin:0;">
+                    <button type="button" class="show-pass btn-secondary" data-target="#reg_password" style="padding:10px; flex:none;">👁︎</button>
                 </div>
                 
-                <div style="display: flex; align-items: center; gap: 5px; margin:10px 0;">
-                    <input type="password" id="reg_confirm_password" name="confirm_password" placeholder="Confirm password" style="width:100%; padding:17px; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
-                    <button type="button" class="show-pass" data-target="#reg_confirm_password" style="cursor:pointer; padding:10px; border:1px solid #ccc; border-radius:10px; background:#f8f8f8; font-size:1.2rem;">👁︎</button>
+                <div class="password-group">
+                    <input type="password" id="reg_confirm_password" name="confirm_password" class="reg-input" placeholder="Confirm password" style="margin:0;">
+                    <button type="button" class="show-pass btn-secondary" data-target="#reg_confirm_password" style="padding:10px; flex:none;">👁︎</button>
                 </div>
-                
                 <?= err('password') ?><?= err('confirm_password') ?>
             </div>
             <div style="display:flex; flex-direction:row-reverse; gap:12px; margin-top:30px;">
-                <button type="submit" name="step" value="4" style="flex:2; padding:15px; background:#000; color:#fff; border:none; border-radius:10px;">Next</button>
-                <button type="submit" name="back" value="2" style="flex:1; padding:15px; background:#f8f8f8; border:1px solid #ddd; border-radius:10px;">Back</button>
+                <button type="submit" name="step" value="4" class="btn-next">Next</button>
+                <button type="submit" name="back" value="2" class="btn-secondary">Back</button>
             </div>
         <?php endif; ?>
 
         <?php if ($step == 4): ?>
             <div>
                 <input type="hidden" name="password" value="<?= htmlspecialchars(req('password', '')) ?>">
-                <input type="tel" id="reg_phone_number" name="phone_number" value="<?= htmlspecialchars($phone) ?>" placeholder="Phone number" autofocus style="width:100%; padding:17px; margin:10px 0; border:1px solid #ccc; border-radius:10px; font-size:1.1rem;">
+                <input type="tel" id="reg_phone_number" name="phone_number" class="reg-input" value="<?= htmlspecialchars($phone) ?>" placeholder="Phone number" autofocus>
                 <?= err('phone_number') ?>
             </div>
             
@@ -272,11 +279,11 @@ include '../_head.php';
                 <div class="g-recaptcha" data-sitekey="<?= RECAPTCHA_SITE_KEY ?>"></div> 
                 <?= err('recaptcha') ?> 
             </div>
-            <p style="color:#666; font-size:0.92rem; margin:25px 0; line-height:1.5;">
+            <p class="terms-text">
                 By clicking Create Account, you agree to our <strong>Terms</strong> and <strong>Privacy Policy</strong>.
             </p>
-            <button type="submit" name="step" value="5" style="width:100%; padding:17px; background:#000; color:#fff; border:none; border-radius:10px; font-size:1.1rem; margin-bottom:12px;">Create Account</button>
-            <button type="submit" name="back" value="3" style="width:100%; padding:15px; background:transparent; border:1px solid #aaa; border-radius:10px;">Back</button>
+            <button type="submit" name="step" value="5" class="btn-primary" style="margin-bottom:12px;">Create Account</button>
+            <button type="submit" name="back" value="3" class="btn-primary" style="background:transparent; border:1px solid #aaa; color:#000;">Back</button>
         <?php endif; ?>
     </form>
 </div>

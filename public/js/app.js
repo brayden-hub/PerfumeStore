@@ -253,41 +253,81 @@ $("#reg_phone_number").on("input", function() {
     // === Dropdown End ===
     
 
-// === Drag and Drop Image Upload Logic ===
-    const $dropZone = $('label.upload');
+// ============================================
+    // NEW: Gallery Images Logic (Preview & Drag-n-Drop)
+    // ============================================
+    const $galleryInput = $('#gallery-input');
+    const $galleryZone = $('#gallery-drop-zone');
+    const $galleryPreview = $('#gallery-preview');
 
-    // 1. Prevent default browser behavior (prevents opening the file in tab)
-    $dropZone.on('dragenter dragover dragleave drop', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    });
+    // Only run this if the gallery elements exist on the page
+    if ($galleryInput.length) {
 
-    // 2. Add visual highlight when dragging over
-    $dropZone.on('dragenter dragover', function() {
-        $(this).addClass('dragover');
-    });
+        // A. Handle File Selection (Clicking the box)
+        $galleryInput.on('change', function(e) {
+            handleGalleryFiles(this.files);
+        });
 
-    // 3. Remove highlight when dragging away or dropped
-    $dropZone.on('dragleave drop', function() {
-        $(this).removeClass('dragover');
-    });
+        // B. Visual Drag Effects (Highlight box when dragging)
+        $galleryZone.on('dragenter dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass('dragover');
+        });
 
-    // 4. Handle the file drop
-    $dropZone.on('drop', function(e) {
-        // Retrieve the files from the drag event
-        const dt = e.originalEvent.dataTransfer;
-        const files = dt.files;
-        const fileInput = $(this).find('input[type="file"]');
+        $galleryZone.on('dragleave drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('dragover');
+        });
 
-        if (files.length > 0) {
-            // Assign dropped files to the hidden input element
-            // Note: .files property is supported in all modern browsers
-            fileInput[0].files = files;
+        // C. Handle Dropped Files
+        $galleryZone.on('drop', function(e) {
+            e.preventDefault();
+            const dt = e.originalEvent.dataTransfer;
+            const files = dt.files;
 
-            // Trigger the manual 'change' event
-            // This runs your EXISTING preview logic (FileReader) defined in app.js
-            fileInput.trigger('change');
+            // 1. Manually assign dropped files to the <input> so they get submitted
+            $galleryInput[0].files = files;
+
+            // 2. Show the previews
+            handleGalleryFiles(files);
+        });
+
+        // D. Function to Create Preview Images
+        function handleGalleryFiles(files) {
+            $galleryPreview.empty(); // Clear old previews
+
+            if (files && files.length > 0) {
+                Array.from(files).forEach(file => {
+                    // Only process image files
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            // Create the image tag
+                            const img = $('<img>')
+                                .addClass('gallery-preview-item')
+                                .attr('src', e.target.result)
+                                .attr('title', file.name)
+                                .css({
+                                    'width': '100px', 
+                                    'height': '100px', 
+                                    'object-fit': 'cover', 
+                                    'margin': '5px',
+                                    'border': '1px solid #ddd',
+                                    'border-radius': '4px'
+                                });
+                            
+                            // Add to the container
+                            $galleryPreview.append(img);
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
         }
-    });
+    }
 });
 

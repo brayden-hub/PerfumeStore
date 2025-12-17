@@ -1,4 +1,4 @@
-<<?php
+<?php
 require '../_base.php';
 $id = get('id');
 if (!$id) redirect('/page/product.php');
@@ -7,8 +7,7 @@ $stmt = $_db->prepare("SELECT * FROM product WHERE ProductID = ?");
 $stmt->execute([$id]);
 $p = $stmt->fetch();
 
-// MODIFIED: Check if product exists AND if it is "Not Available"
-// If it contains "Not" in the status, we treat it as not found
+// Check if product exists AND if it is "Not Available"
 if (!$p || str_contains($p->Status, 'Not')) {
     echo "<h2 style='text-align:center;padding:5rem;'>Product not found or unavailable.</h2>";
     echo "<div style='text-align:center;'><a href='/page/product.php'>Return to Shop</a></div>";
@@ -17,6 +16,14 @@ if (!$p || str_contains($p->Status, 'Not')) {
 
 $_title = $p->ProductName . " - N°9 Perfume";
 include '../_head.php';
+
+// Check if product is favorited
+$isFavorited = false;
+if (isset($_SESSION['user_id'])) {
+    $fav_stmt = $_db->prepare("SELECT COUNT(*) FROM favorites WHERE UserID = ? AND ProductID = ?");
+    $fav_stmt->execute([$_SESSION['user_id'], $id]);
+    $isFavorited = $fav_stmt->fetchColumn() > 0;
+}
 ?>
 
 <link rel="stylesheet" href="/public/css/product_detail.css">
@@ -58,13 +65,11 @@ include '../_head.php';
         </p>
 
         <button 
-            class="fav-btn-detail fav-heart" 
+            class="fav-btn-detail fav-heart <?= $isFavorited ? 'active' : '' ?>" 
             data-product-id="<?= $p->ProductID ?>"
         >
-            ♡ Add to favourites
+            <?= $isFavorited ? '♥' : '♡' ?> <?= $isFavorited ? 'Remove from favourites' : 'Add to favourites' ?>
         </button>
-
-
 
         <p style="color:<?= $p->Stock > 10 ? '#28a745' : ($p->Stock > 0 ? '#ff9800' : '#dc3545') ?>; font-weight: 600; margin-bottom: 1rem;">
             <?php if ($p->Stock > 10): ?>
@@ -76,7 +81,16 @@ include '../_head.php';
             <?php endif; ?>
         </p>
 
-        <?php if ($p->Stock > 0): ?>
+        
+        <?php 
+        // Check if user is admin cannot purchase
+        $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
+        
+        if ($isAdmin): ?>
+            <div style="padding:1rem;background:#fff3cd;color:#856404;border:1px solid #ffeaa7;border-radius:4px;margin:2rem 0;">
+                <strong>⚠️ Admin Notice:</strong> Admin accounts cannot purchase products. Please use a member account for shopping.
+            </div>
+        <?php elseif ($p->Stock > 0): ?>
         <div style="display:flex;gap:1rem;margin:2rem 0;align-items:center;">
             <div style="display:flex;align-items:center;gap:0.5rem;">
                 <label style="font-weight:600;">Quantity:</label>
@@ -120,7 +134,7 @@ include '../_head.php';
             <h2 style="font-size:1.5rem;margin-bottom:2rem;color:#111;font-weight:400;">You May Also Like</h2>
             <div class="related-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;">
                 <?php
-                $stmt = $_db->prepare("SELECT * FROM product WHERE Series = ? AND ProductID != ? ORDER BY RAND() LIMIT 3");
+                $stmt = $_db->prepare("SELECT * FROM product WHERE Series = ? AND ProductID != ? AND Status NOT LIKE '%Not%' ORDER BY RAND() LIMIT 3");
                 $stmt->execute([$p->Series, $id]);
                 $related = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
@@ -144,11 +158,13 @@ include '../_head.php';
                                 <span class="stock-dot-small <?= $relatedStockDotClass ?>"></span>
                                 <span><?= $relatedStockText ?></span>
                             </div>
+                            <?php if (!$isAdmin): ?>
                             <button class="quick-add-btn" 
                                     data-product-id="<?= htmlspecialchars($r['ProductID']) ?>"
                                     <?= $r['Stock'] <= 0 ? 'disabled' : '' ?>>
                                 <?= $r['Stock'] <= 0 ? 'Out of Stock' : 'Quick Add' ?>
                             </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -158,6 +174,7 @@ include '../_head.php';
 </div>
 
 <script>
+<?php if (!$isAdmin): ?>
 // Quantity controls
 const qtyInput = $('#quantity');
 const maxStock = <?= $p->Stock ?>;
@@ -208,19 +225,6 @@ $('.add-to-cart').on('click', function() {
     });
 });
 
-// Related product card click (navigate to detail)
-$(document).on('click', '.related-card', function(e) {
-    // Don't navigate if clicking the quick add button
-    if ($(e.target).hasClass('quick-add-btn') || $(e.target).closest('.quick-add-btn').length) {
-        return;
-    }
-    
-    const productId = $(this).data('product-id');
-    if (productId) {
-        window.location.href = `/page/product_detail.php?id=${productId}`;
-    }
-});
-
 // Quick add to cart (related products)
 $(document).on('click', '.quick-add-btn', function(e) {
     e.stopPropagation();
@@ -259,9 +263,27 @@ $(document).on('click', '.quick-add-btn', function(e) {
         btn.prop('disabled', false).text('Quick Add');
     });
 });
+<?php endif; ?>
+
+// Related product card click (navigate to detail)
+$(document).on('click', '.related-card', function(e) {
+    if ($(e.target).hasClass('quick-add-btn') || $(e.target).closest('.quick-add-btn').length) {
+        return;
+    }
+    
+    const productId = $(this).data('product-id');
+    if (productId) {
+        window.location.href = `/page/product_detail.php?id=${productId}`;
+    }
+});
 
 // Favourite toggle (detail page)
 $(document).on('click', '.fav-btn-detail', function() {
+    <?php if (!isset($_SESSION['user_id'])): ?>
+        alert('Please login to use favourites');
+        window.location.href = '/page/login.php';
+        return;
+    <?php endif; ?>
 
     const btn = $(this);
     const productId = btn.data('product-id');
@@ -269,15 +291,14 @@ $(document).on('click', '.fav-btn-detail', function() {
     $.post('/api/favorite_toggle.php', { product_id: productId }, function(res) {
         if (res.success) {
             if (res.favorited) {
-                btn.addClass('active').text('♥');
+                btn.addClass('active').html('♥ Remove from favourites');
             } else {
-                btn.removeClass('active').text('♡');
+                btn.removeClass('active').html('♡ Add to favourites');
             }
         } else {
             alert('Please login to use favourites');
         }
     }, 'json');
-
 });
 
 // Toast notification
@@ -309,18 +330,27 @@ function showToast(message) {
 
 <style>
 .fav-heart {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
     background: none;
-    border: none;
+    border: 1px solid #ddd;
     cursor: pointer;
-    color: #999;          /* 默认灰色 */
+    color: #999;
     transition: 0.2s;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.fav-heart:hover {
+    border-color: #e60023;
+    transform: translateY(-2px);
 }
 
 .fav-heart.active {
-    color: #e60023;       /* ❤️ 红色 */
+    color: #e60023;
+    border-color: #e60023;
+    background: #fff0f0;
 }
 </style>
-
 
 <?php include '../_foot.php'; ?>

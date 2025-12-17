@@ -5,9 +5,13 @@ $series = get('series', '');
 $min = (int)get('min', 0);
 $max = (int)get('max', 400);
 $sort = get('sort', 'asc');
+$page = (int)get('page', 1);
 
-// 1. MODIFIED SQL: Added check for Status to exclude 'Not Available'
-// We check if Status contains 'Available' AND does NOT contain 'Not'
+// Items per page
+$items_per_page = 10;
+$offset = ($page - 1) * $items_per_page;
+
+// Base SQL with filters
 $sql = "SELECT * FROM product 
         WHERE Price BETWEEN ? AND ? 
         AND Status LIKE '%Available%' 
@@ -20,12 +24,28 @@ if ($series !== '') {
     $params[] = $series;
 }
 
-// Add sorting
+// Get total count for pagination
+$count_sql = str_replace("SELECT *", "SELECT COUNT(*)", $sql);
+$count_stmt = $_db->prepare($count_sql);
+$count_stmt->execute($params);
+$total_items = $count_stmt->fetchColumn();
+$total_pages = ceil($total_items / $items_per_page);
+
+// Add sorting and pagination - 🔥 CRITICAL FIX: Don't use placeholders for LIMIT/OFFSET
 $sql .= $sort === 'desc' ? " ORDER BY Price DESC" : " ORDER BY Price ASC";
+$sql .= " LIMIT $items_per_page OFFSET $offset";
 
 $stmt = $_db->prepare($sql);
 $stmt->execute($params);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Check if user is logged in and get favorites
+$user_favorites = [];
+if (isset($_SESSION['user_id'])) {
+    $fav_stmt = $_db->prepare("SELECT ProductID FROM favorites WHERE UserID = ?");
+    $fav_stmt->execute([$_SESSION['user_id']]);
+    $user_favorites = $fav_stmt->fetchAll(PDO::FETCH_COLUMN);
+}
 
 if (empty($products)):
 ?>
@@ -41,11 +61,11 @@ if (empty($products)):
 <?php
 else:
     foreach ($products as $p):
-        // (The rest of the display logic remains exactly the same)
         $stockStatus = $p['Stock'] > 10 ? 'in-stock' : ($p['Stock'] > 0 ? 'low-stock' : 'out-of-stock');
         $stockText = $p['Stock'] > 10 ? 'In Stock' : ($p['Stock'] > 0 ? "Only {$p['Stock']} left" : 'Out of Stock');
         $stockDotClass = $p['Stock'] > 10 ? '' : ($p['Stock'] > 0 ? 'low' : 'out');
         $productId = htmlspecialchars($p['ProductID']);
+        $isFavorited = in_array($p['ProductID'], $user_favorites);
 ?>
         <div class="product-card" data-product-id="<?= $productId ?>">
             <div class="product-image-wrapper">
@@ -57,8 +77,10 @@ else:
                 <div class="view-details-badge">VIEW DETAILS</div>
                 <div class="series-badge"><?= htmlspecialchars($p['Series']) ?></div>
 
-                    <!-- ❤️ FAVORITE BUTTON -->
-                <button class="fav-btn" data-product-id="<?= $productId ?>">♡</button>
+                <!-- Favorite Button -->
+                <button class="fav-btn" data-product-id="<?= $productId ?>">
+                    <?= $isFavorited ? '♥' : '♡' ?>
+                </button>
             </div>
             
             <div class="product-info">
@@ -72,16 +94,64 @@ else:
                     <span><?= $stockText ?></span>
                 </div>
 
-                <button class="fav-btn" data-product-id="<?= $productId ?>">♡</button>
                 <button class="add-to-cart-btn" 
                         data-product-id="<?= $productId ?>"
                         <?= $p['Stock'] <= 0 ? 'disabled' : '' ?>>
                     <?= $p['Stock'] <= 0 ? 'Out of Stock' : 'Add to Cart' ?>
                 </button>
-                
             </div>
         </div>
 <?php
     endforeach;
+    
+    // Pagination Controls
+    if ($total_pages > 1):
+?>
+    <div style="grid-column: 1 / -1; display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;">
+        <?php if ($page > 1): ?>
+            <button class="pagination-btn" data-page="<?= $page - 1 ?>" style="padding: 0.5rem 1rem; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                ← Previous
+            </button>
+        <?php endif; ?>
+        
+        <?php
+        // Show page numbers with ellipsis for large page counts
+        $start_page = max(1, $page - 2);
+        $end_page = min($total_pages, $page + 2);
+        
+        if ($start_page > 1): ?>
+            <button class="pagination-btn" data-page="1" style="padding: 0.5rem 1rem; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">1</button>
+            <?php if ($start_page > 2): ?>
+                <span style="padding: 0 0.5rem;">...</span>
+            <?php endif; ?>
+        <?php endif; ?>
+        
+        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+            <button class="pagination-btn" 
+                    data-page="<?= $i ?>" 
+                    style="padding: 0.5rem 1rem; background: <?= $i === $page ? '#D4AF37' : '#f0f0f0' ?>; color: <?= $i === $page ? '#000' : '#333' ?>; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-weight: <?= $i === $page ? 'bold' : 'normal' ?>;">
+                <?= $i ?>
+            </button>
+        <?php endfor; ?>
+        
+        <?php if ($end_page < $total_pages): ?>
+            <?php if ($end_page < $total_pages - 1): ?>
+                <span style="padding: 0 0.5rem;">...</span>
+            <?php endif; ?>
+            <button class="pagination-btn" data-page="<?= $total_pages ?>" style="padding: 0.5rem 1rem; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;"><?= $total_pages ?></button>
+        <?php endif; ?>
+        
+        <?php if ($page < $total_pages): ?>
+            <button class="pagination-btn" data-page="<?= $page + 1 ?>" style="padding: 0.5rem 1rem; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                Next →
+            </button>
+        <?php endif; ?>
+    </div>
+    
+    <div style="grid-column: 1 / -1; text-align: center; margin-top: 1rem; color: #666; font-size: 0.9rem;">
+        Showing <?= ($offset + 1) ?> - <?= min($offset + $items_per_page, $total_items) ?> of <?= $total_items ?> products
+    </div>
+<?php
+    endif;
 endif;
 ?>

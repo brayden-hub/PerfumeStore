@@ -22,6 +22,12 @@ $_title = 'My Profile - Nº9 Perfume';
 include '../_head.php';
 ?>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);
+    });
+</script>
+
 <div class="account-wrapper">
     <?php include 'account_sidebar.php'; ?>
 

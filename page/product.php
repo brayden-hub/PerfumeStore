@@ -2,7 +2,7 @@
 require '../_base.php';
 $_title = 'Products - N°9 Perfume';
 
-// process series filter
+// Process series filter
 $selected_series = get('series', '');
 
 include '../_head.php';  
@@ -31,6 +31,7 @@ include '../_head.php';
     align-items: center;
     justify-content: center;
     z-index: 20;
+    transition: all 0.2s;
 }
 
 .fav-btn:hover {
@@ -39,6 +40,16 @@ include '../_head.php';
 
 .fav-btn.active {
     color: #e53935;
+}
+
+.pagination-btn {
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover {
+    background: #D4AF37 !important;
+    color: #000 !important;
+    transform: translateY(-2px);
 }
 </style>
 
@@ -93,6 +104,8 @@ include '../_head.php';
 </div>
 
 <script>
+let currentPage = 1;
+
 $(document).ready(function() {
     window.scrollTo(0, 0);
 
@@ -114,7 +127,6 @@ $(document).ready(function() {
         const min = parseInt($('#price-min').val());
         const max = parseInt($('#price-max').val());
         
-        // Ensure min doesn't exceed max
         if (min > max) {
             if ($(this).attr('id') === 'price-min') {
                 $('#price-min').val(max);
@@ -126,6 +138,8 @@ $(document).ready(function() {
         const finalMin = parseInt($('#price-min').val());
         const finalMax = parseInt($('#price-max').val());
         $('#price-range').text(`RM ${finalMin} - RM ${finalMax}`);
+        
+        currentPage = 1; // Reset to first page
         loadProducts();
     });
 
@@ -135,43 +149,61 @@ $(document).ready(function() {
         $('.series-link').removeClass('active');
         $(this).addClass('active');
         
-        // Update URL without reload
         const series = $(this).data('series');
         const newUrl = series ? `/page/product.php?series=${encodeURIComponent(series)}` : '/page/product.php';
         window.history.pushState({}, '', newUrl);
         
+        currentPage = 1; // Reset to first page
         loadProducts();
     });
 
-    $('#sort-select').on('change', loadProducts);
+    $('#sort-select').on('change', function() {
+        currentPage = 1; // Reset to first page
+        loadProducts();
+    });
+
+    // Pagination click
+    $(document).on('click', '.pagination-btn', function() {
+        currentPage = parseInt($(this).data('page'));
+        loadProducts();
+        
+        // Smooth scroll to top of products
+        $('html, body').animate({
+            scrollTop: $('.products-grid').offset().top - 100
+        }, 500);
+    });
 
     // Handle click on product card to view details
     $(document).on('click', '.product-card', function(e) {
+        if (
+            $(e.target).hasClass('add-to-cart-btn') ||
+            $(e.target).closest('.add-to-cart-btn').length ||
+            $(e.target).hasClass('fav-btn') ||
+            $(e.target).closest('.fav-btn').length
+        ) {
+            return;
+        }
 
-    // ❌ 如果点的是 Add to Cart 或 Favourite，就不要跳详情页
-    if (
-        $(e.target).hasClass('add-to-cart-btn') ||
-        $(e.target).closest('.add-to-cart-btn').length ||
-        $(e.target).hasClass('fav-btn') ||
-        $(e.target).closest('.fav-btn').length
-    ) {
-        return;
-    }
-
-    const productId = $(this).data('product-id');
-
-    if (!productId) {
-        console.error('Product ID not found on card:', this);
-        return;
-    }
-
+        const productId = $(this).data('product-id');
+        if (!productId) {
+            console.error('Product ID not found on card:', this);
+            return;
+        }
         window.location.href = `/page/product_detail.php?id=${productId}`;
     });
 
-
-    // Handle add to cart with event propagation stop
+    // Handle add to cart with Admin check
     $(document).on('click', '.add-to-cart-btn', function(e) {
-        e.stopPropagation(); // Prevent card click
+        e.stopPropagation();
+        
+        <?php if (!isset($_SESSION['user_id'])): ?>
+            alert('Please login first to add items to cart');
+            window.location.href = '/page/login.php';
+            return;
+        <?php elseif (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin'): ?>
+            alert('Admin accounts cannot purchase products. Please use a member account.');
+            return;
+        <?php endif; ?>
         
         const productId = $(this).data('product-id');
         const btn = $(this);
@@ -187,8 +219,6 @@ $(document).ready(function() {
             if (res.success) {
                 $('#cart-count').text(res.cart_count);
                 btn.text('✓ Added').css('background', '#28a745');
-                
-                // Show toast notification
                 showToast('Product added to cart!');
                 
                 setTimeout(() => {
@@ -205,9 +235,16 @@ $(document).ready(function() {
             btn.prop('disabled', false).text('Add to Cart');
         });
     });
+
     // Handle add to favourites
     $(document).on('click', '.fav-btn', function(e) {
-        e.stopPropagation(); // 不要触发 product card 跳转
+        e.stopPropagation();
+
+        <?php if (!isset($_SESSION['user_id'])): ?>
+            alert('Please login to use favourites');
+            window.location.href = '/page/login.php';
+            return;
+        <?php endif; ?>
 
         const productId = $(this).data('product-id');
         const btn = $(this);
@@ -215,6 +252,7 @@ $(document).ready(function() {
         $.post('/api/favorite_toggle.php', { product_id: productId }, function(res) {
             if (res.success) {
                 btn.text(res.favorited ? '♥' : '♡');
+                btn.toggleClass('active', res.favorited);
             } else {
                 alert('Please login to use favourites');
             }
@@ -229,7 +267,6 @@ function loadProducts() {
     const max = $('#price-max').val();
     const sort = $('#sort-select').val();
 
-    // Show loading state
     $('#products-container').html(`
         <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
             <div style="font-size: 1.2rem; color: #999;">Loading products...</div>
@@ -240,7 +277,8 @@ function loadProducts() {
         series: currentSeries, 
         min: min, 
         max: max, 
-        sort: sort
+        sort: sort,
+        page: currentPage
     }, function(html) {
         $('#products-container').html(html);
     }).fail(function() {

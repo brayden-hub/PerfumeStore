@@ -104,7 +104,7 @@ if (is_post()) {
                 $shipping_fee
             ]);
             
-            // NEW: Insert into order_status table
+            // Insert into order_status table
             $stmt = $_db->prepare("INSERT INTO order_status (OrderID, Status) VALUES (?, 'Pending')");
             $stmt->execute([$order_id]);
 
@@ -141,7 +141,7 @@ if (is_post()) {
 }
 
 $current_step = 2;
-$_title = 'Checkout - NÂ°9 Perfume';
+$_title = 'Checkout - N°9 Perfume';
 include '../_head.php';
 ?>
 
@@ -327,6 +327,70 @@ include '../_head.php';
     color: #666;
     border-left: 3px solid #D4AF37;
 }
+
+/* Address Card Styles */
+.address-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.2rem;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.address-card:has(input:checked) {
+    border-color: #D4AF37;
+    background: #fffbf0;
+}
+
+.address-card:hover {
+    border-color: #D4AF37;
+    background: #fafafa;
+}
+
+.address-actions {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.address-card:hover .address-actions {
+    opacity: 1;
+}
+
+.address-btn {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.btn-edit-address {
+    background: #D4AF37;
+    color: #000;
+}
+
+.btn-edit-address:hover {
+    background: #b8941f;
+}
+
+.btn-delete-address {
+    background: #dc3545;
+    color: #fff;
+}
+
+.btn-delete-address:hover {
+    background: #c82333;
+}
 </style>
 
 <div class="container" style="margin-top: 100px; min-height: 60vh; max-width: 1200px; padding: 0 2rem;">
@@ -336,7 +400,7 @@ include '../_head.php';
     
     <?php if ($err = temp('error')): ?>
         <div style="padding: 1rem; background: #ffe6e6; color: #d00; border-radius: 8px; margin-bottom: 1rem;">
-            âš  <?= $err ?>
+            ⚠ <?= $err ?>
         </div>
     <?php endif; ?>
     
@@ -357,11 +421,14 @@ include '../_head.php';
                 <?php if (empty($addresses)): ?>
                     <div style="text-align: center; padding: 2rem; background: #f9f9f9; border-radius: 8px; color: #666;">
                         <p>No saved addresses. Please add one to continue.</p>
+                        <button onclick="window.location.href='/page/manage_address.php?action=add&redirect=checkout'" style="margin-top: 1rem; padding: 0.8rem 1.5rem; background: #000; color: #D4AF37; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            Add Address Now
+                        </button>
                     </div>
                 <?php else: ?>
                     <div id="address-list" style="display: grid; gap: 1rem;">
                         <?php foreach ($addresses as $addr): ?>
-                            <label class="address-card" style="display: flex; gap: 1rem; padding: 1.2rem; border: 2px solid #eee; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                            <label class="address-card">
                                 <input type="radio" name="selected_address" value="<?= $addr->AddressID ?>" <?= $addr->IsDefault ? 'checked' : '' ?> style="margin-top: 0.3rem;">
                                 <div style="flex: 1;">
                                     <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
@@ -376,6 +443,17 @@ include '../_head.php';
                                         <?= $addr->AddressLine2 ? ', ' . htmlspecialchars($addr->AddressLine2) : '' ?><br>
                                         <?= htmlspecialchars($addr->City) ?>, <?= htmlspecialchars($addr->State) ?> <?= htmlspecialchars($addr->PostalCode) ?>
                                     </p>
+                                </div>
+                                <!-- Edit/Delete Buttons -->
+                                <div class="address-actions">
+                                    <button type="button" class="address-btn btn-edit-address" 
+                                            onclick="event.preventDefault(); window.location.href='/page/manage_address.php?action=edit&id=<?= $addr->AddressID ?>&redirect=checkout'">
+                                        Edit
+                                    </button>
+                                    <button type="button" class="address-btn btn-delete-address" 
+                                            onclick="event.preventDefault(); deleteAddress(<?= $addr->AddressID ?>)">
+                                        Delete
+                                    </button>
                                 </div>
                             </label>
                         <?php endforeach; ?>
@@ -415,13 +493,13 @@ include '../_head.php';
             <?php if ($gift_enabled): ?>
                 <div class="gift-summary-box">
                     <div class="gift-summary-title">
-                        <span>ðŸŽ</span> Gift Options
+                        <span>🎁</span> Gift Options
                     </div>
                     
                     <div class="gift-detail-row">
                         <span style="color: #666;">Packaging:</span>
                         <span style="font-weight: 600;">
-                            <?= $gift_packaging === 'luxury' ? 'ðŸ’Ž Luxury Gift Wrap' : 'ðŸ“¦ Standard Packaging' ?>
+                            <?= $gift_packaging === 'luxury' ? '💎 Luxury Gift Wrap' : '📦 Standard Packaging' ?>
                         </span>
                     </div>
                     
@@ -434,7 +512,7 @@ include '../_head.php';
                     
                     <?php if (!empty($gift_message)): ?>
                         <div style="margin-top: 1rem;">
-                            <div style="color: #666; margin-bottom: 0.5rem;">ðŸ’Œ Gift Message:</div>
+                            <div style="color: #666; margin-bottom: 0.5rem;">💌 Gift Message:</div>
                             <div class="gift-message-preview">
                                 "<?= htmlspecialchars($gift_message) ?>"
                             </div>
@@ -443,7 +521,7 @@ include '../_head.php';
                     
                     <?php if ($hide_price): ?>
                         <div class="gift-detail-row">
-                            <span style="color: #666;">ðŸ”’ Privacy:</span>
+                            <span style="color: #666;">🔒 Privacy:</span>
                             <span style="font-weight: 600;">Price hidden on receipt</span>
                         </div>
                     <?php endif; ?>
@@ -456,7 +534,7 @@ include '../_head.php';
             <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem; font-weight: 400;">Payment Details</h3>
             
             <form method="post" id="checkout-form">
-                <input type="hidden" name="address_id" id="address_id" value="<?= $addresses[0]->AddressID ?? '' ?>">
+                <input type="hidden" name="address_id" id="address_id" value="<?= !empty($addresses) ? $addresses[0]->AddressID : '' ?>">
                 
                 <div style="margin-bottom: 2rem;">
                     <label style="display: block; margin-bottom: 1rem; font-weight: 600; color: #333;">Select Payment Method</label>
@@ -464,10 +542,10 @@ include '../_head.php';
                     <!-- Credit Card -->
                     <label class="payment-option" data-method="credit-card">
                         <input type="radio" name="payment_method" value="Credit Card" required>
-                        <span>ðŸ’³ Credit Card</span>
+                        <span>💳 Credit Card</span>
                     </label>
                     <div id="credit-card-details" class="payment-details">
-                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">ðŸ’³ Enter Card Details</h4>
+                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">💳 Enter Card Details</h4>
                         <div class="form-group">
                             <label>Card Number *</label>
                             <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" pattern="\d{4} \d{4} \d{4} \d{4}">
@@ -491,10 +569,10 @@ include '../_head.php';
                     <!-- Online Banking -->
                     <label class="payment-option" data-method="online-banking">
                         <input type="radio" name="payment_method" value="Online Banking" required>
-                        <span>ðŸ¦ Online Banking</span>
+                        <span>🏦 Online Banking</span>
                     </label>
                     <div id="online-banking-details" class="payment-details">
-                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">ðŸ¦ Select Your Bank</h4>
+                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">🏦 Select Your Bank</h4>
                         <div class="bank-grid">
                             <label class="bank-option">
                                 <input type="radio" name="bank" value="Maybank">
@@ -529,44 +607,26 @@ include '../_head.php';
                     <!-- E-Wallet -->
                     <label class="payment-option" data-method="e-wallet">
                         <input type="radio" name="payment_method" value="E-Wallet" required>
-                        <span>ðŸ“± E-Wallet</span>
+                        <span>📱 E-Wallet</span>
                     </label>
                     <div id="e-wallet-details" class="payment-details">
                         <div class="qr-container">
-                            <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">ðŸ“± Scan QR Code to Pay</h4>
+                            <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">📱 Scan QR Code to Pay</h4>
                             <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
                                 Amount: <strong style="color: #D4AF37; font-size: 1.2rem;">RM <?= number_format($total, 2) ?></strong>
                             </p>
                             <div class="qr-code">
                                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- QR Code Pattern -->
                                     <rect width="200" height="200" fill="white"/>
-                                    <!-- Corner markers -->
                                     <rect x="10" y="10" width="50" height="50" fill="black"/>
                                     <rect x="20" y="20" width="30" height="30" fill="white"/>
                                     <rect x="140" y="10" width="50" height="50" fill="black"/>
                                     <rect x="150" y="20" width="30" height="30" fill="white"/>
                                     <rect x="10" y="140" width="50" height="50" fill="black"/>
                                     <rect x="20" y="150" width="30" height="30" fill="white"/>
-                                    <!-- Data pattern -->
                                     <rect x="70" y="10" width="10" height="10" fill="black"/>
                                     <rect x="90" y="10" width="10" height="10" fill="black"/>
                                     <rect x="110" y="10" width="10" height="10" fill="black"/>
-                                    <rect x="70" y="30" width="10" height="10" fill="black"/>
-                                    <rect x="90" y="30" width="10" height="10" fill="black"/>
-                                    <rect x="110" y="30" width="10" height="10" fill="black"/>
-                                    <rect x="70" y="50" width="10" height="10" fill="black"/>
-                                    <rect x="110" y="50" width="10" height="10" fill="black"/>
-                                    <rect x="10" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="30" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="50" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="70" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="90" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="110" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="130" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="150" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="170" y="70" width="10" height="10" fill="black"/>
-                                    <rect x="190" y="70" width="10" height="10" fill="black"/>
                                 </svg>
                             </div>
                             <p style="color: #666; font-size: 0.85rem; margin-top: 1rem;">
@@ -578,11 +638,11 @@ include '../_head.php';
                     <!-- Cash on Delivery -->
                     <label class="payment-option" data-method="cod">
                         <input type="radio" name="payment_method" value="Cash on Delivery" required>
-                        <span>ðŸ’µ Cash on Delivery</span>
+                        <span>💵 Cash on Delivery</span>
                     </label>
                     <div id="cod-details" class="payment-details">
                         <div style="text-align: center; padding: 1rem;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">ðŸ’µ</div>
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">💵</div>
                             <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">Pay When You Receive</h4>
                             <p style="color: #666; margin-bottom: 1rem;">
                                 Please prepare the exact amount for payment upon delivery.
@@ -625,18 +685,17 @@ include '../_head.php';
                 </button>
                 
                 <a href="/page/cart.php" style="display: block; text-align: center; margin-top: 1rem; color: #666; text-decoration: none;">
-                    â† Back to Cart
+                    ← Back to Cart
                 </a>
             </form>
-                    </div>
-    </div>  
+        </div>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ===========================
-       ADDRESS SELECTION
-    ============================ */
+    /* ADDRESS SELECTION */
     const addressRadios = document.querySelectorAll('input[name="selected_address"]');
     const addressInput = document.getElementById('address_id');
 
@@ -646,9 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ===========================
-       PAYMENT METHOD TOGGLE
-    ============================ */
+    /* PAYMENT METHOD TOGGLE */
     const paymentOptions = document.querySelectorAll('.payment-option');
     const paymentDetails = document.querySelectorAll('.payment-details');
 
@@ -671,9 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ===========================
-       BANK SELECTION (ONLINE BANKING)
-    ============================ */
+    /* BANK SELECTION (ONLINE BANKING) */
     const bankOptions = document.querySelectorAll('.bank-option');
 
     bankOptions.forEach(bank => {
@@ -686,9 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ===========================
-       CARD INPUT FORMATTING
-    ============================ */
+    /* CARD INPUT FORMATTING */
     const cardNumber = document.getElementById('card-number');
     const cardExpiry = document.getElementById('card-expiry');
 
@@ -710,18 +763,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ===========================
-       ADD ADDRESS BUTTON (MODAL HOOK)
-    ============================ */
+    /* ADD ADDRESS BUTTON */
     const addAddressBtn = document.getElementById('add-address-btn');
     if (addAddressBtn) {
         addAddressBtn.addEventListener('click', () => {
-            window.location.href = '/page/manage_address.php? action=add redirect=checkout';
+            window.location.href = '/page/manage_address.php?action=add&redirect=checkout';
         });
     }
 
 });
-</script>
 
+/* DELETE ADDRESS FUNCTION */
+function deleteAddress(addressId) {
+    if (confirm('Are you sure you want to delete this address?')) {
+        // Show loading indicator
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Deleting...';
+        btn.disabled = true;
+        
+        // Send delete request
+        fetch('/page/manage_address.php?action=delete&id=' + addressId + '&redirect=checkout', {
+            method: 'GET',
+        })
+        .then(response => {
+            // Redirect to checkout to refresh the page
+            window.location.href = '/page/checkout.php';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete address. Please try again.');
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    }
+}
+</script>
 
 <?php include '../_foot.php'; ?>

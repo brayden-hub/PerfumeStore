@@ -29,8 +29,48 @@ $state = post('state');
 $postal_code = post('postal_code');
 $is_default = post('is_default', 0);
 
-if (!$label || !$recipient_name || !$phone || !$address1 || !$city || !$state || !$postal_code) {
-    echo json_encode(['success' => false, 'message' => 'Please fill all required fields']);
+// Validation
+$errors = [];
+
+if (!$label) {
+    $errors[] = 'Label is required';
+}
+
+if (!$recipient_name) {
+    $errors[] = 'Recipient name is required';
+}
+
+if (!$phone) {
+    $errors[] = 'Phone number is required';
+} elseif (!preg_match('/^[0-9]{10,12}$/', $phone)) {
+    $errors[] = 'Phone number must be 10-12 digits';
+}
+
+if (!$address1) {
+    $errors[] = 'Address Line 1 is required';
+}
+
+if (!$city) {
+    $errors[] = 'City is required';
+}
+
+if (!$state) {
+    $errors[] = 'State is required';
+}
+
+if (!$postal_code) {
+    $errors[] = 'Postcode is required';
+} elseif (!preg_match('/^[0-9]{5}$/', $postal_code)) {
+    $errors[] = 'Postcode must be exactly 5 digits';
+}
+
+// If there are validation errors, return them
+if (!empty($errors)) {
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Validation failed',
+        'errors' => $errors
+    ]);
     exit;
 }
 

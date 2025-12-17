@@ -2,7 +2,6 @@
 require '../_base.php';
 $current_step = 1;
 
-
 if (!isset($_SESSION['user_id'])) {
     redirect('/page/login.php');
 }
@@ -31,357 +30,51 @@ foreach ($cart_items as $item) {
 $free_shipping_threshold = 300; 
 ?>
 
-<style>
-.gift-module {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-}
+<!-- 引入分离的CSS文件 -->
+<link rel="stylesheet" href="/public/css/cart.css">
 
-.gift-header {
-    padding: 1.2rem 1.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(135deg, #f8f8f8 0%, #fff 100%);
-    border-bottom: 1px solid #eee;
-    transition: all 0.3s ease;
-}
-
-.gift-header:hover {
-    background: linear-gradient(135deg, #f0f0f0 0%, #f8f8f8 100%);
-}
-
-.gift-header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.gift-icon {
-    font-size: 1.5rem;
-}
-
-.gift-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0;
-}
-
-.toggle-switch {
-    position: relative;
-    width: 50px;
-    height: 26px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.3s;
-    border-radius: 34px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: 0.3s;
-    border-radius: 50%;
-}
-
-input:checked + .toggle-slider {
-    background-color: #D4AF37;
-}
-
-input:checked + .toggle-slider:before {
-    transform: translateX(24px);
-}
-
-.gift-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease;
-}
-
-.gift-content.active {
-    max-height: 800px;
-}
-
-.gift-content-inner {
-    padding: 1.5rem;
-}
-
-.gift-section {
-    margin-bottom: 2rem;
-}
-
-.gift-section:last-child {
-    margin-bottom: 0;
-}
-
-.section-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.packaging-options {
-    display: grid;
-    gap: 1rem;
-}
-
-.packaging-option {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border: 2px solid #eee;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.packaging-option:hover {
-    border-color: #D4AF37;
-    background: #fafafa;
-}
-
-.packaging-option.selected {
-    border-color: #D4AF37;
-    background: #fffbf0;
-}
-
-.packaging-option input[type="radio"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
-.packaging-thumbnail {
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
-    object-fit: cover;
-    border: 1px solid #eee;
-}
-
-.packaging-details {
-    flex: 1;
-}
-
-.packaging-name {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 0.3rem;
-}
-
-.packaging-price {
-    color: #D4AF37;
-    font-size: 0.9rem;
-}
-
-.message-card-container {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.message-input-wrapper {
-    flex: 1;
-    min-width: 250px;
-}
-
-.message-textarea {
-    width: 100%;
-    padding: 0.8rem;
-    border: 2px solid #eee;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    resize: vertical;
-    min-height: 100px;
-    transition: border-color 0.3s ease;
-}
-
-.message-textarea:focus {
-    outline: none;
-    border-color: #D4AF37;
-}
-
-.char-counter {
-    text-align: right;
-    font-size: 0.85rem;
-    color: #666;
-    margin-top: 0.3rem;
-}
-
-.char-counter.warning {
-    color: #dc3545;
-}
-
-.card-preview-wrapper {
-    flex: 1;
-    min-width: 250px;
-}
-
-.card-preview {
-    position: relative;
-    width: 100%;
-    max-width: 300px;
-    aspect-ratio: 3/2;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    overflow: hidden;
-    border: 2px solid #D4AF37;
-}
-
-.card-preview::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 40px;
-    background: linear-gradient(135deg, #D4AF37 0%, #b8941f 100%);
-}
-
-.card-preview::after {
-    content: '🎁';
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    font-size: 1.5rem;
-}
-
-.card-message {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 85%;
-    text-align: center;
-    font-family: 'Brush Script MT', cursive, serif;
-    font-size: 1.1rem;
-    color: #333;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-}
-
-.card-placeholder {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #999;
-    font-style: italic;
-    font-size: 0.9rem;
-}
-
-.privacy-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.8rem;
-    background: #f9f9f9;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.privacy-checkbox:hover {
-    background: #f0f0f0;
-}
-
-.privacy-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.privacy-label {
-    font-size: 0.95rem;
-    color: #333;
-    cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .message-card-container {
-        flex-direction: column;
-    }
-    
-    .card-preview {
-        max-width: 100%;
-    }
-}
-</style>
-
-<div class="cart-container" style="max-width: 1400px; margin: 100px auto 0; padding: 0 5%; display: flex; gap: 4rem; flex-wrap: wrap;">
+<div class="cart-container">
     <!-- Progress Bar -->
-        <div class="progress-bar" style="width: 100%; margin-bottom: 3rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <!-- Step 1: Shopping Cart -->
-                <div style="text-align: center;">
-                    <div style="width: 40px; height: 40px; background: <?= $current_step >= 1 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 1 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">1</div>
-                    <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 1 ? '#000' : '#666' ?>;">Shopping Cart</p>
-                </div>
-                
-                <div style="flex: 1; height: 2px; background: <?= $current_step >= 2 ? '#D4AF37' : '#eee' ?>; margin: 0 1rem;"></div>
-                
-                <!-- Step 2: Checkout & Payment -->
-                <div style="text-align: center;">
-                    <div style="width: 40px; height: 40px; background: <?= $current_step >= 2 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 2 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">2</div>
-                    <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 2 ? '#000' : '#666' ?>;">Checkout & Payment</p>
-                </div>
-                
-                <div style="flex: 1; height: 2px; background: <?= $current_step >= 3 ? '#D4AF37' : '#eee' ?>; margin: 0 1rem;"></div>
-                
-                <!-- Step 3: Done -->
-                <div style="text-align: center;">
-                    <div style="width: 40px; height: 40px; background: <?= $current_step >= 3 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 3 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">3</div>
-                    <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 3 ? '#000' : '#666' ?>;">Done</p>
-                </div>
+    <div class="progress-bar" style="width: 100%; margin-bottom: 3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <!-- Step 1: Shopping Cart -->
+            <div style="text-align: center;">
+                <div style="width: 40px; height: 40px; background: <?= $current_step >= 1 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 1 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">1</div>
+                <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 1 ? '#000' : '#666' ?>;">Shopping Cart</p>
+            </div>
+            
+            <div style="flex: 1; height: 2px; background: <?= $current_step >= 2 ? '#D4AF37' : '#eee' ?>; margin: 0 1rem;"></div>
+            
+            <!-- Step 2: Checkout & Payment -->
+            <div style="text-align: center;">
+                <div style="width: 40px; height: 40px; background: <?= $current_step >= 2 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 2 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">2</div>
+                <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 2 ? '#000' : '#666' ?>;">Checkout & Payment</p>
+            </div>
+            
+            <div style="flex: 1; height: 2px; background: <?= $current_step >= 3 ? '#D4AF37' : '#eee' ?>; margin: 0 1rem;"></div>
+            
+            <!-- Step 3: Done -->
+            <div style="text-align: center;">
+                <div style="width: 40px; height: 40px; background: <?= $current_step >= 3 ? '#D4AF37' : '#eee' ?>; color: <?= $current_step >= 3 ? '#000' : '#666' ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 0.5rem;">3</div>
+                <p style="margin: 0; font-size: 0.9rem; color: <?= $current_step >= 3 ? '#000' : '#666' ?>;">Done</p>
             </div>
         </div>
+    </div>
 
     <!-- Left: Cart Items -->
-    <div class="cart-items" style="flex: 2; min-width: 600px;">
+    <div class="cart-items">
         <h2 style="font-size: 2rem; font-weight: 300; margin-bottom: 2rem;">Your Cart</h2>
 
         <div id="cart-content-wrapper">
             <?php if (empty($cart_items)): ?>
-                <div class="empty-cart-message" style="text-align: center; padding: 6rem 0; background: #f9f9f9; border-radius: 12px;">
+                <div class="empty-cart-message">
                     <p style="font-size: 1.5rem; color: #666; margin-bottom: 1rem;">Your cart is empty</p>
                     <a href="/page/product.php" style="color: #D4AF37; font-size: 1.1rem; text-decoration: none;">Continue Shopping →</a>
                 </div>
             <?php else: ?>
                 <div class="cart-list">
                     <?php foreach ($cart_items as $item): ?>
-                        <div class="cart-item-card" data-cart-id="<?= $item['CartID'] ?>" style="display: flex; gap: 2rem; background: #fff; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); align-items: center;">
+                        <div class="cart-item-card" data-cart-id="<?= $item['CartID'] ?>">
                             <img src="/public/images/<?= htmlspecialchars($item['ProductID']) ?>.png" 
                                  alt="<?= htmlspecialchars($item['ProductName']) ?>" 
                                  style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;">
@@ -397,10 +90,10 @@ input:checked + .toggle-slider:before {
                             </div>
 
                             <div style="display: flex; align-items: center; gap: 1rem;">
-                                <div class="quantity-selector" style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px;">
-                                    <button class="qty-btn" data-action="decrease" data-cart-id="<?= $item['CartID'] ?>" style="padding: 0.5rem 1rem; background: none; border: none; cursor: pointer;">−</button>
-                                    <input type="number" class="qty-input" data-cart-id="<?= $item['CartID'] ?>" value="<?= $item['Quantity'] ?>" min="1" max="<?= $item['Stock'] ?>" style="width: 60px; text-align: center; border: none;" readonly>
-                                    <button class="qty-btn" data-action="increase" data-cart-id="<?= $item['CartID'] ?>" data-max="<?= $item['Stock'] ?>" style="padding: 0.5rem 1rem; background: none; border: none; cursor: pointer;">+</button>
+                                <div class="quantity-selector">
+                                    <button class="qty-btn" data-action="decrease" data-cart-id="<?= $item['CartID'] ?>">−</button>
+                                    <input type="number" class="qty-input" data-cart-id="<?= $item['CartID'] ?>" value="<?= $item['Quantity'] ?>" min="1" max="<?= $item['Stock'] ?>" readonly>
+                                    <button class="qty-btn" data-action="increase" data-cart-id="<?= $item['CartID'] ?>" data-max="<?= $item['Stock'] ?>">+</button>
                                 </div>
                                 <button class="remove-item" data-cart-id="<?= $item['CartID'] ?>" style="background: none; border: none; color: #dc3545; cursor: pointer;">Remove</button>
                             </div>
@@ -414,7 +107,7 @@ input:checked + .toggle-slider:before {
                     <?php endforeach; ?>
                 </div>
 
-                <!-- 交叉銷售 -->
+                <!-- 交叉销售 -->
                 <div class="cross-sell" style="margin-top: 4rem;">
                     <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Complete Your Collection</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
@@ -437,8 +130,8 @@ input:checked + .toggle-slider:before {
     </div>
 
     <!-- Right: Order Summary (Sticky) -->
-    <div class="order-summary-wrapper" style="flex: 1; min-width: 350px;">
-        <div class="order-summary" style="background: #f9f9f9; padding: 2rem; border-radius: 12px; position: sticky; top: 100px;">
+    <div class="order-summary-wrapper">
+        <div class="order-summary">
             <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Order Summary</h3>
 
             <!-- Gift Module -->
@@ -522,9 +215,9 @@ input:checked + .toggle-slider:before {
 
             <!-- Free Shipping -->
             <?php $remaining = $free_shipping_threshold - $total; ?>
-            <div class="free-shipping-container" style="margin-top: 1.5rem;">
+            <div class="free-shipping-container">
                 <?php if ($total < $free_shipping_threshold): ?>
-                    <div class="free-shipping-msg" style="background: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                    <div class="free-shipping-msg">
                         <p style="margin: 0; color: #666;">Add RM <span class="remaining-amount"><?= number_format($remaining, 2) ?></span> more for <strong>FREE SHIPPING</strong></p>
                     </div>
                 <?php else: ?>
@@ -758,7 +451,7 @@ $(document).ready(function() {
 
     // Checkout
     $('#checkout-btn').on('click', function(e) {
-        e.preventDefault(); // Prevent immediate navigation
+        e.preventDefault();
         
         // Collect gift options
         const giftEnabled = $('#giftToggle').is(':checked');
@@ -769,7 +462,6 @@ $(document).ready(function() {
             hidePrice: $('#hidePrice').is(':checked') ? '1' : '0'
         };
         
-        
         // Save to PHP session
         $.ajax({
             url: '/api/save_gift_options.php',
@@ -778,12 +470,15 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // Successfully saved, now go to checkout
-                    window.location.href = '/page/checkout.php?debug=1';
+                    window.location.href = '/page/checkout.php';
                 } else {
                     alert('Failed to save gift options: ' + response.message);
                 }
             },
+            error: function() {
+                // If AJAX fails, still proceed
+                window.location.href = '/page/checkout.php';
+            }
         });
     });
 
@@ -815,9 +510,7 @@ $(document).ready(function() {
     // Update Order Summary
     function updateOrderSummary(newTotal) {
         currentSubtotal = newTotal;
-        
         $('.subtotal-amount').text('RM ' + newTotal.toFixed(2));
-        
         updateTotal();
     }
 

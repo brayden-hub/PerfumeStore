@@ -70,6 +70,32 @@ if (is_post()) {
             
             // Using $productName and $filename
             $stm->execute([$productID, $series, $productName, $price, $stock, $description, $filename]);
+            
+            $gallery = $_FILES['gallery'] ?? null;
+            
+            if ($gallery && !empty($gallery['name'][0])) {
+                // Prepare statement for gallery
+                $stmGallery = $_db->prepare("INSERT INTO product_images (ProductID, Filename) VALUES (?, ?)");
+                
+                $count = count($gallery['name']);
+                
+                for ($i = 0; $i < $count; $i++) {
+                    // Skip errors or empty files
+                    if ($gallery['error'][$i] !== 0) continue;
+                    
+                    $gName = $gallery['name'][$i];
+                    $gTmp  = $gallery['tmp_name'][$i];
+                    
+                    // Generate Unique Name: P0001_uniqueid.jpg
+                    $gExt = pathinfo($gName, PATHINFO_EXTENSION);
+                    $gFilename = $productID . '_' . uniqid() . '.' . $gExt;
+                    $gTarget = "../public/images/" . $gFilename;
+                    
+                    if (move_uploaded_file($gTmp, $gTarget)) {
+                        $stmGallery->execute([$productID, $gFilename]);
+                    }
+                }
+            }
 
             temp('info', "Product $productID added successfully");
             redirect('productList.php');
@@ -114,13 +140,22 @@ include '../_head.php';
         <textarea name="description" id="description" rows="4"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
         <?= err('description') ?>
 
-        <label>Product Image</label>
+        <label>Product Image (Main Cover)</label>
         <label class="upload">
-        <input type="file" name="productImage" accept="image/*">
-        <img src="/public/images/photo.jpg" alt="Click or Drag & Drop to upload">
+            <input type="file" name="productImage" accept="image/*">
+            <img src="/public/images/photo.jpg" alt="Click or Drag & Drop to upload">
         </label>
-        <small>Click or <strong>Drag & Drop</strong> image here. (Saved as <?= generateNewProductID() ?>.jpg)</small>
+        <small>Click or <strong>Drag & Drop</strong> image here.</small>
         <?= err('productImage') ?>
+
+        <label style="margin-top: 20px;">Gallery Images (Optional)</label>
+        <div class="gallery-upload-box" id="gallery-drop-zone">
+            <p><strong>Click</strong> or <strong>Drag & Drop</strong> multiple photos here</p>
+            <input type="file" name="gallery[]" multiple accept="image/*" id="gallery-input">
+        </div>
+
+        <div class="gallery-preview-container" id="gallery-preview"></div>
+        <small>Selected images will appear above.</small>
 
         <button type="submit" class="btn-submit">Add Product</button>
         <a href="productList.php" class="btn-cancel">Cancel</a>

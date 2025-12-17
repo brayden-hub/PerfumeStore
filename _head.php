@@ -41,6 +41,7 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
                 <li><a href="/page/productList.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'productList.php' ? 'active' : '' ?>">Product</a></li>
                 <li><a href="/page/user.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'user.php' ? 'active' : '' ?>">User</a></li>
                 <li><a href="/page/order.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'order.php' ? 'active' : '' ?>">Order</a></li>
+                <li><a href="/page/report.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'report.php' ? 'active' : '' ?>">Report</a></li>
                 
                 <?php if (isset($_SESSION['user_id'])): 
                     // Admin 登录后也需要头像菜单

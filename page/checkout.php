@@ -51,8 +51,18 @@ if (isset($_SESSION['gift_options'])) {
     }
 }
 
-$shipping_fee = 30.00;
-$total = $subtotal + $gift_wrap_cost + $shipping_fee;
+$free_shipping_threshold = 300.00;
+$cart_total = $subtotal + $gift_wrap_cost;
+
+if ($cart_total >= $free_shipping_threshold) {
+    $shipping_fee = 0.00;
+    $shipping_display = 'FREE';
+} else {
+    $shipping_fee = 30.00;
+    $shipping_display = 'RM 30.00';
+}
+
+$total = $cart_total + $shipping_fee;
 
 if (is_post()) {
     $payment_method = post('payment_method');
@@ -94,6 +104,10 @@ if (is_post()) {
                 $shipping_fee
             ]);
             
+            // NEW: Insert into order_status table
+            $stmt = $_db->prepare("INSERT INTO order_status (OrderID, Status) VALUES (?, 'Pending')");
+            $stmt->execute([$order_id]);
+
             // Create order items and update stock
             foreach ($cart_items as $item) {
                 $stmt = $_db->query("SELECT ProductOrderID FROM productorder ORDER BY ProductOrderID DESC LIMIT 1");
@@ -127,7 +141,7 @@ if (is_post()) {
 }
 
 $current_step = 2;
-$_title = 'Checkout - N°9 Perfume';
+$_title = 'Checkout - NÂ°9 Perfume';
 include '../_head.php';
 ?>
 
@@ -322,7 +336,7 @@ include '../_head.php';
     
     <?php if ($err = temp('error')): ?>
         <div style="padding: 1rem; background: #ffe6e6; color: #d00; border-radius: 8px; margin-bottom: 1rem;">
-            ⚠ <?= $err ?>
+            âš  <?= $err ?>
         </div>
     <?php endif; ?>
     
@@ -401,13 +415,13 @@ include '../_head.php';
             <?php if ($gift_enabled): ?>
                 <div class="gift-summary-box">
                     <div class="gift-summary-title">
-                        <span>🎁</span> Gift Options
+                        <span>ðŸŽ</span> Gift Options
                     </div>
                     
                     <div class="gift-detail-row">
                         <span style="color: #666;">Packaging:</span>
                         <span style="font-weight: 600;">
-                            <?= $gift_packaging === 'luxury' ? '💎 Luxury Gift Wrap' : '📦 Standard Packaging' ?>
+                            <?= $gift_packaging === 'luxury' ? 'ðŸ’Ž Luxury Gift Wrap' : 'ðŸ“¦ Standard Packaging' ?>
                         </span>
                     </div>
                     
@@ -420,7 +434,7 @@ include '../_head.php';
                     
                     <?php if (!empty($gift_message)): ?>
                         <div style="margin-top: 1rem;">
-                            <div style="color: #666; margin-bottom: 0.5rem;">💌 Gift Message:</div>
+                            <div style="color: #666; margin-bottom: 0.5rem;">ðŸ’Œ Gift Message:</div>
                             <div class="gift-message-preview">
                                 "<?= htmlspecialchars($gift_message) ?>"
                             </div>
@@ -429,7 +443,7 @@ include '../_head.php';
                     
                     <?php if ($hide_price): ?>
                         <div class="gift-detail-row">
-                            <span style="color: #666;">🔒 Privacy:</span>
+                            <span style="color: #666;">ðŸ”’ Privacy:</span>
                             <span style="font-weight: 600;">Price hidden on receipt</span>
                         </div>
                     <?php endif; ?>
@@ -450,10 +464,10 @@ include '../_head.php';
                     <!-- Credit Card -->
                     <label class="payment-option" data-method="credit-card">
                         <input type="radio" name="payment_method" value="Credit Card" required>
-                        <span>💳 Credit Card</span>
+                        <span>ðŸ’³ Credit Card</span>
                     </label>
                     <div id="credit-card-details" class="payment-details">
-                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">💳 Enter Card Details</h4>
+                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">ðŸ’³ Enter Card Details</h4>
                         <div class="form-group">
                             <label>Card Number *</label>
                             <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" pattern="\d{4} \d{4} \d{4} \d{4}">
@@ -477,10 +491,10 @@ include '../_head.php';
                     <!-- Online Banking -->
                     <label class="payment-option" data-method="online-banking">
                         <input type="radio" name="payment_method" value="Online Banking" required>
-                        <span>🏦 Online Banking</span>
+                        <span>ðŸ¦ Online Banking</span>
                     </label>
                     <div id="online-banking-details" class="payment-details">
-                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">🏦 Select Your Bank</h4>
+                        <h4 style="margin-bottom: 1rem; color: #D4AF37;">ðŸ¦ Select Your Bank</h4>
                         <div class="bank-grid">
                             <label class="bank-option">
                                 <input type="radio" name="bank" value="Maybank">
@@ -515,16 +529,45 @@ include '../_head.php';
                     <!-- E-Wallet -->
                     <label class="payment-option" data-method="e-wallet">
                         <input type="radio" name="payment_method" value="E-Wallet" required>
-                        <span>📱 E-Wallet</span>
+                        <span>ðŸ“± E-Wallet</span>
                     </label>
                     <div id="e-wallet-details" class="payment-details">
                         <div class="qr-container">
-                            <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">📱 Scan QR Code to Pay</h4>
+                            <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">ðŸ“± Scan QR Code to Pay</h4>
                             <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
                                 Amount: <strong style="color: #D4AF37; font-size: 1.2rem;">RM <?= number_format($total, 2) ?></strong>
                             </p>
                             <div class="qr-code">
-                                <img src="/public/images/qrcode.jpg" alt="Payment QR Code" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+                                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- QR Code Pattern -->
+                                    <rect width="200" height="200" fill="white"/>
+                                    <!-- Corner markers -->
+                                    <rect x="10" y="10" width="50" height="50" fill="black"/>
+                                    <rect x="20" y="20" width="30" height="30" fill="white"/>
+                                    <rect x="140" y="10" width="50" height="50" fill="black"/>
+                                    <rect x="150" y="20" width="30" height="30" fill="white"/>
+                                    <rect x="10" y="140" width="50" height="50" fill="black"/>
+                                    <rect x="20" y="150" width="30" height="30" fill="white"/>
+                                    <!-- Data pattern -->
+                                    <rect x="70" y="10" width="10" height="10" fill="black"/>
+                                    <rect x="90" y="10" width="10" height="10" fill="black"/>
+                                    <rect x="110" y="10" width="10" height="10" fill="black"/>
+                                    <rect x="70" y="30" width="10" height="10" fill="black"/>
+                                    <rect x="90" y="30" width="10" height="10" fill="black"/>
+                                    <rect x="110" y="30" width="10" height="10" fill="black"/>
+                                    <rect x="70" y="50" width="10" height="10" fill="black"/>
+                                    <rect x="110" y="50" width="10" height="10" fill="black"/>
+                                    <rect x="10" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="30" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="50" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="70" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="90" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="110" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="130" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="150" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="170" y="70" width="10" height="10" fill="black"/>
+                                    <rect x="190" y="70" width="10" height="10" fill="black"/>
+                                </svg>
                             </div>
                             <p style="color: #666; font-size: 0.85rem; margin-top: 1rem;">
                                 Compatible with: Touch 'n Go, GrabPay, Boost, ShopeePay
@@ -535,11 +578,11 @@ include '../_head.php';
                     <!-- Cash on Delivery -->
                     <label class="payment-option" data-method="cod">
                         <input type="radio" name="payment_method" value="Cash on Delivery" required>
-                        <span>💵 Cash on Delivery</span>
+                        <span>ðŸ’µ Cash on Delivery</span>
                     </label>
                     <div id="cod-details" class="payment-details">
                         <div style="text-align: center; padding: 1rem;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">💵</div>
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">ðŸ’µ</div>
                             <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">Pay When You Receive</h4>
                             <p style="color: #666; margin-bottom: 1rem;">
                                 Please prepare the exact amount for payment upon delivery.
@@ -582,309 +625,103 @@ include '../_head.php';
                 </button>
                 
                 <a href="/page/cart.php" style="display: block; text-align: center; margin-top: 1rem; color: #666; text-decoration: none;">
-                    ← Back to Cart
+                    â† Back to Cart
                 </a>
             </form>
-        </div>
-    </div>
-</div>
-
-<!-- Add Address Modal -->
-<div id="address-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; overflow-y: auto;">
-    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem;">
-        <div style="background: #fff; border-radius: 12px; max-width: 600px; width: 100%; padding: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0;">Add New Address</h3>
-                <button id="close-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-            </div>
-            
-            <form id="address-form" method="post" action="/api/add_address.php">
-                <div style="display: grid; gap: 1rem;">
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Address Label *</label>
-                        <input type="text" name="label" required placeholder="e.g., Home, Office" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
                     </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Recipient Name *</label>
-                            <input type="text" name="recipient_name" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Phone Number *</label>
-                            <input type="text" name="phone" required placeholder="e.g., 0123456789" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Address Line 1 *</label>
-                        <input type="text" name="address1" required placeholder="Street address" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Address Line 2</label>
-                        <input type="text" name="address2" placeholder="Apartment, suite, etc. (optional)" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">City *</label>
-                            <input type="text" name="city" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Postal Code *</label>
-                            <input type="text" name="postal_code" required placeholder="e.g., 50000" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">State *</label>
-                        <select name="state" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
-                            <option value="">Select State</option>
-                            <option>Johor</option>
-                            <option>Kedah</option>
-                            <option>Kelantan</option>
-                            <option>Melaka</option>
-                            <option>Negeri Sembilan</option>
-                            <option>Pahang</option>
-                            <option>Penang</option>
-                            <option>Perak</option>
-                            <option>Perlis</option>
-                            <option>Sabah</option>
-                            <option>Sarawak</option>
-                            <option>Selangor</option>
-                            <option>Terengganu</option>
-                            <option>Kuala Lumpur</option>
-                            <option>Labuan</option>
-                            <option>Putrajaya</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" name="is_default" value="1">
-                            <span>Set as default address</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button type="button" id="cancel-btn" style="flex: 1; padding: 1rem; background: #eee; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
-                    <button type="submit" style="flex: 1; padding: 1rem; background: #D4AF37; color: #000; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Save Address</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+    </div>  
 
 <script>
-$(document).ready(function() {
-    // Address selection
-    $('input[name="selected_address"]').on('change', function() {
-        $('#address_id').val($(this).val());
-        $('.address-card').css('border-color', '#eee');
-        $(this).closest('.address-card').css('border-color', '#D4AF37');
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* ===========================
+       ADDRESS SELECTION
+    ============================ */
+    const addressRadios = document.querySelectorAll('input[name="selected_address"]');
+    const addressInput = document.getElementById('address_id');
+
+    addressRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            addressInput.value = radio.value;
+        });
     });
-    
-    // Highlight default selected address
-    $('input[name="selected_address"]:checked').closest('.address-card').css('border-color', '#D4AF37');
-    
-    // Modal controls
-    $('#add-address-btn').click(() => $('#address-modal').fadeIn(200));
-    $('#close-modal, #cancel-btn').click(() => $('#address-modal').fadeOut(200));
-    
-    // Add address form
-    $('#address-form').on('submit', function(e) {
-        e.preventDefault();
-        $.post($(this).attr('action'), $(this).serialize(), function(res) {
-            if (res.success) {
-                location.reload();
-            } else {
-                alert(res.message || 'Failed to add address');
+
+    /* ===========================
+       PAYMENT METHOD TOGGLE
+    ============================ */
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    const paymentDetails = document.querySelectorAll('.payment-details');
+
+    paymentOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const radio = option.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            // Reset styles
+            paymentOptions.forEach(o => o.classList.remove('selected'));
+            paymentDetails.forEach(d => d.classList.remove('active'));
+
+            option.classList.add('selected');
+
+            const method = option.dataset.method;
+            const detailBox = document.getElementById(method + '-details');
+            if (detailBox) {
+                detailBox.classList.add('active');
             }
-        }, 'json').fail(() => alert('Connection error'));
+        });
     });
-    
-    // Payment method selection
-    $('.payment-option').on('click', function() {
-        const method = $(this).data('method');
-        $('.payment-option').removeClass('selected');
-        $(this).addClass('selected');
-        $(this).find('input[type="radio"]').prop('checked', true);
-        
-        // Hide all payment details
-        $('.payment-details').removeClass('active');
-        
-        // Show selected payment details
-        $(`#${method}-details`).addClass('active');
+
+    /* ===========================
+       BANK SELECTION (ONLINE BANKING)
+    ============================ */
+    const bankOptions = document.querySelectorAll('.bank-option');
+
+    bankOptions.forEach(bank => {
+        bank.addEventListener('click', () => {
+            const radio = bank.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            bankOptions.forEach(b => b.classList.remove('selected'));
+            bank.classList.add('selected');
+        });
     });
-    
-    // Credit Card Number Formatting
-    $('#card-number').on('input', function() {
-        let value = $(this).val().replace(/\s/g, '');
-        value = value.replace(/\D/g, ''); // Remove non-digits
-        value = value.substring(0, 16); // Limit to 16 digits
-        
-        // Add space every 4 digits
-        let formatted = value.match(/.{1,4}/g);
-        $(this).val(formatted ? formatted.join(' ') : '');
-        
-        // Visual feedback
-        if (value.length === 16) {
-            $(this).css('border-color', '#4caf50');
-        } else {
-            $(this).css('border-color', '#ddd');
-        }
-    });
-    
-    // Expiry Date Formatting and Validation
-    $('#card-expiry').on('input', function() {
-        let value = $(this).val().replace(/\D/g, ''); // Remove non-digits
-        
-        if (value.length >= 2) {
-            value = value.substring(0, 2) + '/' + value.substring(2, 4);
-        }
-        
-        $(this).val(value);
-        
-        // Validate expiry date
-        if (value.length === 5) {
-            const isValid = validateExpiryDate(value);
-            if (isValid) {
-                $(this).css('border-color', '#4caf50');
-                $(this).siblings('.error-msg').remove();
-            } else {
-                $(this).css('border-color', '#f44336');
-                if (!$(this).siblings('.error-msg').length) {
-                    $(this).after('<div class="error-msg" style="color: #f44336; font-size: 0.85rem; margin-top: 0.3rem;">Invalid or expired date</div>');
-                }
-            }
-        } else {
-            $(this).css('border-color', '#ddd');
-            $(this).siblings('.error-msg').remove();
-        }
-    });
-    
-    // CVV Validation
-    $('#card-cvv').on('input', function() {
-        let value = $(this).val().replace(/\D/g, '');
-        value = value.substring(0, 3);
-        $(this).val(value);
-        
-        if (value.length === 3) {
-            $(this).css('border-color', '#4caf50');
-        } else {
-            $(this).css('border-color', '#ddd');
-        }
-    });
-    
-    // Cardholder Name Validation
-    $('#card-name').on('input', function() {
-        let value = $(this).val().toUpperCase();
-        // Allow only letters and spaces
-        value = value.replace(/[^A-Z\s]/g, '');
-        $(this).val(value);
-        
-        if (value.length >= 3) {
-            $(this).css('border-color', '#4caf50');
-        } else {
-            $(this).css('border-color', '#ddd');
-        }
-    });
-    
-    // Bank Selection
-    $('.bank-option').on('click', function() {
-        $('.bank-option').removeClass('selected');
-        $(this).addClass('selected');
-        $(this).find('input[type="radio"]').prop('checked', true);
-    });
-    
-    // Form Submission Validation
-    $('#checkout-form').on('submit', function(e) {
-        const paymentMethod = $('input[name="payment_method"]:checked').val();
-        
-        // Validate Credit Card
-        if (paymentMethod === 'Credit Card') {
-            const cardNumber = $('#card-number').val().replace(/\s/g, '');
-            const cardName = $('#card-name').val().trim();
-            const cardExpiry = $('#card-expiry').val();
-            const cardCvv = $('#card-cvv').val();
-            
-            if (cardNumber.length !== 16) {
-                e.preventDefault();
-                alert('Please enter a valid 16-digit card number');
-                $('#card-number').focus();
-                return false;
-            }
-            
-            if (cardName.length < 3) {
-                e.preventDefault();
-                alert('Please enter the cardholder name');
-                $('#card-name').focus();
-                return false;
-            }
-            
-            if (!validateExpiryDate(cardExpiry)) {
-                e.preventDefault();
-                alert('Please enter a valid expiry date (MM/YY). Card must not be expired and month must be between 01-12.');
-                $('#card-expiry').focus();
-                return false;
-            }
-            
-            if (cardCvv.length !== 3) {
-                e.preventDefault();
-                alert('Please enter a valid 3-digit CVV');
-                $('#card-cvv').focus();
-                return false;
-            }
-        }
-        
-        // Validate Online Banking
-        if (paymentMethod === 'Online Banking') {
-            const selectedBank = $('input[name="bank"]:checked').val();
-            if (!selectedBank) {
-                e.preventDefault();
-                alert('Please select a bank');
-                return false;
-            }
-        }
-        
-        // Show loading state
-        $('#submit-btn').prop('disabled', true).text('Processing...');
-    });
-    
-    // Expiry Date Validation Function
-    function validateExpiryDate(expiry) {
-        if (expiry.length !== 5 || !expiry.includes('/')) {
-            return false;
-        }
-        
-        const [month, year] = expiry.split('/');
-        const monthNum = parseInt(month, 10);
-        const yearNum = parseInt(year, 10);
-        
-        // Validate month is between 01-12 (not 00)
-        if (monthNum < 1 || monthNum > 12) {
-            return false;
-        }
-        
-        // Get current date
-        const now = new Date();
-        const currentYear = now.getFullYear() % 100; // Get last 2 digits
-        const currentMonth = now.getMonth() + 1; // getMonth() is 0-indexed
-        
-        // Check if card is expired
-        if (yearNum < currentYear) {
-            return false;
-        }
-        
-        if (yearNum === currentYear && monthNum < currentMonth) {
-            return false;
-        }
-        
-        return true;
+
+    /* ===========================
+       CARD INPUT FORMATTING
+    ============================ */
+    const cardNumber = document.getElementById('card-number');
+    const cardExpiry = document.getElementById('card-expiry');
+
+    if (cardNumber) {
+        cardNumber.addEventListener('input', () => {
+            let value = cardNumber.value.replace(/\D/g, '').substring(0,16);
+            value = value.match(/.{1,4}/g)?.join(' ') || value;
+            cardNumber.value = value;
+        });
     }
+
+    if (cardExpiry) {
+        cardExpiry.addEventListener('input', () => {
+            let value = cardExpiry.value.replace(/\D/g, '').substring(0,4);
+            if (value.length >= 3) {
+                value = value.substring(0,2) + '/' + value.substring(2);
+            }
+            cardExpiry.value = value;
+        });
+    }
+
+    /* ===========================
+       ADD ADDRESS BUTTON (MODAL HOOK)
+    ============================ */
+    const addAddressBtn = document.getElementById('add-address-btn');
+    if (addAddressBtn) {
+        addAddressBtn.addEventListener('click', () => {
+            window.location.href = '/page/manage_address.php? action=add redirect=checkout';
+        });
+    }
+
 });
 </script>
+
 
 <?php include '../_foot.php'; ?>

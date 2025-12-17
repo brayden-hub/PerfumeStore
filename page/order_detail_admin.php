@@ -72,6 +72,12 @@ $_title = 'Order Details - N°9 Perfume';
 include '../_head.php';
 ?>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);
+    });
+</script>
+
 <style>
 .shipping-visual {
     display: grid;

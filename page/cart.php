@@ -30,6 +30,22 @@ foreach ($cart_items as $item) {
 $free_shipping_threshold = 300; 
 ?>
 
+<script>
+    function updateCartBadge(count) {
+    const $badge = $('#cart-count');
+    
+    // Always show badge for logged-in users (even when count is 0)
+    if ($badge.length) {
+        $badge.text(count);
+        
+        // Show the badge if it was hidden
+        if ($badge.is(':hidden')) {
+            $badge.show();
+        }
+    }
+}
+</script>
+
 <!-- 引入分离的CSS文件 -->
 <link rel="stylesheet" href="/public/css/cart.css">
 

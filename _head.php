@@ -38,10 +38,10 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
             <li><a href="/" class="<?= basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : '' ?>">Home</a></li>
 
             <?php if ($user_role === 'Admin'): ?>
-                <li><a href="/page/productList.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'productList.php' ? 'active' : '' ?>">Product</a></li>
-                <li><a href="/page/user.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'user.php' ? 'active' : '' ?>">User</a></li>
-                <li><a href="/page/order.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'order.php' ? 'active' : '' ?>">Order</a></li>
-                <li><a href="/page/report.php"class=" <?= basename($_SERVER['PHP_SELF']) === 'report.php' ? 'active' : '' ?>">Report</a></li>
+                <li><a href="/page/productList.php" class="<?= basename($_SERVER['PHP_SELF']) === 'productList.php' ? 'active' : '' ?>">Product</a></li>
+                <li><a href="/page/user.php" class="<?= basename($_SERVER['PHP_SELF']) === 'user.php' ? 'active' : '' ?>">User</a></li>
+                <li><a href="/page/order.php" class="<?= basename($_SERVER['PHP_SELF']) === 'order.php' ? 'active' : '' ?>">Order</a></li>
+                <li><a href="/page/report.php" class="<?= basename($_SERVER['PHP_SELF']) === 'report.php' ? 'active' : '' ?>">Report</a></li>
                 
                 <?php if (isset($_SESSION['user_id'])): 
                     // Admin 登录后也需要头像菜单
@@ -66,22 +66,21 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
                     </li>
                 <?php endif; ?>
 
-
             <?php else: // Member or Guest ?>
-                <li><a href="/page/product.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
+                <li><a href="/page/product.php" class="<?= basename($_SERVER['PHP_SELF']) === 'product.php' ? 'active' : '' ?>">Product</a></li>
 
                 <?php if (isset($_SESSION['user_id'])): // Logged-in Member Links ?>
-                    <li><a href="/page/order_history.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'order_history.php' ? 'active' : '' ?>">My Orders</a></li>
-                    <?php else: // Guest Links ?>
-                    <li><a href="/page/login.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'login.php' ? 'active' : '' ?>">Login</a></li>
-                    <li><a href="/page/register.php" class=" <?= basename($_SERVER['PHP_SELF']) === 'register.php' ? 'active' : '' ?>">Register</a></li>
+                    <li><a href="/page/order_history.php" class="<?= basename($_SERVER['PHP_SELF']) === 'order_history.php' ? 'active' : '' ?>">My Orders</a></li>
+                <?php else: // Guest Links ?>
+                    <li><a href="/page/login.php" class="<?= basename($_SERVER['PHP_SELF']) === 'login.php' ? 'active' : '' ?>">Login</a></li>
+                    <li><a href="/page/register.php" class="<?= basename($_SERVER['PHP_SELF']) === 'register.php' ? 'active' : '' ?>">Register</a></li>
                 <?php endif; ?>
 
                 <li class="cart-li">
-                    <a href="/page/cart.php" class="cart-link">
+                    <a href="/page/cart.php" class="cart-link <?= basename($_SERVER['PHP_SELF']) === 'cart.php' ? 'active' : '' ?>">
                         Cart
-                        <?php if ($cart_count > 0): ?>
-                        <span id="cart-count"><?= $cart_count ?></span>
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <span id="cart-count"><?= $cart_count ?></span>
                         <?php endif; ?>
                     </a>
                 </li>

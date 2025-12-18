@@ -6,6 +6,7 @@ $min = (int)get('min', 0);
 $max = (int)get('max', 400);
 $sort = get('sort', 'asc');
 $page = (int)get('page', 1);
+$search = get('search', ''); // New search parameter
 
 // Items per page
 $items_per_page = 10;
@@ -19,9 +20,17 @@ $sql = "SELECT * FROM product
 
 $params = [$min, $max];
 
+// Add series filter
 if ($series !== '') {
     $sql .= " AND Series = ?";
     $params[] = $series;
+}
+
+// Add search filter (ID or Name)
+if ($search !== '') {
+    $sql .= " AND (ProductID LIKE ? OR ProductName LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
 }
 
 // Get total count for pagination
@@ -31,7 +40,7 @@ $count_stmt->execute($params);
 $total_items = $count_stmt->fetchColumn();
 $total_pages = ceil($total_items / $items_per_page);
 
-// Add sorting and pagination - 🔥 CRITICAL FIX: Don't use placeholders for LIMIT/OFFSET
+// Add sorting and pagination
 $sql .= $sort === 'desc' ? " ORDER BY Price DESC" : " ORDER BY Price ASC";
 $sql .= " LIMIT $items_per_page OFFSET $offset";
 
@@ -56,7 +65,7 @@ if (empty($products)):
             <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
         <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No products found</h3>
-        <p>Try adjusting your filters or price range</p>
+        <p>Try adjusting your filters or search terms</p>
     </div>
 <?php
 else:

@@ -51,6 +51,64 @@ include '../_head.php';
     color: #000 !important;
     transform: translateY(-2px);
 }
+
+/* Search Bar Styles */
+.search-container {
+    position: relative;
+    max-width: 500px;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 1.25rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.search-icon {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+}
+
+.clear-search {
+    position: absolute;
+    right: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.25rem;
+    display: none;
+    transition: color 0.2s;
+}
+
+.clear-search:hover {
+    color: #333;
+}
+
+.clear-search.visible {
+    display: block;
+}
 </style>
 
 <div class="homepage-main" style="display: flex; padding: 4rem 0;">
@@ -83,6 +141,22 @@ include '../_head.php';
                 </select>
             </div>
         </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input 
+                type="text" 
+                id="search-input" 
+                class="search-input" 
+                placeholder="Search by product ID or name..."
+            >
+            <button class="clear-search" id="clear-search">×</button>
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+            </svg>
+        </div>
+
         <div id="products-container" class="products-grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
             <!-- Products will be loaded here via AJAX -->
         </div>
@@ -105,6 +179,7 @@ include '../_head.php';
 
 <script>
 let currentPage = 1;
+let searchTimeout;
 
 $(document).ready(function() {
     window.scrollTo(0, 0);
@@ -121,6 +196,33 @@ $(document).ready(function() {
     }
 
     loadProducts();
+
+    // Search input with debounce
+    $('#search-input').on('input', function() {
+        const value = $(this).val().trim();
+        
+        // Show/hide clear button
+        if (value) {
+            $('#clear-search').addClass('visible');
+        } else {
+            $('#clear-search').removeClass('visible');
+        }
+
+        // Debounce search
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            currentPage = 1;
+            loadProducts();
+        }, 300);
+    });
+
+    // Clear search button
+    $('#clear-search').on('click', function() {
+        $('#search-input').val('').focus();
+        $(this).removeClass('visible');
+        currentPage = 1;
+        loadProducts();
+    });
 
     // Price range change
     $('#price-min, #price-max').on('input', function() {
@@ -139,7 +241,7 @@ $(document).ready(function() {
         const finalMax = parseInt($('#price-max').val());
         $('#price-range').text(`RM ${finalMin} - RM ${finalMax}`);
         
-        currentPage = 1; // Reset to first page
+        currentPage = 1;
         loadProducts();
     });
 
@@ -153,12 +255,12 @@ $(document).ready(function() {
         const newUrl = series ? `/page/product.php?series=${encodeURIComponent(series)}` : '/page/product.php';
         window.history.pushState({}, '', newUrl);
         
-        currentPage = 1; // Reset to first page
+        currentPage = 1;
         loadProducts();
     });
 
     $('#sort-select').on('change', function() {
-        currentPage = 1; // Reset to first page
+        currentPage = 1;
         loadProducts();
     });
 
@@ -167,7 +269,6 @@ $(document).ready(function() {
         currentPage = parseInt($(this).data('page'));
         loadProducts();
         
-        // Smooth scroll to top of products
         $('html, body').animate({
             scrollTop: $('.products-grid').offset().top - 100
         }, 500);
@@ -266,6 +367,7 @@ function loadProducts() {
     const min = $('#price-min').val();
     const max = $('#price-max').val();
     const sort = $('#sort-select').val();
+    const search = $('#search-input').val().trim();
 
     $('#products-container').html(`
         <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
@@ -278,7 +380,8 @@ function loadProducts() {
         min: min, 
         max: max, 
         sort: sort,
-        page: currentPage
+        page: currentPage,
+        search: search
     }, function(html) {
         $('#products-container').html(html);
     }).fail(function() {

@@ -616,18 +616,7 @@ include '../_head.php';
                                 Amount: <strong style="color: #D4AF37; font-size: 1.2rem;">RM <?= number_format($total, 2) ?></strong>
                             </p>
                             <div class="qr-code">
-                                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                    <rect width="200" height="200" fill="white"/>
-                                    <rect x="10" y="10" width="50" height="50" fill="black"/>
-                                    <rect x="20" y="20" width="30" height="30" fill="white"/>
-                                    <rect x="140" y="10" width="50" height="50" fill="black"/>
-                                    <rect x="150" y="20" width="30" height="30" fill="white"/>
-                                    <rect x="10" y="140" width="50" height="50" fill="black"/>
-                                    <rect x="20" y="150" width="30" height="30" fill="white"/>
-                                    <rect x="70" y="10" width="10" height="10" fill="black"/>
-                                    <rect x="90" y="10" width="10" height="10" fill="black"/>
-                                    <rect x="110" y="10" width="10" height="10" fill="black"/>
-                                </svg>
+                                <img src="/public/images/qrcode.jpg" alt="Payment QR Code" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
                             </div>
                             <p style="color: #666; font-size: 0.85rem; margin-top: 1rem;">
                                 Compatible with: Touch 'n Go, GrabPay, Boost, ShopeePay
@@ -727,40 +716,172 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-    /* BANK SELECTION (ONLINE BANKING) */
-    const bankOptions = document.querySelectorAll('.bank-option');
-
-    bankOptions.forEach(bank => {
-        bank.addEventListener('click', () => {
-            const radio = bank.querySelector('input[type="radio"]');
-            radio.checked = true;
-
-            bankOptions.forEach(b => b.classList.remove('selected'));
-            bank.classList.add('selected');
-        });
+     // Credit Card Number Formatting
+    $('#card-number').on('input', function() {
+        let value = $(this).val().replace(/\s/g, '');
+        value = value.replace(/\D/g, ''); // Remove non-digits
+        value = value.substring(0, 16); // Limit to 16 digits
+        
+        // Add space every 4 digits
+        let formatted = value.match(/.{1,4}/g);
+        $(this).val(formatted ? formatted.join(' ') : '');
+        
+        // Visual feedback
+        if (value.length === 16) {
+            $(this).css('border-color', '#4caf50');
+        } else {
+            $(this).css('border-color', '#ddd');
+        }
     });
-
-    /* CARD INPUT FORMATTING */
-    const cardNumber = document.getElementById('card-number');
-    const cardExpiry = document.getElementById('card-expiry');
-
-    if (cardNumber) {
-        cardNumber.addEventListener('input', () => {
-            let value = cardNumber.value.replace(/\D/g, '').substring(0,16);
-            value = value.match(/.{1,4}/g)?.join(' ') || value;
-            cardNumber.value = value;
-        });
-    }
-
-    if (cardExpiry) {
-        cardExpiry.addEventListener('input', () => {
-            let value = cardExpiry.value.replace(/\D/g, '').substring(0,4);
-            if (value.length >= 3) {
-                value = value.substring(0,2) + '/' + value.substring(2);
+    
+    // Expiry Date Formatting and Validation
+    $('#card-expiry').on('input', function() {
+        let value = $(this).val().replace(/\D/g, ''); // Remove non-digits
+        
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        
+        $(this).val(value);
+        
+        // Validate expiry date
+        if (value.length === 5) {
+            const isValid = validateExpiryDate(value);
+            if (isValid) {
+                $(this).css('border-color', '#4caf50');
+                $(this).siblings('.error-msg').remove();
+            } else {
+                $(this).css('border-color', '#f44336');
+                if (!$(this).siblings('.error-msg').length) {
+                    $(this).after('<div class="error-msg" style="color: #f44336; font-size: 0.85rem; margin-top: 0.3rem;">Invalid or expired date</div>');
+                }
             }
-            cardExpiry.value = value;
-        });
+        } else {
+            $(this).css('border-color', '#ddd');
+            $(this).siblings('.error-msg').remove();
+        }
+    });
+    
+    // CVV Validation
+    $('#card-cvv').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        value = value.substring(0, 3);
+        $(this).val(value);
+        
+        if (value.length === 3) {
+            $(this).css('border-color', '#4caf50');
+        } else {
+            $(this).css('border-color', '#ddd');
+        }
+    });
+    
+    // Cardholder Name Validation
+    $('#card-name').on('input', function() {
+        let value = $(this).val().toUpperCase();
+        // Allow only letters and spaces
+        value = value.replace(/[^A-Z\s]/g, '');
+        $(this).val(value);
+        
+        if (value.length >= 3) {
+            $(this).css('border-color', '#4caf50');
+        } else {
+            $(this).css('border-color', '#ddd');
+        }
+    });
+    
+
+
+     // Bank Selection
+    $('.bank-option').on('click', function() {
+        $('.bank-option').removeClass('selected');
+        $(this).addClass('selected');
+        $(this).find('input[type="radio"]').prop('checked', true);
+    });
+    
+    // Form Submission Validation
+    $('#checkout-form').on('submit', function(e) {
+        const paymentMethod = $('input[name="payment_method"]:checked').val();
+        
+        // Validate Credit Card
+        if (paymentMethod === 'Credit Card') {
+            const cardNumber = $('#card-number').val().replace(/\s/g, '');
+            const cardName = $('#card-name').val().trim();
+            const cardExpiry = $('#card-expiry').val();
+            const cardCvv = $('#card-cvv').val();
+            
+            if (cardNumber.length !== 16) {
+                e.preventDefault();
+                alert('Please enter a valid 16-digit card number');
+                $('#card-number').focus();
+                return false;
+            }
+            
+            if (cardName.length < 3) {
+                e.preventDefault();
+                alert('Please enter the cardholder name');
+                $('#card-name').focus();
+                return false;
+            }
+            
+            if (!validateExpiryDate(cardExpiry)) {
+                e.preventDefault();
+                alert('Please enter a valid expiry date (MM/YY). Card must not be expired and month must be between 01-12.');
+                $('#card-expiry').focus();
+                return false;
+            }
+            
+            if (cardCvv.length !== 3) {
+                e.preventDefault();
+                alert('Please enter a valid 3-digit CVV');
+                $('#card-cvv').focus();
+                return false;
+            }
+        }
+        
+        // Validate Online Banking
+        if (paymentMethod === 'Online Banking') {
+            const selectedBank = $('input[name="bank"]:checked').val();
+            if (!selectedBank) {
+                e.preventDefault();
+                alert('Please select a bank');
+                return false;
+            }
+        }
+        
+        // Show loading state
+        $('#submit-btn').prop('disabled', true).text('Processing...');
+    });
+    
+    // Expiry Date Validation Function
+    function validateExpiryDate(expiry) {
+        if (expiry.length !== 5 || !expiry.includes('/')) {
+            return false;
+        }
+        
+        const [month, year] = expiry.split('/');
+        const monthNum = parseInt(month, 10);
+        const yearNum = parseInt(year, 10);
+        
+        // Validate month is between 01-12 (not 00)
+        if (monthNum < 1 || monthNum > 12) {
+            return false;
+        }
+        
+        // Get current date
+        const now = new Date();
+        const currentYear = now.getFullYear() % 100; // Get last 2 digits
+        const currentMonth = now.getMonth() + 1; // getMonth() is 0-indexed
+        
+        // Check if card is expired
+        if (yearNum < currentYear) {
+            return false;
+        }
+        
+        if (yearNum === currentYear && monthNum < currentMonth) {
+            return false;
+        }
+        
+        return true;
     }
 
     /* ADD ADDRESS BUTTON */
@@ -799,5 +920,7 @@ function deleteAddress(addressId) {
     }
 }
 </script>
+
+
 
 <?php include '../_foot.php'; ?>

@@ -93,6 +93,8 @@ $total = $cart_total + $shipping_fee;
 if (is_post()) {
     $payment_method = post('payment_method');
     $address_id = post('address_id');
+    $voucher_code = post('voucher_code');
+    $voucher_discount = floatval(post('voucher_discount'));
     
     if (!in_array($payment_method, ['Credit Card', 'Online Banking', 'E-Wallet', 'Cash on Delivery'])) {
         temp('error', 'Please select a payment method');
@@ -117,6 +119,25 @@ if (is_post()) {
                 (OrderID, UserID, ShippingAddressID, PurchaseDate, PaymentMethod, GiftWrap, GiftMessage, HidePrice, GiftWrapCost, ShippingFee) 
                 VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)
             ");
+            $final_voucher_id = null;
+if (!empty($voucher_code) && $voucher_discount > 0) {
+    $stmt_voucher = $_db->prepare("
+        SELECT v.VoucherID, uv.UserVoucherID
+        FROM voucher v
+        JOIN user_voucher uv ON v.VoucherID = uv.VoucherID
+        WHERE v.Code = ? AND uv.UserID = ? AND uv.IsUsed = 0
+    ");
+    $stmt_voucher->execute([$voucher_code, $user_id]);
+    $voucher_data = $stmt_voucher->fetch(PDO::FETCH_ASSOC);
+    
+    if ($voucher_data) {
+        $final_voucher_id = $voucher_data['VoucherID'];
+        
+        // Mark as used
+        $_db->prepare("UPDATE user_voucher SET IsUsed = 1 WHERE UserVoucherID = ?")
+            ->execute([$voucher_data['UserVoucherID']]);
+    }
+}
             
             $stmt->execute([
                 $order_id, 
@@ -127,7 +148,9 @@ if (is_post()) {
                 $gift_message_value,
                 $hide_price,
                 $gift_wrap_cost,
-                $shipping_fee
+                $shipping_fee,
+                $final_voucher_id,      
+                $voucher_discount
             ]);
             
             // NEW: Insert into order_status table
@@ -597,228 +620,232 @@ include '../_head.php';
             <?php endif; ?>
         </div>
         
-        <!-- Right: Payment Form -->
-                <div style="background: #f9f9f9; padding: 2rem; border-radius: 12px; align-self: flex-start; position: sticky; top: 100px;">
-            <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem; font-weight: 400;">Payment Details</h3>
-            <!-- ===== VOUCHER SECTION ===== -->
-            <h3>My Vouchers</h3>
+        <div style="background: #f9f9f9; padding: 2rem; border-radius: 12px; align-self: flex-start; position: sticky; top: 100px;">
+    <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem; font-weight: 400;">Payment Details</h3>
+    
+    <?php
+    // ===== VOUCHER SECTION =====
+    $user_vouchers = [];
+    $subtotal_for_voucher = $subtotal; // 使用已经计算好的 subtotal
+    
+    if ($user_id) {
+        $stm = $_db->prepare("
+            SELECT 
+                uv.UserVoucherID,
+                v.Code,
+                v.DiscountType,
+                v.DiscountValue,
+                v.MinSpend,
+                v.ExpiryDate
+            FROM user_voucher uv
+            JOIN voucher v ON uv.VoucherID = v.VoucherID
+            WHERE uv.UserID = ?
+              AND uv.IsUsed = 0
+              AND v.status = 'active'
+              AND (v.ExpiryDate IS NULL OR v.ExpiryDate >= CURDATE())
+            ORDER BY v.MinSpend ASC
+        ");
+        $stm->execute([$user_id]);
+        $user_vouchers = $stm->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-            <?php
-// ===== 获取用户的未使用 vouchers =====
-$user_vouchers = [];
-if ($user_id) {
-    $stm = $_db->prepare("
-        SELECT 
-            uv.UserVoucherID,
-            v.Code,
-            v.DiscountType,
-            v.DiscountValue,
-            v.MinSpend,
-            v.ExpiryDate
-        FROM user_voucher uv
-        JOIN voucher v ON uv.VoucherID = v.VoucherID
-        WHERE uv.UserID = ?
-          AND uv.IsUsed = 0
-          AND v.status = 'active'
-          AND (v.ExpiryDate IS NULL OR v.ExpiryDate >= CURDATE())
-        ORDER BY v.MinSpend ASC
-    ");
-    $stm->execute([$user_id]);
-    $user_vouchers = $stm->fetchAll(PDO::FETCH_ASSOC);
-}
+    // 判断每个 voucher 是否可用
+    foreach ($user_vouchers as &$voucher) {
+        $voucher['is_available'] = ($subtotal_for_voucher >= $voucher['MinSpend']);
+    }
+    unset($voucher);
 
-// 判断每个 voucher 是否可用
-foreach ($user_vouchers as &$voucher) {
-    $voucher['is_available'] = ($subtotal >= $voucher['MinSpend']);
-}
-unset($voucher);
+    $available_count = count(array_filter($user_vouchers, fn($v) => $v['is_available']));
+    ?>
 
-$available_count = count(array_filter($user_vouchers, fn($v) => $v['is_available']));
-?>
+    <style>
+    .voucher-section {
+        background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+        border: 2px solid #D4AF37;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
 
-<style>
-.voucher-section {
-    background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
-    border: 2px solid #D4AF37;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-}
+    .voucher-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.2rem;
+    }
 
-.voucher-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.2rem;
-}
+    .voucher-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+    }
 
-.voucher-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #333;
-}
+    .voucher-badge {
+        background: #D4AF37;
+        color: #000;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
 
-.voucher-badge {
-    background: #D4AF37;
-    color: #000;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: bold;
-}
+    .voucher-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
 
-.voucher-card {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
+    .voucher-card.available {
+        border-color: #D4AF37;
+    }
 
-.voucher-card.available {
-    border-color: #D4AF37;
-}
+    .voucher-card.available:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
 
-.voucher-card.available:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-}
+    .voucher-card.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f9f9f9;
+    }
 
-.voucher-card.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: #f9f9f9;
-}
+    .voucher-card.selected {
+        border-color: #D4AF37;
+        background: #fffbf0;
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
 
-.voucher-card.selected {
-    border-color: #D4AF37;
-    background: #fffbf0;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-}
+    .voucher-icon {
+        font-size: 2.5rem;
+        flex-shrink: 0;
+    }
 
-.voucher-icon {
-    font-size: 2.5rem;
-    flex-shrink: 0;
-}
+    .voucher-content {
+        flex: 1;
+    }
 
-.voucher-content {
-    flex: 1;
-}
+    .voucher-discount {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #D4AF37;
+        margin-bottom: 0.3rem;
+    }
 
-.voucher-discount {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #D4AF37;
-    margin-bottom: 0.3rem;
-}
+    .voucher-code {
+        background: #f0f0f0;
+        padding: 0.2rem 0.6rem;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: #666;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
 
-.voucher-code {
-    background: #f0f0f0;
-    padding: 0.2rem 0.6rem;
-    border-radius: 5px;
-    font-family: monospace;
-    font-size: 0.85rem;
-    color: #666;
-    display: inline-block;
-    margin-bottom: 0.5rem;
-}
+    .voucher-condition {
+        font-size: 0.85rem;
+        color: #666;
+    }
 
-.voucher-condition {
-    font-size: 0.85rem;
-    color: #666;
-}
+    .voucher-status {
+        flex-shrink: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
 
-.voucher-status {
-    flex-shrink: 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
+    .no-vouchers {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+    }
+    </style>
 
-.no-vouchers {
-    text-align: center;
-    padding: 2rem;
-    color: #999;
-}
-</style>
+    <div class="voucher-section">
+        <div class="voucher-header">
+            <div class="voucher-title">🎟️ My Vouchers</div>
+            <?php if ($available_count > 0): ?>
+                <span class="voucher-badge"><?= $available_count ?> Available</span>
+            <?php endif; ?>
+        </div>
 
-<div class="voucher-section">
-    <div class="voucher-header">
-        <div class="voucher-title">🎟️ My Vouchers</div>
-        <?php if ($available_count > 0): ?>
-            <span class="voucher-badge"><?= $available_count ?> Available</span>
+        <?php if (empty($user_vouchers)): ?>
+            <div class="no-vouchers">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎫</div>
+                <p>You don't have any vouchers yet.</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                    Complete your purchase to receive vouchers!
+                </p>
+            </div>
+        <?php else: ?>
+            <?php foreach ($user_vouchers as $v): ?>
+                <label class="voucher-card <?= $v['is_available'] ? 'available' : 'disabled' ?>">
+                    <input type="radio" 
+                           name="voucher_selection" 
+                           class="voucher-radio"
+                           value="<?= $v['Code'] ?>"
+                           data-type="<?= $v['DiscountType'] ?>"
+                           data-value="<?= $v['DiscountValue'] ?>"
+                           data-min="<?= $v['MinSpend'] ?>"
+                           <?= !$v['is_available'] ? 'disabled' : '' ?>
+                           style="display: none;">
+                    
+                    <div class="voucher-icon">
+                        <?= $v['is_available'] ? '🎁' : '🔒' ?>
+                    </div>
+                    
+                    <div class="voucher-content">
+                        <div class="voucher-discount">
+                            <?php if ($v['DiscountType'] === 'percent'): ?>
+                                <?= $v['DiscountValue'] ?>% OFF
+                            <?php else: ?>
+                                RM <?= number_format($v['DiscountValue'], 2) ?> OFF
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="voucher-code"><?= $v['Code'] ?></div>
+                        
+                        <div class="voucher-condition">
+                            <?php if ($v['MinSpend'] > 0): ?>
+                                Min. spend: RM <?= number_format($v['MinSpend'], 2) ?>
+                            <?php else: ?>
+                                No minimum spend
+                            <?php endif; ?>
+                            <?php if ($v['ExpiryDate']): ?>
+                                | Expires: <?= date('d M Y', strtotime($v['ExpiryDate'])) ?>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <?php if (!$v['is_available']): ?>
+                            <div style="color: #dc3545; font-size: 0.85rem; margin-top: 0.3rem;">
+                                💰 Add RM <?= number_format($v['MinSpend'] - $subtotal_for_voucher, 2) ?> more to unlock
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="voucher-status">
+                        <?php if ($v['is_available']): ?>
+                            <span style="color: #28a745;">✓ Apply</span>
+                        <?php else: ?>
+                            <span style="color: #999;">🔒 Locked</span>
+                        <?php endif; ?>
+                    </div>
+                </label>
+            <?php endforeach; ?>
         <?php endif; ?>
     </div>
 
-    <?php if (empty($user_vouchers)): ?>
-        <div class="no-vouchers">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🎫</div>
-            <p>You don't have any vouchers yet.</p>
-            <p style="font-size: 0.9rem; margin-top: 0.5rem;">
-                Complete your purchase to receive vouchers!
-            </p>
-        </div>
-    <?php else: ?>
-        <?php foreach ($user_vouchers as $v): ?>
-            <label class="voucher-card <?= $v['is_available'] ? 'available' : 'disabled' ?>">
-                <input type="radio" 
-                       name="voucher_selection" 
-                       class="voucher-radio"
-                       value="<?= $v['Code'] ?>"
-                       data-type="<?= $v['DiscountType'] ?>"
-                       data-value="<?= $v['DiscountValue'] ?>"
-                       data-min="<?= $v['MinSpend'] ?>"
-                       <?= !$v['is_available'] ? 'disabled' : '' ?>
-                       style="display: none;">
-                
-                <div class="voucher-icon">
-                    <?= $v['is_available'] ? '🎁' : '🔒' ?>
-                </div>
-                
-                <div class="voucher-content">
-                    <div class="voucher-discount">
-                        <?php if ($v['DiscountType'] === 'percent'): ?>
-                            <?= $v['DiscountValue'] ?>% OFF
-                        <?php else: ?>
-                            RM <?= number_format($v['DiscountValue'], 2) ?> OFF
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="voucher-code"><?= $v['Code'] ?></div>
-                    
-                    <div class="voucher-condition">
-                        <?php if ($v['MinSpend'] > 0): ?>
-                            Min. spend: RM <?= number_format($v['MinSpend'], 2) ?>
-                        <?php else: ?>
-                            No minimum spend
-                        <?php endif; ?>
-                        <?php if ($v['ExpiryDate']): ?>
-                            | Expires: <?= date('d M Y', strtotime($v['ExpiryDate'])) ?>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <?php if (!$v['is_available']): ?>
-                        <div style="color: #dc3545; font-size: 0.85rem; margin-top: 0.3rem;">
-                            💰 Add RM <?= number_format($v['MinSpend'] - $subtotal, 2) ?> more to unlock
-                        </div>
-                    <?php endif; ?>
-                </div>
-                
-                <div class="voucher-status">
-                    <?php if ($v['is_available']): ?>
-                        <span style="color: #28a745;">✓ Apply</span>
-                    <?php else: ?>
-                        <span style="color: #999;">🔒 Locked</span>
-                    <?php endif; ?>
-                </div>
-            </label>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</div>
+    <form method="post" id="checkout-form">
+        <input type="hidden" name="voucher_code" id="voucher_code">
+        <input type="hidden" name="voucher_discount" id="voucher_discount" value="0">
+        <input type="hidden" name="address_id" id="address_id" value="<?= $addresses[0]->AddressID ?? '' ?>">
 
             
             <form method="post" id="checkout-form">
@@ -981,57 +1008,150 @@ $available_count = count(array_filter($user_vouchers, fn($v) => $v['is_available
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
- /* ===========================
-       VOUCHER SYSTEM
-    ============================ */
-    const voucherCards = document.querySelectorAll('.voucher-card.available');
-    const voucherCodeInput = document.getElementById('voucher_code');
-    const voucherDiscountInput = document.getElementById('voucher_discount');
-    const orderTotalEl = document.getElementById('orderTotal');
-    const originalTotal = parseFloat(orderTotalEl?.dataset.amount || 0);
+/* ===========================
+   VOUCHER SYSTEM
+============================ */
+const voucherCards = document.querySelectorAll('.voucher-card.available');
+const voucherCodeInput = document.getElementById('voucher_code');
+const voucherDiscountInput = document.getElementById('voucher_discount');
 
-    voucherCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const radio = this.querySelector('.voucher-radio');
+// 从 PHP 获取原始价格
+const subtotal = <?= $subtotal ?>;
+const giftWrapCost = <?= $gift_wrap_cost ?>;
+const shippingFee = <?= $shipping_fee ?>;
+let originalTotal = subtotal + giftWrapCost + shippingFee;
+let appliedDiscount = 0;
+
+// 创建显示折扣的元素（如果不存在）
+const totalSection = document.querySelector('div[style*="border-top: 2px solid #ddd"]');
+if (totalSection && !document.getElementById('discount-row')) {
+    const discountRow = document.createElement('div');
+    discountRow.id = 'discount-row';
+    discountRow.style.cssText = 'display: none; justify-content: space-between; margin-bottom: 0.8rem; color: #28a745; font-weight: 600;';
+    discountRow.innerHTML = `
+        <span>🎟️ Voucher Discount:</span>
+        <span id="discount-amount">-RM 0.00</span>
+    `;
+    
+    // 插入到 Total 之前
+    const totalRow = totalSection.querySelector('div[style*="font-size: 1.4rem"]');
+    totalRow.parentNode.insertBefore(discountRow, totalRow);
+}
+
+// 更新总价显示
+function updateTotalDisplay(discount) {
+    const totalEl = document.querySelector('div[style*="font-size: 1.4rem"] span:last-child');
+    const discountRow = document.getElementById('discount-row');
+    const discountAmount = document.getElementById('discount-amount');
+    
+    if (discount > 0) {
+        discountRow.style.display = 'flex';
+        discountAmount.textContent = '-RM ' + discount.toFixed(2);
+        const newTotal = originalTotal - discount;
+        totalEl.textContent = 'RM ' + newTotal.toFixed(2);
+    } else {
+        discountRow.style.display = 'none';
+        totalEl.textContent = 'RM ' + originalTotal.toFixed(2);
+    }
+}
+
+voucherCards.forEach(card => {
+    card.addEventListener('click', function() {
+        const radio = this.querySelector('.voucher-radio');
+        
+        // 如果点击已选中的，就取消选择
+        if (radio.checked && this.classList.contains('selected')) {
+            radio.checked = false;
+            this.classList.remove('selected');
             
-            // 如果点击已选中的，就取消选择
-            if (radio.checked && this.classList.contains('selected')) {
-                radio.checked = false;
-                this.classList.remove('selected');
-                
-                // 恢复原价
-                voucherCodeInput.value = '';
-                voucherDiscountInput.value = '0';
-                orderTotalEl.textContent = 'RM ' + originalTotal.toFixed(2);
-                return;
-            }
-            
-            // 移除其他选中状态
-            voucherCards.forEach(c => c.classList.remove('selected'));
-            
-            // 选中当前
-            radio.checked = true;
-            this.classList.add('selected');
-            
-            // 计算折扣
-            const type = radio.dataset.type;
-            const value = parseFloat(radio.dataset.value);
-            
-            let discount = 0;
-            if (type === 'percent') {
-                discount = originalTotal * (value / 100);
-            } else {
-                discount = value;
-            }
-            
-            const newTotal = Math.max(0, originalTotal - discount);
-            
-            // 更新
-            voucherCodeInput.value = radio.value;
-            voucherDiscountInput.value = discount.toFixed(2);
-            orderTotalEl.textContent = 'RM ' + newTotal.toFixed(2);
-        });
+            // 恢复原价
+            voucherCodeInput.value = '';
+            voucherDiscountInput.value = '0';
+            appliedDiscount = 0;
+            updateTotalDisplay(0);
+            return;
+        }
+        
+        // 移除其他选中状态
+        voucherCards.forEach(c => c.classList.remove('selected'));
+        
+        // 选中当前
+        radio.checked = true;
+        this.classList.add('selected');
+        
+        // 计算折扣
+        const type = radio.dataset.type;
+        const value = parseFloat(radio.dataset.value);
+        
+        let discount = 0;
+        if (type === 'percent') {
+            discount = subtotal * (value / 100);
+        } else {
+            discount = value;
+        }
+        
+        // 确保折扣不超过 subtotal
+        discount = Math.min(discount, subtotal);
+        appliedDiscount = discount;
+        
+        // 更新表单值
+        voucherCodeInput.value = radio.value;
+        voucherDiscountInput.value = discount.toFixed(2);
+        
+        // 更新显示
+        updateTotalDisplay(discount);
+        
+        // 显示成功提示
+        showVoucherToast('✅ Voucher applied! You saved RM ' + discount.toFixed(2));
     });
+});
+
+// Toast 提示函数
+function showVoucherToast(message) {
+    // 移除旧的 toast
+    const oldToast = document.getElementById('voucher-toast');
+    if (oldToast) oldToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.id = 'voucher-toast';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// 添加动画样式
+if (!document.getElementById('voucher-toast-styles')) {
+    const style = document.createElement('style');
+    style.id = 'voucher-toast-styles';
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+}
     
     /* ADDRESS SELECTION */
     const addressRadios = document.querySelectorAll('input[name="selected_address"]');

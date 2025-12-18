@@ -915,7 +915,7 @@ include '../_head.php';
                         <div class="qr-container">
                             <h4 style="color: #D4AF37; margin-bottom: 0.5rem;">📱 Scan QR Code to Pay</h4>
                             <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
-                                Amount: <strong style="color: #D4AF37; font-size: 1.2rem;">RM <?= number_format($total, 2) ?></strong>
+                                Amount: <strong style="color: #D4AF37; font-size: 1.2rem;"><span id="ewallet-amount">RM <?= number_format($total, 2) ?></span></strong>
                             </p>
                             <div class="qr-code">
                                 <img src="/public/images/qrcode.jpg" alt="Payment QR Code" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
@@ -940,7 +940,7 @@ include '../_head.php';
                             </p>
                             <div style="background: #fffbf0; padding: 1rem; border-radius: 8px; border: 1px solid #D4AF37;">
                                 <p style="margin: 0; font-size: 0.9rem; color: #666;">
-                                    Amount to pay: <strong style="color: #D4AF37; font-size: 1.2rem;">RM <?= number_format($total, 2) ?></strong>
+                                    Amount to pay: <strong style="color: #D4AF37; font-size: 1.2rem;"><span id="cod-amount">RM <?= number_format($total, 2) ?></span></strong>
                                 </p>
                             </div>
                         </div>
@@ -1015,6 +1015,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalTotalDisplay = document.getElementById('final-total-display');
     const discountRow = document.getElementById('voucher-discount-row');
     const discountAmount = document.getElementById('discount-amount');
+    const ewalletAmount = document.getElementById('ewallet-amount');
+    const codAmount = document.getElementById('cod-amount');
     
     console.log('🎟️ Found', voucherCards.length, 'available vouchers');
     
@@ -1030,6 +1032,10 @@ document.addEventListener('DOMContentLoaded', () => {
             discountAmount.textContent = '-RM ' + discount.toFixed(2);
             
             const newTotal = Math.max(0, PRICES.originalTotal - discount);
+            
+            // 更新支付方式的金額顯示
+            if (ewalletAmount) ewalletAmount.textContent = 'RM ' + newTotal.toFixed(2);
+            if (codAmount) codAmount.textContent = 'RM ' + newTotal.toFixed(2);
             finalTotalDisplay.textContent = 'RM ' + newTotal.toFixed(2);
             
             voucherDiscountInput.value = discount.toFixed(2);
@@ -1039,6 +1045,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             discountRow.style.display = 'none';
             finalTotalDisplay.textContent = 'RM ' + PRICES.originalTotal.toFixed(2);
+            
+            // 重置支付方式的金額顯示
+            if (ewalletAmount) ewalletAmount.textContent = 'RM ' + PRICES.originalTotal.toFixed(2);
+            if (codAmount) codAmount.textContent = 'RM ' + PRICES.originalTotal.toFixed(2);
             voucherDiscountInput.value = '0';
             
             console.log('❌ Discount removed');

@@ -59,7 +59,7 @@
         <li><a href="profile.php" class="<?= $page=='profile.php'?'active':'' ?>">Profile</a></li>
         <li><a href="addresses.php" class="<?= $page=='addresses.php'?'active':'' ?>">Addresses</a></li>
         <li><a href="favorites.php" class="<?= $page=='favorites.php'?'active':'' ?>">My Favorites</a></li>
-        <li><a href="points.php" class="<?= $page=='points.php'?'active':'' ?>">My Points</a></li>
+        <li><a href="my_vouncher.php" class="<?= $page=='my_vouncher.php'?'active':'' ?>">My Vouncher</a></li>
         <li><a href="change_password.php" class="<?= $page=='change_password.php'?'active':'' ?>">Change Password</a></li>
     </ul>
 </div>

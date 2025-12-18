@@ -25,6 +25,8 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
         $_SESSION['phone']     = $user->phone_number ?? '';
         $_SESSION['user_role'] = $user->role;
         $_SESSION['Profile_Photo'] = $user->Profile_Photo ?? 'default1.jpg';
+
+        auto_assign_vouchers($user->userID);
     } else {
         setcookie('remember_token', '', time() - 3600, '/');
     }
@@ -200,6 +202,35 @@ function get_mail() {
     $m->setFrom($m->Username, 'N°9 Perfume');
 
     return $m;
+}
+// ===== 自动发放 Vouchers 给新用户 =====
+function auto_assign_vouchers($user_id) {
+    global $_db;
+    
+    try {
+        // 检查用户是否已经有 vouchers
+        $stm = $_db->prepare("SELECT COUNT(*) FROM user_voucher WHERE UserID = ?");
+        $stm->execute([$user_id]);
+        $count = $stm->fetchColumn();
+        
+        // 如果已经有 vouchers，就不用再发放
+        if ($count > 0) {
+            return;
+        }
+        
+        // 发放所有 active vouchers 给这个用户
+        $stm = $_db->prepare("
+            INSERT INTO user_voucher (UserID, VoucherID, IsUsed)
+            SELECT ?, VoucherID, 0 
+            FROM voucher 
+            WHERE status = 'active'
+        ");
+        $stm->execute([$user_id]);
+        
+    } catch (Exception $e) {
+        // 如果发放失败，不影响用户登录/注册流程
+        error_log("Auto-assign vouchers failed for user $user_id: " . $e->getMessage());
+    }
 }
 // --- ADD THIS BLOCK TO THE TOP OF _base.php ---
 

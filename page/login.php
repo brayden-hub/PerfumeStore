@@ -69,6 +69,7 @@ if (is_post()) {
             $_SESSION['phone']     = $user->phone_number ?? '';
             $_SESSION['user_role']      = $user->role;
             $_SESSION['Profile_Photo'] = $user->Profile_Photo ?? 'default1.jpg';
+            auto_assign_vouchers($user->userID);
 
             temp('info', 'Login successful!');
 

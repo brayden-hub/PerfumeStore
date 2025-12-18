@@ -423,3 +423,9 @@ include '../_head.php';
 </div>
 
 <?php include '../_foot.php'; ?>
+
+<script>
+    window.addEventListener('load', function () {
+        window.scrollTo(0, 0);
+    });
+</script>

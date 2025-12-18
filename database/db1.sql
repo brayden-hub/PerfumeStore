@@ -408,6 +408,37 @@ INSERT INTO `user_address` (`AddressID`, `UserID`, `AddressLabel`, `RecipientNam
 (7, 8, 'home', 'x', 's', 'scac', '', 'ds', 'Sarawak', 'rr', 'Malaysia', 0, '2025-12-15 15:13:46');
 
 --
+CREATE TABLE voucher (
+  VoucherID INT AUTO_INCREMENT PRIMARY KEY,
+  Code VARCHAR(30) UNIQUE NOT NULL,
+  DiscountType ENUM('percent','fixed') NOT NULL,
+  DiscountValue DECIMAL(10,2) NOT NULL,
+  MinSpend DECIMAL(10,2) DEFAULT 0,
+  ExpiryDate DATE,
+  Status ENUM('active','inactive') DEFAULT 'active',
+  CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+CREATE TABLE user_voucher (
+  UserVoucherID INT AUTO_INCREMENT PRIMARY KEY,
+  UserID INT NOT NULL,
+  VoucherID INT NOT NULL,
+  IsUsed TINYINT(1) DEFAULT 0,
+  AssignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UsedAt TIMESTAMP NULL,
+  KEY (UserID),
+  KEY (VoucherID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+CREATE TABLE voucher_rule (
+  RuleID INT AUTO_INCREMENT PRIMARY KEY,
+  MinOrderAmount DECIMAL(10,2) NOT NULL,
+  VoucherID INT NOT NULL,
+  KEY (VoucherID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+--
 -- Indexes for dumped tables
 --
 

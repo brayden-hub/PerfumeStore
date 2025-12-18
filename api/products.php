@@ -78,7 +78,10 @@ else:
                 <div class="series-badge"><?= htmlspecialchars($p['Series']) ?></div>
 
                 <!-- Favorite Button -->
-                <button class="fav-btn" data-product-id="<?= $productId ?>">
+                <button 
+                    class="fav-btn <?= $isFavorited ? 'active' : '' ?>" 
+                    data-product-id="<?= $productId ?>"
+>
                     <?= $isFavorited ? '♥' : '♡' ?>
                 </button>
             </div>

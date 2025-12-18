@@ -208,14 +208,28 @@ function auto_assign_vouchers($user_id) {
     global $_db;
 
     try {
-        // 只补发「用户还没有的 active vouchers」
+        // === STEP 1: 自动 seed voucher（如果系统还没有） ===
+        $voucherCount = $_db->query("SELECT COUNT(*) FROM voucher")->fetchColumn();
+
+        if ($voucherCount == 0) {
+            $_db->exec("
+                INSERT INTO voucher (Code, DiscountType, DiscountValue, MinSpend, ExpiryDate, Status)
+                VALUES
+                ('WELCOME10', 'percent', 10, 50, '2026-12-31', 'active'),
+                ('SAVE20', 'fixed', 20, 100, '2026-12-31', 'active'),
+                ('FREESHIP', 'fixed', 30, 0, '2026-12-31', 'active'),
+                ('VIP15', 'percent', 15, 150, '2026-12-31', 'active')
+            ");
+        }
+
+        // === STEP 2: 派发「用户还没有的 voucher」===
         $stm = $_db->prepare("
             INSERT INTO user_voucher (UserID, VoucherID, IsUsed)
             SELECT ?, v.VoucherID, 0
             FROM voucher v
-            WHERE v.status = 'active'
+            WHERE v.Status = 'active'
             AND NOT EXISTS (
-                SELECT 1
+                SELECT 1 
                 FROM user_voucher uv
                 WHERE uv.UserID = ?
                 AND uv.VoucherID = v.VoucherID
@@ -224,7 +238,7 @@ function auto_assign_vouchers($user_id) {
         $stm->execute([$user_id, $user_id]);
 
     } catch (Exception $e) {
-        error_log("Auto-assign vouchers failed for user $user_id: " . $e->getMessage());
+        error_log('Voucher auto-assign error: ' . $e->getMessage());
     }
 }
 

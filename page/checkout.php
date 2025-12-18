@@ -532,29 +532,7 @@ include '../_head.php';
 
             <!-- Order Summary -->
             <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 400;">Order Summary</h3>
-            <?php if (!empty($vouchers)): ?>
-            <div style="margin:1.5rem 0; padding:1rem; border:1px dashed #D4AF37; border-radius:8px;">
-                <strong>🎟️ Available Vouchers (<?= count($vouchers) ?>)</strong>
-
-                <select id="voucherSelect" style="width:100%; padding:0.6rem; margin-top:0.8rem;">
-                    <option value="">-- Select a voucher --</option>
-                    <?php foreach ($vouchers as $v): ?>
-                        <option 
-                            value="<?= $v['VoucherCode'] ?>"
-                            data-type="<?= $v['DiscountType'] ?>"
-                            data-value="<?= $v['DiscountValue'] ?>"
-                        >
-                            <?= $v['VoucherCode'] ?> —
-                            <?= $v['DiscountType'] === 'percent'
-                                ? $v['DiscountValue'].'% OFF'
-                                : 'RM '.number_format($v['DiscountValue'],2).' OFF'
-                            ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-    
-            </div>
-            <?php endif; ?>
+            
             <div style="background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>

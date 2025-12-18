@@ -110,52 +110,57 @@ if (is_post()) {
             $next_num = $last ? (int)substr($last->OrderID, 1) + 1 : 1;
             $order_id = 'O' . str_pad($next_num, 5, '0', STR_PAD_LEFT);
             
-            // Create order with address
+            // Get VoucherID if voucher is used
+            $final_voucher_id = null;
+            if (!empty($voucher_code) && $voucher_discount > 0) {
+                $stmt_voucher = $_db->prepare("
+                    SELECT v.VoucherID, uv.UserVoucherID
+                    FROM voucher v
+                    JOIN user_voucher uv ON v.VoucherID = uv.VoucherID
+                    WHERE v.Code = ? AND uv.UserID = ? AND uv.IsUsed = 0
+                ");
+                $stmt_voucher->execute([$voucher_code, $user_id]);
+                $voucher_data = $stmt_voucher->fetch(PDO::FETCH_ASSOC);
+                
+                if ($voucher_data) {
+                    $final_voucher_id = $voucher_data['VoucherID'];
+                    
+                    // Mark as used
+                    $_db->prepare("UPDATE user_voucher SET IsUsed = 1 WHERE UserVoucherID = ?")
+                        ->execute([$voucher_data['UserVoucherID']]);
+                }
+            }
+            
+            // Prepare gift wrap values
             $gift_wrap_value = $gift_enabled ? $gift_packaging : null;
             $gift_message_value = ($gift_enabled && !empty($gift_message)) ? $gift_message : null;
             
+            // Create order - FIXED: Match column count with values
             $stmt = $_db->prepare("
                 INSERT INTO `order` 
-                (OrderID, UserID, ShippingAddressID, PurchaseDate, PaymentMethod, GiftWrap, GiftMessage, HidePrice, GiftWrapCost, ShippingFee) 
-                VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)
+                (OrderID, UserID, ShippingAddressID, PurchaseDate, PaymentMethod, GiftWrap, GiftMessage, HidePrice, GiftWrapCost, ShippingFee, VoucherID, VoucherDiscount) 
+                VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?, ?, ?)
             ");
-            $final_voucher_id = null;
-if (!empty($voucher_code) && $voucher_discount > 0) {
-    $stmt_voucher = $_db->prepare("
-        SELECT v.VoucherID, uv.UserVoucherID
-        FROM voucher v
-        JOIN user_voucher uv ON v.VoucherID = uv.VoucherID
-        WHERE v.Code = ? AND uv.UserID = ? AND uv.IsUsed = 0
-    ");
-    $stmt_voucher->execute([$voucher_code, $user_id]);
-    $voucher_data = $stmt_voucher->fetch(PDO::FETCH_ASSOC);
-    
-    if ($voucher_data) {
-        $final_voucher_id = $voucher_data['VoucherID'];
-        
-        // Mark as used
-        $_db->prepare("UPDATE user_voucher SET IsUsed = 1 WHERE UserVoucherID = ?")
-            ->execute([$voucher_data['UserVoucherID']]);
-    }
-}
             
             $stmt->execute([
-                $order_id, 
-                $user_id,
-                $address_id,
-                $payment_method,
-                $gift_wrap_value,
-                $gift_message_value,
-                $hide_price,
-                $gift_wrap_cost,
-                $shipping_fee,
-                $final_voucher_id,      
-                $voucher_discount
+                $order_id,              // 1
+                $user_id,               // 2
+                $address_id,            // 3
+                $payment_method,        // 4
+                $gift_wrap_value,       // 5
+                $gift_message_value,    // 6
+                $hide_price,            // 7
+                $gift_wrap_cost,        // 8
+                $shipping_fee,          // 9
+                $final_voucher_id,      // 10
+                $voucher_discount       // 11
             ]);
             
             // NEW: Insert into order_status table
             $stmt = $_db->prepare("INSERT INTO order_status (OrderID, Status) VALUES (?, 'Pending')");
             $stmt->execute([$order_id]);
+            
+            // Give user a new voucher after purchase
             $stmt = $_db->prepare("
                 SELECT VoucherID
                 FROM voucher
@@ -165,18 +170,19 @@ if (!empty($voucher_code) && $voucher_discount > 0) {
                 LIMIT 1
             ");
             $stmt->execute();
-            $voucher = $stmt->fetch(PDO::FETCH_ASSOC);
+            $new_voucher = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($voucher) {
+            if ($new_voucher) {
                 $stmt = $_db->prepare("
-                INSERT INTO user_voucher (UserID, VoucherID)
-                VALUES (?, ?)
-            ");
-            $stmt->execute([
-                $user_id,
-                $voucher['VoucherID']
-            ]);
-    }
+                    INSERT INTO user_voucher (UserID, VoucherID)
+                    VALUES (?, ?)
+                ");
+                $stmt->execute([
+                    $user_id,
+                    $new_voucher['VoucherID']
+                ]);
+            }
+            
             // Create order items and update stock
             foreach ($cart_items as $item) {
                 $stmt = $_db->query("SELECT ProductOrderID FROM productorder ORDER BY ProductOrderID DESC LIMIT 1");

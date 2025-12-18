@@ -62,14 +62,14 @@ if (is_post()) {
         // B. Upload File
         if (move_uploaded_file($productImage->tmp_name, $target)) {
             
-            // C. Insert into DB (Saving the FILENAME string)
+            // C. Insert into DB with DEFAULT STATUS = 'Available'
             $stm = $_db->prepare('
-                INSERT INTO product (ProductID, Series, ProductName, Price, Stock, Description, Image)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO product (ProductID, Series, ProductName, Price, Stock, Description, Image, Status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ');
             
-            // Using $productName and $filename
-            $stm->execute([$productID, $series, $productName, $price, $stock, $description, $filename]);
+            // FIXED: Added 'Available' as default status
+            $stm->execute([$productID, $series, $productName, $price, $stock, $description, $filename, 'Available']);
             
             $gallery = $_FILES['gallery'] ?? null;
             
@@ -97,7 +97,7 @@ if (is_post()) {
                 }
             }
 
-            temp('info', "Product $productID added successfully");
+            temp('info', "Product $productID added successfully and is now active");
             redirect('productList.php');
         } else {
             $_err['productImage'] = 'Failed to save image file';

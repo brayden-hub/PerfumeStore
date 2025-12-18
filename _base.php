@@ -203,35 +203,31 @@ function get_mail() {
 
     return $m;
 }
-// ===== 自动发放 Vouchers 给新用户 =====
+
 function auto_assign_vouchers($user_id) {
     global $_db;
-    
+
     try {
-        // 检查用户是否已经有 vouchers
-        $stm = $_db->prepare("SELECT COUNT(*) FROM user_voucher WHERE UserID = ?");
-        $stm->execute([$user_id]);
-        $count = $stm->fetchColumn();
-        
-        // 如果已经有 vouchers，就不用再发放
-        if ($count > 0) {
-            return;
-        }
-        
-        // 发放所有 active vouchers 给这个用户
+        // 只补发「用户还没有的 active vouchers」
         $stm = $_db->prepare("
             INSERT INTO user_voucher (UserID, VoucherID, IsUsed)
-            SELECT ?, VoucherID, 0 
-            FROM voucher 
-            WHERE status = 'active'
+            SELECT ?, v.VoucherID, 0
+            FROM voucher v
+            WHERE v.status = 'active'
+            AND NOT EXISTS (
+                SELECT 1
+                FROM user_voucher uv
+                WHERE uv.UserID = ?
+                AND uv.VoucherID = v.VoucherID
+            )
         ");
-        $stm->execute([$user_id]);
-        
+        $stm->execute([$user_id, $user_id]);
+
     } catch (Exception $e) {
-        // 如果发放失败，不影响用户登录/注册流程
         error_log("Auto-assign vouchers failed for user $user_id: " . $e->getMessage());
     }
 }
+
 // --- ADD THIS BLOCK TO THE TOP OF _base.php ---
 
 // _base.php (Around Line 32 - After Auto-login and Database Setup)

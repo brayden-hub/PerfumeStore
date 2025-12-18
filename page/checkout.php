@@ -170,7 +170,7 @@ if (is_post()) {
                 LIMIT 1
             ");
             $stmt->execute();
-            $new_voucher = $stmt->fetch(PDO::FETCH_ASSOC);
+            $new_voucher = $stmt->fetch(PDO::FETCH_ASSOC); 
 
             if ($new_voucher) {
                 $stmt = $_db->prepare("
@@ -538,6 +538,7 @@ include '../_head.php';
 
             <!-- Order Summary -->
             <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 400;">Order Summary</h3>
+            
             
             <div style="background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                 <table style="width: 100%; border-collapse: collapse;">

@@ -46,7 +46,6 @@ $free_shipping_threshold = 300;
 }
 </script>
 
-<!-- 引入分离的CSS文件 -->
 <link rel="stylesheet" href="/public/css/cart.css">
 
 <div class="cart-container">

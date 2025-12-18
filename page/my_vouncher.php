@@ -238,10 +238,25 @@ include '../_head.php';
     background: #000;
     color: #D4AF37;
 }
+
+.btn-back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: #666;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.btn-back:hover {
+    color: #D4AF37;
+}
+
 </style>
 
 <div class="voucher-container">
     <div class="voucher-header">
+        <a href="/page/profile.php" class="btn-back">← Go Back</a>
         <h1 class="voucher-title">🎟️ My Vouchers</h1>
     </div>
 

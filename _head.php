@@ -25,6 +25,85 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
     <link rel="stylesheet" href="/public/css/perfume.css">  
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="/public/js/app.js"></script> 
+    <style>
+/* =========================
+   Profile Page Styling
+========================= */
+
+.profile-card {
+    background: #fff;
+    padding: 3rem;
+    border-radius: 16px;
+    max-width: 720px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+/* Avatar */
+.profile-avatar {
+    text-align: center;
+}
+
+.profile-avatar img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #f2f2f2;
+}
+
+.profile-avatar a {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+/* Info rows */
+.profile-info {
+    margin-top: 2rem;
+}
+
+.profile-info .row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-info span {
+    color: #777;
+}
+
+.profile-info strong {
+    color: #000;
+}
+
+/* Actions */
+.profile-actions {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.profile-actions a {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    background: #f5f5f5;
+    text-decoration: none;
+    font-weight: 600;
+    color: #333;
+}
+
+.profile-actions a:hover {
+    background: #D4AF37;
+    color: #000;
+}
+
+.profile-actions .danger {
+    background: #fff0f0;
+    color: #c33;
+}
+</style>
 </head>
 <body>
 

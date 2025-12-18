@@ -32,7 +32,9 @@ include '../_head.php';
     <?php include 'account_sidebar.php'; ?>
 
     <div class="account-content">
-        <h2>Welcome back, <?= htmlspecialchars($username) ?>!</h2>
+        <div class="profile-card">
+
+            <h2>Welcome back, <?= htmlspecialchars($username) ?>!</h2>
 
         <?php if ($info_message): ?>
             <div style="padding:12px; background:#d4edda; color:#155724; border-radius:5px; margin:15px 0;">
@@ -42,27 +44,39 @@ include '../_head.php';
 
         <div style="display:flex; gap:2.5rem; align-items:flex-start; margin-top:2rem;">
             <!-- Avatar -->
-            <div>
-                <img src="../images/avatars/<?= htmlspecialchars($avatar) ?>"
-                     style="width:140px; height:140px; border-radius:50%; object-fit:cover;">
-                <p style="text-align:center; margin-top:10px;">
-                    <a href="upload_avatar.php">Change Avatar</a>
-                </p>
+            <div class="profile-avatar">
+                <img src="../images/avatars/<?= htmlspecialchars($avatar) ?>">
+                <a href="upload_avatar.php">Change Avatar</a>
             </div>
 
             <!-- Info -->
             <div style="flex:1;">
-                <table style="line-height:2.2;">
-                    <tr><td>Name</td><td><?= htmlspecialchars($_SESSION['user_name']) ?></td></tr>
-                    <tr><td>Email</td><td><?= htmlspecialchars($_SESSION['email']) ?></td></tr>
-                    <tr><td>Phone</td><td><?= htmlspecialchars($_SESSION['phone'] ?: '-') ?></td></tr>
-                    <tr><td>Member ID</td><td>#<?= $_SESSION['user_id'] ?></td></tr>
-                </table>
+                <div class="profile-info">
+                    <div class="row">
+                        <span>Name</span>
+                        <strong><?= htmlspecialchars($_SESSION['user_name']) ?></strong>
+                    </div>
 
-                <div style="margin-top:2rem;">
-                    <a href="edit_profile.php">Edit Profile</a> |
-                    <a href="change_password.php">Change Password</a> |
-                    <a href="../logout.php" style="color:#c33;">Logout</a>
+            <div class="row">
+                <span>Email</span>
+                <strong><?= htmlspecialchars($_SESSION['email']) ?></strong>
+            </div>
+
+            <div class="row">
+                <span>Phone</span>
+                <strong><?= htmlspecialchars($_SESSION['phone'] ?: '-') ?></strong>
+            </div>
+
+            <div class="row">
+                <span>Member ID</span>
+                <strong>#<?= $_SESSION['user_id'] ?></strong>
+            </div>
+        </div>
+
+                <div class="profile-actions">
+                    <a href="edit_profile.php">Edit Profile</a>
+                    <a href="change_password.php">Change Password</a>
+                    <a href="../logout.php" class="danger">Logout</a>
                 </div>
             </div>
         </div>

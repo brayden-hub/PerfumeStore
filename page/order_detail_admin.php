@@ -52,10 +52,11 @@ foreach ($items as $item) {
     $total += $item->TotalPrice;
 }
 
-// Calculate grand total with gift wrap and shipping
+// Calculate grand total with gift wrap, shipping, and voucher
 $gift_wrap_cost = $order->GiftWrapCost ?? 0;
-$shipping_fee = $order->ShippingFee ?? 30.00;
-$grand_total = $total + $gift_wrap_cost + $shipping_fee;
+$shipping_fee = $order->ShippingFee ?? 0;
+$voucher_discount = $order->VoucherDiscount ?? 0;
+$grand_total = $total + $gift_wrap_cost + $shipping_fee - $voucher_discount;
 
 // Status configuration
 $status_config = [
@@ -395,6 +396,19 @@ include '../_head.php';
                     RM <?= number_format($shipping_fee, 2) ?>
                 </td>
             </tr>
+            
+            <!-- Voucher Discount -->
+            <?php if ($voucher_discount > 0): ?>
+            <tr style="background: linear-gradient(135deg, #e8f5e9 0%, #f9f9f9 100%);">
+                <td colspan="6" style="text-align: right; padding: 1rem; color: #2e7d32; font-weight: 600;">
+                    🎟️ Voucher Discount:
+                </td>
+                <td style="padding: 1rem; color: #2e7d32; font-weight: 700;">
+                    -RM <?= number_format($voucher_discount, 2) ?>
+                </td>
+            </tr>
+            <?php endif; ?>
+            
             <tr style="background: linear-gradient(135deg, #fffbf0 0%, #fff 100%); border-top: 2px solid #D4AF37;">
                 <td colspan="6" style="text-align: right; font-weight: bold; font-size: 1.2rem; padding: 1.5rem;">
                     Grand Total:

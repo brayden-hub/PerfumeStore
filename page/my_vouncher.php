@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 计算当前购物车的 subtotal
+// 計算當前購物車的 subtotal
 $subtotal = 0;
 $stmt = $_db->prepare("
     SELECT c.Quantity, p.Price
@@ -22,7 +22,7 @@ foreach ($cart_items as $item) {
     $subtotal += $item->Price * $item->Quantity;
 }
 
-// 获取用户的所有 voucher
+// 獲取用戶的所有 voucher - 只顯示未使用的
 $stm = $_db->prepare("
     SELECT 
         uv.UserVoucherID,
@@ -36,38 +36,31 @@ $stm = $_db->prepare("
     FROM user_voucher uv
     JOIN voucher v ON uv.VoucherID = v.VoucherID
     WHERE uv.UserID = ?
+      AND uv.IsUsed = 0
     ORDER BY 
-        uv.IsUsed ASC,
         v.MinSpend ASC,
         uv.AssignedAt DESC
 ");
 $stm->execute([$user_id]);
 $vouchers = $stm->fetchAll(PDO::FETCH_ASSOC);
 
-// 分类 vouchers
+// 分類 vouchers (只包含未使用的)
 $available_vouchers = array_filter($vouchers, function($v) use ($subtotal) {
-    return !$v['IsUsed'] && 
-           ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
+    return ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
            $subtotal >= $v['MinSpend'];
 });
 
 $locked_vouchers = array_filter($vouchers, function($v) use ($subtotal) {
-    return !$v['IsUsed'] && 
-           ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
+    return ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
            $subtotal < $v['MinSpend'];
 });
 
-$used_vouchers = array_filter($vouchers, function($v) {
-    return $v['IsUsed'];
-});
-
 $expired_vouchers = array_filter($vouchers, function($v) {
-    return !$v['IsUsed'] && 
-           $v['ExpiryDate'] !== null && 
+    return $v['ExpiryDate'] !== null && 
            strtotime($v['ExpiryDate']) < strtotime('today');
 });
 
-$_title = 'My Vouchers - Nº9 Perfume';
+$_title = 'My Vouchers - N°9 Perfume';
 include '../_head.php';
 ?>
 
@@ -173,11 +166,6 @@ include '../_head.php';
 .voucher-card.locked {
     opacity: 0.6;
     background: #f9f9f9;
-}
-
-.voucher-card.used {
-    opacity: 0.5;
-    background: #fafafa;
 }
 
 .voucher-card.expired {
@@ -291,10 +279,6 @@ include '../_head.php';
             <div class="stat-label">🔒 Locked</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number"><?= count($used_vouchers) ?></div>
-            <div class="stat-label">✓ Used</div>
-        </div>
-        <div class="stat-card">
             <div class="stat-number"><?= count($expired_vouchers) ?></div>
             <div class="stat-label">⏰ Expired</div>
         </div>
@@ -368,31 +352,6 @@ include '../_head.php';
         </div>
     <?php endif; ?>
 
-    <!-- Used Vouchers -->
-    <?php if (!empty($used_vouchers)): ?>
-        <div class="voucher-section">
-            <h3 class="section-title">✓ Used Vouchers</h3>
-            <div class="voucher-grid">
-                <?php foreach ($used_vouchers as $v): ?>
-                    <div class="voucher-card used">
-                        <div class="voucher-icon">✓</div>
-                        <div class="voucher-discount">
-                            <?php if ($v['DiscountType'] === 'percent'): ?>
-                                <?= $v['DiscountValue'] ?>% OFF
-                            <?php else: ?>
-                                RM <?= number_format($v['DiscountValue'], 2) ?> OFF
-                            <?php endif; ?>
-                        </div>
-                        <div class="voucher-code"><?= $v['Code'] ?></div>
-                        <div class="voucher-details">
-                            <strong>Used on <?= date('d M Y', strtotime($v['AssignedAt'])) ?></strong>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <!-- Expired Vouchers -->
     <?php if (!empty($expired_vouchers)): ?>
         <div class="voucher-section">
@@ -421,7 +380,7 @@ include '../_head.php';
     <?php if (empty($vouchers)): ?>
         <div class="empty-state">
             <div style="font-size: 4rem; margin-bottom: 1rem;">🎫</div>
-            <h3>No Vouchers Yet</h3>
+            <h3>No Vouchers Available</h3>
             <p>Complete a purchase to receive vouchers for your next order!</p>
             <a href="/page/product.php" class="btn-checkout">Start Shopping</a>
         </div>

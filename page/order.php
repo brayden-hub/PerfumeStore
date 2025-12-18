@@ -28,7 +28,7 @@ $dir = ($dir === 'ASC') ? 'ASC' : 'DESC';
 
 // 4. Build Query
 $sql = "
-    SELECT o.OrderID, o.PurchaseDate, o.GiftWrapCost, o.ShippingFee,
+    SELECT o.OrderID, o.PurchaseDate, o.GiftWrapCost, o.ShippingFee, o.VoucherDiscount,
            os.Status,
            u.name as CustomerName,
            (SELECT COALESCE(SUM(TotalPrice), 0) FROM productorder WHERE OrderID = o.OrderID) as ProductTotal,
@@ -116,7 +116,7 @@ include '../_head.php';
         </thead>
         <tbody>
             <?php foreach ($orders as $o): 
-                $grand_total = $o->ProductTotal + ($o->GiftWrapCost ?? 0) + ($o->ShippingFee ?? 0);
+                $grand_total = $o->ProductTotal + ($o->GiftWrapCost ?? 0) + ($o->ShippingFee ?? 0) - ($o->VoucherDiscount ?? 0);
             ?>
             <tr>
                 <td style="font-weight:bold; color:#D4AF37;"><?= $o->OrderID ?></td>

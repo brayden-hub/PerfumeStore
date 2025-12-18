@@ -33,7 +33,8 @@ $stmt->execute([$order_id]);
 $subtotal = $stmt->fetchColumn() ?: 0;
 $gift_wrap_cost = $order->GiftWrapCost ?? 0;
 $shipping_fee = $order->ShippingFee ?? 0;
-$total = $subtotal + $gift_wrap_cost + $shipping_fee;
+$voucher_discount = $order->VoucherDiscount ?? 0;
+$total = $subtotal + $gift_wrap_cost + $shipping_fee - $voucher_discount;
 
 // Send confirmation email (if not already sent)
 if (!isset($_SESSION['email_sent_' . $order_id])) {
@@ -179,6 +180,12 @@ $_title = 'Order Confirmed - N°9 Perfume';
                     <span>Shipping:</span>
                     <span>RM <?= number_format($shipping_fee, 2) ?></span>
                 </div>
+                <?php if ($voucher_discount > 0): ?>
+                <div class="amount-row" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 0.8rem; border-radius: 8px; margin: 0.5rem 0;">
+                    <span style="color: #2e7d32; font-weight: 600;">🎟️ Voucher Discount:</span>
+                    <span style="color: #2e7d32; font-weight: 700;">-RM <?= number_format($voucher_discount, 2) ?></span>
+                </div>
+                <?php endif; ?>
                 <div class="amount-row amount-total">
                     <span>Total Amount:</span>
                     <span>RM <?= number_format($total, 2) ?></span>

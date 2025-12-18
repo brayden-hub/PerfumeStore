@@ -44,9 +44,13 @@ foreach ($items as $item) {
     $subtotal += $item->TotalPrice;
 }
 
-// Add gift wrap cost from order table
+// Get additional costs
 $gift_wrap_cost = $order->GiftWrapCost ?? 0;
-$total = $subtotal + $gift_wrap_cost;
+$shipping_fee = $order->ShippingFee ?? 0;
+$voucher_discount = $order->VoucherDiscount ?? 0;
+
+// Calculate total
+$total = $subtotal + $gift_wrap_cost + $shipping_fee - $voucher_discount;
 
 // Calculate estimated delivery if not set
 if (empty($order->EstimatedDelivery) && $order->Status !== 'Delivered' && $order->Status !== 'Cancelled') {
@@ -476,6 +480,27 @@ if (history.scrollRestoration) {
                     <td style="padding: 1rem; color: #D4AF37; font-weight: 600;">+RM <?= number_format($gift_wrap_cost, 2) ?></td>
                 </tr>
                 <?php endif; ?>
+                
+                <!-- Shipping Fee -->
+                <tr style="background: #f9f9f9;">
+                    <td colspan="5" style="text-align: right; padding: 1rem;">🚚 Shipping:</td>
+                    <td style="padding: 1rem; font-weight: 600;">
+                        <?php if ($shipping_fee > 0): ?>
+                            +RM <?= number_format($shipping_fee, 2) ?>
+                        <?php else: ?>
+                            <span style="color: #4caf50; font-weight: 700;">FREE</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                
+                <!-- Voucher Discount -->
+                <?php if ($voucher_discount > 0): ?>
+                <tr style="background: linear-gradient(135deg, #e8f5e9 0%, #f9f9f9 100%);">
+                    <td colspan="5" style="text-align: right; padding: 1rem; color: #2e7d32; font-weight: 600;">🎟️ Voucher Discount:</td>
+                    <td style="padding: 1rem; color: #2e7d32; font-weight: 700;">-RM <?= number_format($voucher_discount, 2) ?></td>
+                </tr>
+                <?php endif; ?>
+                
                 <tr style="background: linear-gradient(135deg, #fffbf0 0%, #fff 100%); border-top: 2px solid #D4AF37;">
                     <td colspan="5" style="text-align: right; font-weight: bold; font-size: 1.2rem; padding: 1.5rem;">
                         Grand Total:

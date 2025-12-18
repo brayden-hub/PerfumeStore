@@ -827,15 +827,9 @@ include '../_head.php';
         <?php endif; ?>
     </div>
 
-    <form method="post" id="checkout-form">
-        <input type="hidden" name="voucher_code" id="voucher_code">
-        <input type="hidden" name="voucher_discount" id="voucher_discount" value="0">
-        <input type="hidden" name="address_id" id="address_id" value="<?= $addresses[0]->AddressID ?? '' ?>">
-
-            
             <form method="post" id="checkout-form">
                 <input type="hidden" name="voucher_code" id="voucher_code">
-                <input type="hidden" name="voucher_discount" id="voucher_discount">
+                <input type="hidden" name="voucher_discount" id="voucher_discount" value="0">
                 <input type="hidden" name="address_id" id="address_id" value="<?= $addresses[0]->AddressID ?? '' ?>">
                 
                 <div style="margin-bottom: 2rem;">
@@ -1104,6 +1098,11 @@ document.addEventListener('DOMContentLoaded', () => {
             voucherCodeInput.value = voucherCode;
             updatePriceDisplay(discount);
             
+            // DEBUG: 驗證hidden inputs的值
+            console.log('🔍 DEBUG: Hidden inputs after voucher applied:');
+            console.log('  voucher_code:', voucherCodeInput.value);
+            console.log('  voucher_discount:', voucherDiscountInput.value);
+            
             showToast('✅ Voucher applied! You saved RM ' + discount.toFixed(2), 'success');
         });
     });
@@ -1322,6 +1321,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             }
         }
+        
+        // DEBUG: 最終檢查表單數據
+        console.log('📤 Form Submission Data:');
+        console.log('  payment_method:', paymentMethod);
+        console.log('  voucher_code:', $('#voucher_code').val());
+        console.log('  voucher_discount:', $('#voucher_discount').val());
+        console.log('  address_id:', $('#address_id').val());
         
         // Show loading state
         $('#submit-btn').prop('disabled', true).text('Processing...');

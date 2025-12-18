@@ -941,35 +941,34 @@ include '../_head.php';
                 </div>
                 
                 <div style="border-top: 2px solid #ddd; padding-top: 1.5rem; margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: #666;">
-                        <span>Subtotal:</span>
-                        <span>RM <?= number_format($subtotal, 2) ?></span>
-                    </div>
-                    
-                    <?php if ($gift_wrap_cost > 0): ?>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: #666;">
-                            <span>Gift Wrapping:</span>
-                            <span>RM <?= number_format($gift_wrap_cost, 2) ?></span>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: #666;">
-                        <span>Shipping:</span>
-                        <span>RM <?= number_format($shipping_fee, 2) ?></span>
-                    </div>
-                    
-                    <div class="voucher-row" id="openVoucherModal" style="cursor:pointer;">
-                        🎟️ Voucher
-                        <span id="voucherText" style="float:right; color:#999;">
-                            Choose voucher >
-                        </span>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: bold; color: #D4AF37; margin-top: 1rem;">
-                        <span>Total:</span>
-                        <span>RM <?= number_format($total, 2) ?></span>
-                    </div>
-                </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: #666;">
+        <span>Subtotal:</span>
+        <span>RM <?= number_format($subtotal, 2) ?></span>
+    </div>
+    
+    <?php if ($gift_wrap_cost > 0): ?>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: #666;">
+            <span>Gift Wrapping:</span>
+            <span>RM <?= number_format($gift_wrap_cost, 2) ?></span>
+        </div>
+    <?php endif; ?>
+    
+    <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: #666;">
+        <span>Shipping:</span>
+        <span><?= $shipping_display ?></span>
+    </div>
+    
+    <!-- Voucher Discount Row -->
+    <div id="voucher-discount-row" style="display: none; justify-content: space-between; margin-bottom: 0.8rem; padding: 0.8rem; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 8px; border: 1px solid #4caf50;">
+        <span style="color: #2e7d32; font-weight: 600;">🎟️ Voucher Discount:</span>
+        <span id="discount-amount" style="color: #2e7d32; font-weight: 700; font-size: 1.1rem;">-RM 0.00</span>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: bold; color: #D4AF37; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #eee;">
+        <span>Total:</span>
+        <span id="final-total-display">RM <?= number_format($total, 2) ?></span>
+    </div>
+</div>
                 
                 <button type="submit" id="submit-btn" style="width: 100%; padding: 1.2rem; background: #000; color: #D4AF37; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all 0.3s ease;">
                     Complete Order
@@ -987,149 +986,161 @@ include '../_head.php';
 document.addEventListener('DOMContentLoaded', () => {
 
 /* ===========================
-   VOUCHER SYSTEM
-============================ */
-const voucherCards = document.querySelectorAll('.voucher-card.available');
-const voucherCodeInput = document.getElementById('voucher_code');
-const voucherDiscountInput = document.getElementById('voucher_discount');
-
-// 从 PHP 获取原始价格
-const subtotal = <?= $subtotal ?>;
-const giftWrapCost = <?= $gift_wrap_cost ?>;
-const shippingFee = <?= $shipping_fee ?>;
-let originalTotal = subtotal + giftWrapCost + shippingFee;
-let appliedDiscount = 0;
-
-// 创建显示折扣的元素（如果不存在）
-const totalSection = document.querySelector('div[style*="border-top: 2px solid #ddd"]');
-if (totalSection && !document.getElementById('discount-row')) {
-    const discountRow = document.createElement('div');
-    discountRow.id = 'discount-row';
-    discountRow.style.cssText = 'display: none; justify-content: space-between; margin-bottom: 0.8rem; color: #28a745; font-weight: 600;';
-    discountRow.innerHTML = `
-        <span>🎟️ Voucher Discount:</span>
-        <span id="discount-amount">-RM 0.00</span>
-    `;
+       VOUCHER SYSTEM
+    ============================ */
     
-    // 插入到 Total 之前
-    const totalRow = totalSection.querySelector('div[style*="font-size: 1.4rem"]');
-    totalRow.parentNode.insertBefore(discountRow, totalRow);
-}
-
-// 更新总价显示
-function updateTotalDisplay(discount) {
-    const totalEl = document.querySelector('div[style*="font-size: 1.4rem"] span:last-child');
-    const discountRow = document.getElementById('discount-row');
+    // 价格数据
+    const PRICES = {
+        subtotal: <?= $subtotal ?>,
+        giftWrap: <?= $gift_wrap_cost ?>,
+        shipping: <?= $shipping_fee ?>,
+        get originalTotal() {
+            return this.subtotal + this.giftWrap + this.shipping;
+        }
+    };
+    
+    console.log('💰 Prices loaded:', PRICES);
+    
+    // DOM 元素
+    const voucherCards = document.querySelectorAll('.voucher-card.available');
+    const voucherCodeInput = document.getElementById('voucher_code');
+    const voucherDiscountInput = document.getElementById('voucher_discount');
+    const finalTotalDisplay = document.getElementById('final-total-display');
+    const discountRow = document.getElementById('voucher-discount-row');
     const discountAmount = document.getElementById('discount-amount');
     
-    if (discount > 0) {
-        discountRow.style.display = 'flex';
-        discountAmount.textContent = '-RM ' + discount.toFixed(2);
-        const newTotal = originalTotal - discount;
-        totalEl.textContent = 'RM ' + newTotal.toFixed(2);
-    } else {
-        discountRow.style.display = 'none';
-        totalEl.textContent = 'RM ' + originalTotal.toFixed(2);
-    }
-}
-
-voucherCards.forEach(card => {
-    card.addEventListener('click', function() {
-        const radio = this.querySelector('.voucher-radio');
+    console.log('🎟️ Found', voucherCards.length, 'available vouchers');
+    
+    let selectedVoucher = null;
+    let currentDiscount = 0;
+    
+    // 更新总价显示
+    function updatePriceDisplay(discount) {
+        currentDiscount = discount;
         
-        // 如果点击已选中的，就取消选择
-        if (radio.checked && this.classList.contains('selected')) {
-            radio.checked = false;
-            this.classList.remove('selected');
+        if (discount > 0) {
+            discountRow.style.display = 'flex';
+            discountAmount.textContent = '-RM ' + discount.toFixed(2);
             
-            // 恢复原价
-            voucherCodeInput.value = '';
-            voucherDiscountInput.value = '0';
-            appliedDiscount = 0;
-            updateTotalDisplay(0);
-            return;
-        }
-        
-        // 移除其他选中状态
-        voucherCards.forEach(c => c.classList.remove('selected'));
-        
-        // 选中当前
-        radio.checked = true;
-        this.classList.add('selected');
-        
-        // 计算折扣
-        const type = radio.dataset.type;
-        const value = parseFloat(radio.dataset.value);
-        
-        let discount = 0;
-        if (type === 'percent') {
-            discount = subtotal * (value / 100);
+            const newTotal = Math.max(0, PRICES.originalTotal - discount);
+            finalTotalDisplay.textContent = 'RM ' + newTotal.toFixed(2);
+            
+            voucherDiscountInput.value = discount.toFixed(2);
+            
+            console.log('✅ Discount applied:', discount);
+            console.log('📊 New total:', newTotal);
         } else {
-            discount = value;
+            discountRow.style.display = 'none';
+            finalTotalDisplay.textContent = 'RM ' + PRICES.originalTotal.toFixed(2);
+            voucherDiscountInput.value = '0';
+            
+            console.log('❌ Discount removed');
         }
-        
-        // 确保折扣不超过 subtotal
-        discount = Math.min(discount, subtotal);
-        appliedDiscount = discount;
-        
-        // 更新表单值
-        voucherCodeInput.value = radio.value;
-        voucherDiscountInput.value = discount.toFixed(2);
-        
-        // 更新显示
-        updateTotalDisplay(discount);
-        
-        // 显示成功提示
-        showVoucherToast('✅ Voucher applied! You saved RM ' + discount.toFixed(2));
+    }
+    
+    // Voucher 卡片点击
+    voucherCards.forEach((card, index) => {
+        card.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const radio = this.querySelector('.voucher-radio');
+            if (!radio) return;
+            
+            const voucherCode = radio.value;
+            const voucherType = radio.dataset.type;
+            const voucherValue = parseFloat(radio.dataset.value);
+            
+            console.log(`🎫 Clicked voucher ${index + 1}:`, voucherCode);
+            
+            // 如果点击已选中的，取消选择
+            if (selectedVoucher === voucherCode) {
+                voucherCards.forEach(c => c.classList.remove('selected'));
+                radio.checked = false;
+                selectedVoucher = null;
+                
+                voucherCodeInput.value = '';
+                updatePriceDisplay(0);
+                
+                showToast('Voucher removed', 'info');
+                return;
+            }
+            
+            // 选择新 voucher
+            voucherCards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            radio.checked = true;
+            selectedVoucher = voucherCode;
+            
+            // 计算折扣
+            let discount = 0;
+            if (voucherType === 'percent') {
+                discount = PRICES.subtotal * (voucherValue / 100);
+            } else {
+                discount = voucherValue;
+            }
+            
+            discount = Math.min(discount, PRICES.subtotal);
+            
+            console.log('💵 Calculated discount:', discount);
+            
+            voucherCodeInput.value = voucherCode;
+            updatePriceDisplay(discount);
+            
+            showToast('✅ Voucher applied! You saved RM ' + discount.toFixed(2), 'success');
+        });
     });
-});
-
-// Toast 提示函数
-function showVoucherToast(message) {
-    // 移除旧的 toast
-    const oldToast = document.getElementById('voucher-toast');
-    if (oldToast) oldToast.remove();
     
-    const toast = document.createElement('div');
-    toast.id = 'voucher-toast';
-    toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        top: 120px;
-        right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        z-index: 9999;
-        animation: slideIn 0.3s ease;
-    `;
+    // Toast 提示
+    function showToast(message, type = 'success') {
+        const oldToast = document.getElementById('voucher-toast');
+        if (oldToast) oldToast.remove();
+        
+        const bgColor = type === 'success' ? '#4caf50' : '#6c757d';
+        
+        const toast = document.createElement('div');
+        toast.id = 'voucher-toast';
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: ${bgColor};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            z-index: 9999;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
     
-    document.body.appendChild(toast);
+    // 动画
+    if (!document.getElementById('toast-animation')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
     
-    setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-// 添加动画样式
-if (!document.getElementById('voucher-toast-styles')) {
-    const style = document.createElement('style');
-    style.id = 'voucher-toast-styles';
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(400px); opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
-}
+    console.log('✅ Voucher system initialized successfully');
     
     /* ADDRESS SELECTION */
     const addressRadios = document.querySelectorAll('input[name="selected_address"]');

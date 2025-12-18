@@ -71,6 +71,12 @@ $_title = 'My Vouchers - Nº9 Perfume';
 include '../_head.php';
 ?>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);
+    });
+</script>
+
 <style>
 .voucher-container {
     max-width: 1200px;

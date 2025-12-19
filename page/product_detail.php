@@ -33,7 +33,7 @@ if (isset($_SESSION['user_id'])) {
 }
 ?>
 
-<link rel="stylesheet" href="/public/css/product_detail.css">
+<link rel="stylesheet" href="/public/css/perfume.css">
 
 <script>
     $(document).ready(function() {
@@ -348,31 +348,6 @@ function showToast(message) {
     }, 2000);
 }
 </script>
-
-<style>
-.fav-heart {
-    font-size: 1.2rem;
-    background: none;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    color: #999;
-    transition: 0.2s;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-}
-
-.fav-heart:hover {
-    border-color: #e60023;
-    transform: translateY(-2px);
-}
-
-.fav-heart.active {
-    color: #e60023;
-    border-color: #e60023;
-    background: #fff0f0;
-}
-</style>
 
 <script>
 // Function to swap the main image

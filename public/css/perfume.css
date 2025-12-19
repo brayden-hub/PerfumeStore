@@ -2548,3 +2548,129 @@ th a.sort-link:hover {
   /* =========================================
    ADMIN USER MANAGEMENT STYLES end
    ========================================= */
+
+
+
+/* Favorite Button Styles in product page */
+.product-image-wrapper {
+    position: relative;
+}
+
+.fav-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #999;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    transition: all 0.2s;
+}
+
+.fav-btn:hover {
+    transform: scale(1.1);
+}
+
+.fav-btn.active {
+    color: #e53935;
+}
+
+.pagination-btn {
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover {
+    background: #D4AF37 !important;
+    color: #000 !important;
+    transform: translateY(-2px);
+}
+
+/* Search Bar Styles */
+.search-container {
+    position: relative;
+    max-width: 500px;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 1.25rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.search-icon {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+}
+
+.clear-search {
+    position: absolute;
+    right: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.25rem;
+    display: none;
+    transition: color 0.2s;
+}
+
+.clear-search:hover {
+    color: #333;
+}
+
+.clear-search.visible {
+    display: block;
+}
+
+/* Favorite Heart Button Styles in product detail */
+.fav-heart {
+    font-size: 1.2rem;
+    background: none;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    color: #999;
+    transition: 0.2s;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.fav-heart:hover {
+    border-color: #e60023;
+    transform: translateY(-2px);
+}
+
+.fav-heart.active {
+    color: #e60023;
+    border-color: #e60023;
+    background: #fff0f0;
+}

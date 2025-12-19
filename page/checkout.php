@@ -1322,13 +1322,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // DEBUG: 最終檢查表單數據
-        console.log('📤 Form Submission Data:');
-        console.log('  payment_method:', paymentMethod);
-        console.log('  voucher_code:', $('#voucher_code').val());
-        console.log('  voucher_discount:', $('#voucher_discount').val());
-        console.log('  address_id:', $('#address_id').val());
-        
         // Show loading state
         $('#submit-btn').prop('disabled', true).text('Processing...');
     });

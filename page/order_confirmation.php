@@ -27,6 +27,16 @@ if (!$order) {
     redirect('/');
 }
 
+// Fetch order items for the receipt
+$stmt = $_db->prepare("
+    SELECT po.*, p.ProductName, p.Series
+    FROM productorder po
+    JOIN product p ON po.ProductID = p.ProductID
+    WHERE po.OrderID = ?
+");
+$stmt->execute([$order_id]);
+$items = $stmt->fetchAll();
+
 // Calculate total amount
 $stmt = $_db->prepare("SELECT SUM(TotalPrice) FROM productorder WHERE OrderID = ?");
 $stmt->execute([$order_id]);
@@ -36,58 +46,214 @@ $shipping_fee = $order->ShippingFee ?? 0;
 $voucher_discount = $order->VoucherDiscount ?? 0;
 $total = $subtotal + $gift_wrap_cost + $shipping_fee - $voucher_discount;
 
-// Send confirmation email (if not already sent)
-if (!isset($_SESSION['email_sent_' . $order_id])) {
+// Send E-Receipt email (if not already sent)
+if (!isset($_SESSION['receipt_sent_' . $order_id])) {
     try {
         $m = get_mail();
         $m->addAddress($order->email, $order->CustomerName);
-        $m->Subject = "Order Confirmation - N°9 Perfume #$order_id";
+        $m->Subject = "E-Receipt - Order #$order_id | Nº9 Perfume";
         
-        $email_body = "
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <h1 style='color: #D4AF37; text-align: center;'>Order Confirmed</h1>
-            <p>Dear {$order->CustomerName},</p>
-            <p>Thank you for your order. Your scent is on its way.</p>
+        // Build items table for email
+        $items_html = '';
+        foreach ($items as $item) {
+            $item_total = number_format($item->TotalPrice, 2);
+            $item_price = number_format($item->TotalPrice / $item->Quantity, 2);
             
-            <div style='background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 8px;'>
-                <h3>Order Details</h3>
-                <p><strong>Order ID:</strong> $order_id</p>
-                <p><strong>Order Date:</strong> " . date('d F Y', strtotime($order->PurchaseDate)) . "</p>
-                <p><strong>Total Amount:</strong> RM " . number_format($total, 2) . "</p>
-            </div>
-            
-            <div style='background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 8px;'>
-                <h3>Shipping Address</h3>
-                <p>{$order->RecipientName}<br>
-                {$order->PhoneNumber}<br>
-                {$order->AddressLine1}" . ($order->AddressLine2 ? ", {$order->AddressLine2}" : "") . "<br>
-                {$order->City}, {$order->State} {$order->PostalCode}</p>
-            </div>";
+            // Show price if not hidden (gift option)
+            if ($order->HidePrice) {
+                $items_html .= "
+                <tr style='border-bottom: 1px solid #eee;'>
+                    <td style='padding: 12px 8px; color: #333;'>{$item->ProductName}</td>
+                    <td style='padding: 12px 8px; text-align: center; color: #666;'>{$item->Quantity}</td>
+                    <td style='padding: 12px 8px; text-align: right; color: #999; font-style: italic;'>Hidden</td>
+                </tr>";
+            } else {
+                $items_html .= "
+                <tr style='border-bottom: 1px solid #eee;'>
+                    <td style='padding: 12px 8px; color: #333;'>{$item->ProductName}</td>
+                    <td style='padding: 12px 8px; text-align: center; color: #666;'>{$item->Quantity}</td>
+                    <td style='padding: 12px 8px; text-align: right; font-weight: 600; color: #333;'>RM {$item_total}</td>
+                </tr>";
+            }
+        }
         
+        // Build cost breakdown (hide if gift option enabled)
+        $cost_breakdown = '';
+        if (!$order->HidePrice) {
+            $cost_breakdown = "
+            <tr style='background: #f9f9f9;'>
+                <td colspan='2' style='padding: 10px 8px; text-align: right; color: #666;'>Subtotal:</td>
+                <td style='padding: 10px 8px; text-align: right; font-weight: 600;'>RM " . number_format($subtotal, 2) . "</td>
+            </tr>";
+            
+            if ($gift_wrap_cost > 0) {
+                $cost_breakdown .= "
+                <tr style='background: #f9f9f9;'>
+                    <td colspan='2' style='padding: 10px 8px; text-align: right; color: #666;'>🎁 Gift Wrapping:</td>
+                    <td style='padding: 10px 8px; text-align: right; color: #D4AF37; font-weight: 600;'>RM " . number_format($gift_wrap_cost, 2) . "</td>
+                </tr>";
+            }
+            
+            $cost_breakdown .= "
+            <tr style='background: #f9f9f9;'>
+                <td colspan='2' style='padding: 10px 8px; text-align: right; color: #666;'>Shipping:</td>
+                <td style='padding: 10px 8px; text-align: right; font-weight: 600;'>" . ($shipping_fee > 0 ? "RM " . number_format($shipping_fee, 2) : "<span style='color: #4caf50;'>FREE</span>") . "</td>
+            </tr>";
+            
+            if ($voucher_discount > 0) {
+                $cost_breakdown .= "
+                <tr style='background: linear-gradient(135deg, #e8f5e9 0%, #f9f9f9 100%);'>
+                    <td colspan='2' style='padding: 10px 8px; text-align: right; color: #2e7d32; font-weight: 600;'>🎟️ Voucher Discount:</td>
+                    <td style='padding: 10px 8px; text-align: right; color: #2e7d32; font-weight: 700;'>-RM " . number_format($voucher_discount, 2) . "</td>
+                </tr>";
+            }
+            
+            $cost_breakdown .= "
+            <tr style='background: linear-gradient(135deg, #fffbf0 0%, #fff 100%); border-top: 2px solid #D4AF37;'>
+                <td colspan='2' style='padding: 15px 8px; text-align: right; font-weight: bold; font-size: 16px;'>Grand Total:</td>
+                <td style='padding: 15px 8px; text-align: right; font-weight: bold; font-size: 18px; color: #D4AF37;'>RM " . number_format($total, 2) . "</td>
+            </tr>";
+        } else {
+            // If prices are hidden (gift mode)
+            $cost_breakdown = "
+            <tr style='background: #fffbf0; border-top: 2px solid #D4AF37;'>
+                <td colspan='3' style='padding: 15px 8px; text-align: center; color: #666; font-style: italic;'>
+                    🔒 Price information hidden as per gift option
+                </td>
+            </tr>";
+        }
+        
+        // Gift message section
+        $gift_section = '';
         if (!empty($order->GiftMessage)) {
-            $email_body .= "
-            <div style='background: #fffbf0; padding: 20px; margin: 20px 0; border-radius: 8px; border: 2px solid #D4AF37;'>
-                <h3>🎁 Gift Message</h3>
-                <p style='font-style: italic; color: #666;'>\"{$order->GiftMessage}\"</p>
+            $gift_section = "
+            <div style='background: linear-gradient(135deg, #fffbf0 0%, #fff 100%); padding: 20px; margin: 20px 0; border-radius: 8px; border: 2px solid #D4AF37;'>
+                <h3 style='margin: 0 0 10px 0; color: #333; font-size: 16px;'>🎁 Gift Message</h3>
+                <p style='margin: 0; font-style: italic; color: #666; line-height: 1.6;'>
+                    \"" . htmlspecialchars($order->GiftMessage) . "\"
+                </p>
             </div>";
         }
         
-        $email_body .= "
-            <p style='margin-top: 30px;'>Estimated delivery: 3-5 business days</p>
-            <p>Best regards,<br>N°9 Perfume Team</p>
+        $email_body = "
+        <div style='font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; background: #f5f5f5; padding: 20px;'>
+            <!-- Header -->
+            <div style='background: linear-gradient(135deg, #000 0%, #1a1a1a 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
+                <h1 style='color: #D4AF37; margin: 0; font-size: 28px; letter-spacing: 2px;'>Nº9 PERFUME</h1>
+                <p style='color: #fff; margin: 10px 0 0 0; font-size: 14px;'>Electronic Receipt</p>
+            </div>
+            
+            <!-- Main Content -->
+            <div style='background: #fff; padding: 30px; border-radius: 0 0 10px 10px;'>
+                <!-- Thank You Message -->
+                <div style='text-align: center; margin-bottom: 30px;'>
+                    <div style='font-size: 48px; margin-bottom: 10px;'>✨</div>
+                    <h2 style='color: #333; margin: 0 0 10px 0;'>Thank You for Your Order!</h2>
+                    <p style='color: #666; margin: 0;'>Your scent journey begins here.</p>
+                </div>
+                
+                <!-- Order Information -->
+                <div style='background: #f9f9f9; padding: 20px; margin-bottom: 25px; border-radius: 8px; border-left: 4px solid #D4AF37;'>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr>
+                            <td style='padding: 8px 0; color: #666; font-weight: 600;'>Order ID:</td>
+                            <td style='padding: 8px 0; text-align: right; color: #D4AF37; font-weight: bold; font-size: 16px;'>$order_id</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 8px 0; color: #666; font-weight: 600;'>Order Date:</td>
+                            <td style='padding: 8px 0; text-align: right; color: #333;'>" . date('d F Y, g:i A', strtotime($order->PurchaseDate)) . "</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 8px 0; color: #666; font-weight: 600;'>Payment Method:</td>
+                            <td style='padding: 8px 0; text-align: right; color: #333;'>{$order->PaymentMethod}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Shipping Address -->
+                <div style='background: #f9f9f9; padding: 20px; margin-bottom: 25px; border-radius: 8px;'>
+                    <h3 style='margin: 0 0 15px 0; color: #333; font-size: 16px; display: flex; align-items: center;'>
+                        📦 Shipping Address
+                    </h3>
+                    <p style='margin: 0; line-height: 1.8; color: #555;'>
+                        <strong>{$order->RecipientName}</strong><br>
+                        {$order->PhoneNumber}<br>
+                        {$order->AddressLine1}" . ($order->AddressLine2 ? ", {$order->AddressLine2}" : "") . "<br>
+                        {$order->City}, {$order->State} {$order->PostalCode}
+                    </p>
+                </div>
+                
+                $gift_section
+                
+                <!-- Order Items -->
+                <h3 style='margin: 0 0 15px 0; color: #333; font-size: 16px;'>🛍️ Order Items</h3>
+                <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden;'>
+                    <thead>
+                        <tr style='background: #000;'>
+                            <th style='padding: 12px 8px; text-align: left; color: #D4AF37; font-weight: 600;'>Product</th>
+                            <th style='padding: 12px 8px; text-align: center; color: #D4AF37; font-weight: 600;'>Qty</th>
+                            <th style='padding: 12px 8px; text-align: right; color: #D4AF37; font-weight: 600;'>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        $items_html
+                        $cost_breakdown
+                    </tbody>
+                </table>
+                
+                <!-- Estimated Delivery -->
+                <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #e3f2fd 0%, #fff 100%); border-radius: 8px; margin: 25px 0;'>
+                    <p style='margin: 0; color: #1976d2; font-weight: 600;'>
+                        📅 Estimated Delivery: <strong>3-5 Business Days</strong>
+                    </p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style='text-align: center; margin: 30px 0 20px 0;'>
+                    <a href='http://" . $_SERVER['HTTP_HOST'] . "/page/order_detail_member.php?id=$order_id' 
+                       style='display: inline-block; padding: 15px 40px; background: #000; color: #D4AF37; 
+                              text-decoration: none; border-radius: 5px; font-weight: bold; 
+                              letter-spacing: 1px; margin: 0 10px; border: 2px solid #D4AF37;'>
+                        TRACK ORDER
+                    </a>
+                    <a href='http://" . $_SERVER['HTTP_HOST'] . "/page/product.php' 
+                       style='display: inline-block; padding: 15px 40px; background: #fff; color: #000; 
+                              text-decoration: none; border-radius: 5px; font-weight: bold; 
+                              letter-spacing: 1px; margin: 0 10px; border: 2px solid #000;'>
+                        CONTINUE SHOPPING
+                    </a>
+                </div>
+                
+                <!-- Footer -->
+                <div style='text-align: center; padding-top: 20px; border-top: 2px solid #eee; margin-top: 30px;'>
+                    <p style='color: #999; font-size: 13px; line-height: 1.6; margin: 0 0 10px 0;'>
+                        This is an automated email. Please do not reply to this message.<br>
+                        If you have any questions, contact us at support@no9perfume.com
+                    </p>
+                    <p style='color: #666; font-size: 14px; margin: 10px 0 0 0;'>
+                        Best regards,<br>
+                        <strong style='color: #D4AF37;'>Nº9 Perfume Team</strong>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Footer Note -->
+            <div style='text-align: center; padding: 20px; color: #999; font-size: 12px;'>
+                <p style='margin: 0;'>© 2024 Nº9 Perfume. All rights reserved.</p>
+            </div>
         </div>";
         
         $m->Body = $email_body;
         $m->isHTML(true);
         $m->send();
         
-        $_SESSION['email_sent_' . $order_id] = true;
+        $_SESSION['receipt_sent_' . $order_id] = true;
     } catch (Exception $e) {
-        error_log('Email sending failed: ' . $e->getMessage());
+        error_log('E-Receipt email failed: ' . $e->getMessage());
     }
 }
 
-$_title = 'Order Confirmed - N°9 Perfume';
+$_title = 'Order Confirmed - Nº9 Perfume';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -110,6 +276,11 @@ $_title = 'Order Confirmed - N°9 Perfume';
             </svg>
             <h1>Order Confirmed</h1>
             <p class="subtitle">Thank you, <?= htmlspecialchars($order->CustomerName) ?>. Your scent is on its way.</p>
+            <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; margin-top: 1.5rem; border: 1px solid #4caf50;">
+                <p style="margin: 0; color: #2e7d32; font-weight: 600;">
+                    ✉️ E-Receipt has been sent to <?= htmlspecialchars($order->email) ?>
+                </p>
+            </div>
         </div>
         
         <!-- Progress Timeline -->

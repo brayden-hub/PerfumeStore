@@ -173,6 +173,19 @@ elseif (is_post() && $step == 5 && empty($_err)) {
         // 获取刚插入的用户 ID
         $userID = $_db->lastInsertId();
 
+        // 🎁 自動分配歡迎優惠券給新用戶
+        try {
+            $stm_voucher = $_db->prepare("
+                INSERT INTO user_voucher (UserID, VoucherID, IsUsed)
+                SELECT ?, VoucherID, 0
+                FROM voucher
+                WHERE Status = 'active'
+            ");
+            $stm_voucher->execute([$userID]);
+        } catch (Exception $e) {
+            error_log("Failed to assign vouchers to new user (ID: $userID): " . $e->getMessage());
+        }
+
         // 2. 生成验证/登录 Token
         $token_id = sha1(uniqid() . rand());
         $stm = $_db->prepare('INSERT INTO token (token_id, expire, userID) VALUES (?, ADDTIME(NOW(), "00:10:00"), ?)');

@@ -139,7 +139,7 @@ if (is_post()) {
             $stmt = $_db->prepare("
                 INSERT INTO `order` 
                 (OrderID, UserID, ShippingAddressID, PurchaseDate, PaymentMethod, GiftWrap, GiftMessage, HidePrice, GiftWrapCost, ShippingFee, VoucherID, VoucherDiscount) 
-                VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             
             $stmt->execute([

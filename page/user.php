@@ -1,32 +1,30 @@
 <?php
 require '../_base.php';
-// We need to define the function sort_link() which is missing from the provided _base.php context.
-// In a real application, this would be defined in _base.php or a helper file.
-// For this script, we'll redefine it based on the table_headers logic.
+
 function admin_sort_link($field, $current_sort, $current_dir, $search_term, $page) {
     $new_dir = $current_sort === $field && $current_dir === 'ASC' ? 'DESC' : 'ASC';
     $indicator = $current_sort === $field ? ($current_dir === 'ASC' ? '▲' : '▼') : '';
-    // Preserve search term and page (if page is 1, it might be omitted, but keeping it makes the URL robust)
+    
     $search_query = $search_term ? "&search=" . urlencode($search_term) : '';
     $link = "user.php?sort=$field&dir=$new_dir" . $search_query . "&page=$page";
     return "<a href='$link' style='color:#fff; text-decoration:none;'>$field $indicator</a>";
 }
 
-// Security Check: Only Admin can access
+
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'Admin') {
     redirect('/');
 }
 
-// --- (0) Filtering/Searching ---
-$search = req('search'); // Used for Name/Email/Phone
+
+$search = req('search'); 
 $page   = req('page', 1);
 
 $where = ["role = 'Member'"];
 $params = [];
-$href_params = ''; // URL parameters to keep during sorting/paging
+$href_params = '';
 
 if ($search) {
-    // Search by name, email, or phone
+    
     $where[] = "(name LIKE ? OR email LIKE ? OR phone_number LIKE ?)";
     $search_term = "%$search%";
     $params[] = $search_term;
@@ -34,12 +32,12 @@ if ($search) {
     $params[] = $search_term;
     $href_params .= 'search=' . urlencode($search) . '&';
 }
-// Note: We don't include 'page' in $href_params because SimplePager manages it.
+
 
 $where_sql = count($where) > 0 ? 'WHERE ' . implode(' AND ', $where) : '';
 
 
-// --- (1) Sorting ---
+
 $fields = [
     'userID'         => 'ID',
     'name'           => 'Name',
@@ -48,31 +46,31 @@ $fields = [
 ];
 
 $sort = req('sort');
-key_exists($sort, $fields) || $sort = 'userID'; // Default to userID
+key_exists($sort, $fields) || $sort = 'userID'; 
 
 $dir = req('dir');
-in_array($dir, ['ASC', 'DESC']) || $dir = 'ASC'; // Use uppercase for SQL
+in_array($dir, ['ASC', 'DESC']) || $dir = 'ASC'; 
 
 
-// --- (2) Paging and Combined Query ---
+
 $page_size = 10;
-// Option A: If SimplePager.php is in PerfumeStore/lib/
-require_once '../lib/SimplePager.php'; // Assuming SimplePager exists in this location
 
-// user.php (Around Line 64 - FIXED)
+require_once '../lib/SimplePager.php'; 
+
+
 $sql = "SELECT userID, name, email, phone_number, role, Profile_Photo, status 
         FROM user 
         $where_sql 
         ORDER BY $sort $dir";
 
-// Using SimplePager to handle the LIMIT/OFFSET
+
 $p = new SimplePager($sql, $params, $page_size, $page);
 $arr = $p->result; 
 
-// Parameters for Pager links
+
 $pager_href = $href_params . 'sort=' . $sort . '&dir=' . $dir;
 
-// --- HTML Output ---
+
 $_title = 'User Management - N°9 Perfume';
 include '../_head.php';
 ?>

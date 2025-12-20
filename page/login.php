@@ -1,8 +1,6 @@
 <?php
-
 require '../_base.php';
 if (isset($_SESSION['user_id'])) {
-    // 如果用户已登录，将他们发送到 profile.php，避免再次看到登录页面
     redirect('profile.php');
 }
 
@@ -12,7 +10,6 @@ if (is_post()) {
     $email = req('email');
     $password = req('password');
 
-    // Validate input
     if ($email == '') {
         $_err['email'] = 'Email required';
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -23,7 +20,6 @@ if (is_post()) {
         $_err['password'] = 'Password required';
     }
 
-    // If no validate error → check DB
     if (!$_err) {
         $stm = $_db->prepare("SELECT * FROM user WHERE email = ?");
         $stm->execute([$email]);
@@ -32,24 +28,37 @@ if (is_post()) {
         if (!$user) {
             $_err['email'] = 'Email not registered';
         } 
-        // === 新增：检查是否处于锁定时间 (5分钟锁定) ===
+        
         else if ($user->login_attempts >= 3 && (time() - strtotime($user->attempt_time)) < 300) {
             $remaining = 300 - (time() - strtotime($user->attempt_time));
-            $_err['email'] = "Too many failed attempts. Please try again in " . ceil($remaining/60) . " minute(s).";
+            $_err['email'] = "Account locked. Please try again in " . ceil($remaining/60) . " minute(s).";
         }
+        
         else if (!password_verify($password, $user->password)) {
-            // === 新增：密码错误时增加计数器并记录时间 ===
-            $new_attempts = $user->login_attempts + 1;
-            $stm = $_db->prepare("UPDATE user SET login_attempts = ?, attempt_time = NOW() WHERE userID = ?");
-            $stm->execute([$new_attempts, $user->userID]);
             
-            $_err['password'] = "Wrong password. Attempts left: " . (3 - $new_attempts);
-            if ($new_attempts >= 3) {
-                $_err['email'] = "Your account is locked for 5 minutes due to too many failed attempts.";
+            $is_lock_expired = (time() - strtotime($user->attempt_time)) >= 300;
+            
+            if ($is_lock_expired && $user->login_attempts >= 3) {
+                
+                $new_attempts = 1;
+            } else {
+                
+                $new_attempts = $user->login_attempts + 1;
             }
-        } 
+            
+            $update = $_db->prepare("UPDATE user SET login_attempts = ?, attempt_time = NOW() WHERE userID = ?");
+            $update->execute([$new_attempts, $user->userID]);
+            
+            $left = max(0, 3 - $new_attempts);
+            
+            if ($new_attempts >= 3) {
+                $_err['email'] = "Too many failed attempts. Your account is now locked for 5 minutes.";
+            } else {
+                $_err['password'] = "Wrong password. Attempts left: $left";
+            }
+        }
         else if ($user->role !== 'Member') {
-            $_err['email'] = 'Only member can in';
+            $_err['email'] = 'Invalid email';
         }
         else if ($user->status === 'Deactivated') { 
             $_err['email'] = 'Your account has been deactivated. Please contact support.';
@@ -58,29 +67,27 @@ if (is_post()) {
             $_err['email'] = 'Your account is not active yet. Please check your email.';
         }
         else {
-            // === 登录成功：重置计数器和时间 ===
+            
             $stm = $_db->prepare("UPDATE user SET login_attempts = 0, attempt_time = NULL WHERE userID = ?");
             $stm->execute([$user->userID]);
         
-            $_SESSION['user_id']   = $user->userID;
-
-            $_SESSION['user_name']  = $user->name;
-            $_SESSION['email']     = $user->email;
-            $_SESSION['phone']     = $user->phone_number ?? '';
-            $_SESSION['user_role']      = $user->role;
+            $_SESSION['user_id']       = $user->userID;
+            $_SESSION['user_name']     = $user->name;
+            $_SESSION['email']         = $user->email;
+            $_SESSION['phone']         = $user->phone_number ?? '';
+            $_SESSION['user_role']     = $user->role;
             $_SESSION['Profile_Photo'] = $user->Profile_Photo ?? 'default1.jpg';
+            
+            
             auto_assign_vouchers($user->userID);
 
             temp('info', 'Login successful!');
 
-            // Remember Me functionality
             if (req('remember') == '1' && $user->role === 'Member') {
                 $token = bin2hex(random_bytes(32));
                 $stm = $_db->prepare("UPDATE user SET remember_token = ? WHERE userID = ?");
                 $stm->execute([$token, $user->userID]);
                 setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/');
-            } else if (req('remember') == '1' && $user->role !== 'Member') {
-                $_err['remember'] = 'Only Members can use Remember Me';
             }
 
             redirect('profile.php');
@@ -88,10 +95,7 @@ if (is_post()) {
     }
 }
 
-// Get temp message ONCE and store it
 $info_message = temp('info');
-
-// Page view
 $_title = 'Login';
 include '../_head.php';
 ?>

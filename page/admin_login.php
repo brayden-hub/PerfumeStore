@@ -1,7 +1,7 @@
 <?php
 require '../_base.php';
 
-// 如果已登录，重定向到个人资料页
+
 if (isset($_SESSION['user_id'])) {
     redirect('profile.php');
 }
@@ -28,23 +28,23 @@ if (is_post()) {
         $stm->execute([$email]);
         $user = $stm->fetch();
 
-        // 核心验证逻辑
+        
         if (!$user) {
             $_err['email'] = 'Email not registered';
         } 
         else if (!password_verify($password, $user->password)) {
             $_err['password'] = 'Wrong password';
         } 
-        // 1. 角色检查：必须是 Admin
+        
         else if ($user->role !== 'Admin') {
             $_err['email'] = 'Only administrators can access this page.';
         }
-        // 2. 状态检查：必须是 Activated
+        
         else if ($user->status !== 'Activated') {
             $_err['email'] = 'This admin account is not active.';
         }
         else {
-            // 登录成功：设置 Session
+            
             $_SESSION['user_id']       = $user->userID;
             $_SESSION['user_name']     = $user->name;
             $_SESSION['email']         = $user->email;
@@ -54,7 +54,7 @@ if (is_post()) {
 
             temp('info', 'Welcome back, Administrator.');
 
-            // 建议：跳转到管理员后台首页而不是 profile.php
+            
             redirect('profile.php'); 
         }
     }

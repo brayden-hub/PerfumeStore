@@ -1,7 +1,7 @@
 <?php
 require '_base.php';
 
-// Assuming PHPMailer (get_mail()) is available.
+
 
 $_err = [];
 $email = ''; // Initialize

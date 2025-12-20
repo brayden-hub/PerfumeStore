@@ -1,15 +1,15 @@
 <?php
 require '../_base.php';
 
-// (1) Delete expired tokens
+
 $_db->query('DELETE FROM token WHERE expire < NOW()');
 
 
 
-$id = req('id'); // URL 里的参数名可以保持 'id'，但数据库字段名要改
+$id = req('id'); 
 
-// (2) Is token id valid?
-if (!is_exists($id, 'token', 'token_id')) { // 将 id 改为 token_id
+
+if (!is_exists($id, 'token', 'token_id')) { 
     temp('info', 'Invalid or expired token. Please request a new password reset link.');
     redirect('forgot_password.php');
 }
@@ -20,7 +20,7 @@ if (is_post()) {
     $password = req('password');
     $confirm  = req('confirm');
 
-    // Validate: password
+    
     if ($password == '') {
         $_err['password'] = 'Required';
     } else {
@@ -40,7 +40,7 @@ if (is_post()) {
         }
     }
 
-    // Validate: confirm
+    
     if ($confirm == '') {
         $_err['confirm'] = 'Required';
     }
@@ -48,14 +48,14 @@ if (is_post()) {
         $_err['confirm'] = 'Passwords do not match';
     }
 
-    // DB operation
+    
     if (!$_err) {
-        // Get user info from token
-        $stm = $_db->prepare('SELECT userID FROM token WHERE token_id = ?'); // 将 id 改为 token_id
+        
+        $stm = $_db->prepare('SELECT userID FROM token WHERE token_id = ?'); 
         $stm->execute([$id]);
         $token = $stm->fetch();
         
-        // Update user password & delete token
+        
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         
         $stm = $_db->prepare('
@@ -65,8 +65,8 @@ if (is_post()) {
         ');
         $stm->execute([$hashed, $token->userID]);
         
-        // Delete the used token
-        $stm = $_db->prepare('DELETE FROM token WHERE token_id = ?'); // 将 id 改为 token_id
+        
+        $stm = $_db->prepare('DELETE FROM token WHERE token_id = ?'); 
         $stm->execute([$id]);
 
         temp('info', 'Password successfully reset!');

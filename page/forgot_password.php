@@ -8,72 +8,71 @@ if (is_post()) {
 
     
 
-    // Validate: email
+    
     if ($email == '') {
         $_err['email'] = 'Required';
     }
     else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_err['email'] = 'Invalid email';
     }
-    // 1. 先检查邮箱是否存在
+    
     else if (!is_exists($email, 'user', 'email')) {
         $_err['email'] = 'Email not registered';
     }
     else {
-        // 2. 核心修复：检查该邮箱对应的账户状态是否为 Activated
+        
         $stm = $_db->prepare('SELECT status FROM user WHERE email = ?');
         $stm->execute([$email]);
         $status = $stm->fetchColumn();
 
         if ($status !== 'Activated') {
-            // 如果账户被禁用，不允许发送重置链接
+            
             $_err['email'] = 'Your account has been deactivated. Please contact support.';
         }
     }
 
-    // Send reset token (if valid)
+    
     if (!$_err) {
-        // (1) Select user
+       
         $stm = $_db->prepare('SELECT * FROM user WHERE email = ?');
         $stm->execute([$email]);
         $u = $stm->fetch();
 
-        // (2) Generate token id
         
-        $token_id = sha1(uniqid() . rand()); // 变量名建议也改掉，方便理解
+        
+        $token_id = sha1(uniqid() . rand());
 
-        // (3) Delete old and insert new token
+        
         $stm = $_db->prepare('
             DELETE FROM token WHERE userID = ?;
             
             INSERT INTO token (token_id, expire, userID) 
             VALUES (?, ADDTIME(NOW(), "00:05:00"), ?);
-        '); // 将 id 改为 token_id
+        '); 
         $stm->execute([$u->userID, $token_id, $u->userID]);
 
-        // (4) Generate token url
+        
         $url = "http://" . $_SERVER['HTTP_HOST'] . "/page/reset_password.php?id=$token_id";
 
-        // (5) Send email
+        
         $m = get_mail();
         $m->addAddress($u->email, $u->name);
         
-        // --- START of fix in forgot_password.php ---
-        // Get the photo filename, using 'default1.jpg' as the fallback if the DB column is empty.
+        
         $photoFile = $u->Profile_Photo ?: 'default1.jpg';
 
-        // Add embedded image if user has profile photo
+        
         $photoPath = "../images/avatars/" . $photoFile;
 
-        // The file_exists check will now look for a real file (e.g., ../images/avatars/default1.jpg)
+        
         if (file_exists($photoPath)) {
-            // The photoPath now includes the filename, resolving the error.
+            
             $m->addEmbeddedImage($photoPath, 'photo'); 
             $photoTag = "<img src='cid:photo' style='width: 150px; height: 150px; border-radius: 50%; border: 2px solid #D4AF37; object-fit: cover;'>";
         } else {
             $photoTag = "";
         }
-        // --- END of fix ---
+        
                 
         
         $m->isHTML(true);

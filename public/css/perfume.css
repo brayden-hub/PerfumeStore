@@ -16,9 +16,7 @@ nav a:hover, nav a.active { color:#666; }
 main { margin-top:80px; padding:5rem 0; }
 
 
-/* =========================================
-   HOME PAGE SECTIONS
-   ========================================= */
+/* HOME PAGE SECTIONS */
 
 /* 1. Hero Section */
 .hero {
@@ -142,9 +140,7 @@ main { margin-top:80px; padding:5rem 0; }
 .btn-outline:hover { background: #fff; color: #000; }
 
 
-/* ========================================
-   CHECKOUT PAGE STYLES
-   ======================================== */
+/* CHECKOUT PAGE STYLES */
 
 /* Gift Summary Box */
 .gift-summary-box {
@@ -208,9 +204,7 @@ label:has(input[type="radio"]):hover {
 
 
 
-/* ========================================
-   CINEMATIC VIDEO SHOWCASE
-   ======================================== */
+/* CINEMATIC VIDEO SHOWCASE */
 
 .cinematic-showcase {
     position: relative;
@@ -691,7 +685,6 @@ nav a.active {
     gap: 5px;
 }
 
-/* 将 CSS 修复添加到现有的 #cart-count 样式中 */
 #cart-count {
     background: #D4AF37 !important;  
     color: #000 !important; 
@@ -699,7 +692,7 @@ nav a.active {
     width: 24px;  
     height: 24px;
     font-size: 13px; 
-    display: flex !important; /* 新增 */
+    display: flex !important;
     align-items: center;
     justify-content: center;
     position: absolute;
@@ -708,8 +701,8 @@ nav a.active {
     font-weight: bold;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
     z-index: 10;
-    opacity: 1 !important; /* 新增 */
-    visibility: visible !important; /* 新增 */
+    opacity: 1 !important; 
+    visibility: visible !important; 
 }
 
 
@@ -905,17 +898,16 @@ table a:hover {
     color: #111;
 }
 
-/* 徹底移除左側導航的底線 + 高亮樣式 */
 .series-nav a {
-    text-decoration: none !important;     /* 移除所有底線 */
-    border-bottom: none !important;       /* 再次確保無線 */
+    text-decoration: none !important;     
+    border-bottom: none !important;      
     color: #666;
     transition: color 0.3s ease;
 }
 
 .series-nav a.active,
 .series-nav a:hover {
-    color: #D4AF37 !important;            /* 金色高亮 */
+    color: #D4AF37 !important;        
     font-weight: 500;
 }
 
@@ -930,7 +922,7 @@ table a:hover {
 
 .btn-add {
     background-color: #000;
-    color: #D4AF37; /* Gold */
+    color: #D4AF37;
     padding: 10px 20px;
     text-decoration: none;
     border-radius: 4px;
@@ -988,7 +980,7 @@ table a:hover {
 }
 
 .thumb-img:hover {
-    transform: scale(2); /* Optional: Magnifies image when you hover over it */
+    transform: scale(2); 
     z-index: 10;
     position: relative;
     border: 1px solid #000;
@@ -1177,7 +1169,7 @@ label.upload img:hover {
 }
 
 .gallery-upload-box:hover, .gallery-upload-box.dragover {
-    border-color: #D4AF37; /* Gold */
+    border-color: #D4AF37;
     background: #fffbf0;
 }
 
@@ -1218,13 +1210,11 @@ label.upload img:hover {
 }
 
 
-/* =========================================
-   PAGER (Pagination) STYLES
-   ========================================= */
+/* PAGER (Pagination) STYLES */
 
 /* 1. Reset the container so it doesn't look like the main menu */
 nav.pager {
-    background: transparent !important; /* Fixes the black bar issue */
+    background: transparent !important; 
     padding: 20px 0;
     margin-top: 30px;
     display: flex;
@@ -1849,51 +1839,46 @@ th a.sort-link:hover {
 }
 /* --- New Profile Dropdown Styles --- */
 
-/* 1. 头像样式 */
+/* Avatar Styles */
 .nav-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
     cursor: pointer;
-    border: 2px solid #D4AF37; /* Gold border */
+    border: 2px solid #D4AF37; 
     transition: all 0.3s ease;
-    margin-left: 10px; /* 确保它与购物车/其他链接分开 */
+    margin-left: 10px; 
     
 }
 
 .nav-avatar:hover {
-    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.4); /* 外发光效果 */
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.4); 
 }
 
-/* 2. 包含头像的列表项，确保其相对定位 */
-/* 2. 包含头像的列表项，确保其相对定位 */
+/* List items containing avatars */
 .profile-dropdown-li {
     position: relative;
-    /* 调整定位，使其与导航栏对齐 */
     display: flex;
     align-items: center;
-    line-height: normal !important; /* 重置行高，让头像居中 */
-    padding-right: 0 !important; /* 移除额外的右边距 */
-    margin-left: 1rem; /* 增加左边距 */
+    line-height: normal !important; 
+    padding-right: 0 !important; 
+    margin-left: 1rem; 
     
-    /* === 重点修改在这里：向上精确微调 === */
-    /* 目标是将头像拉高到与文本链接的基线对齐 */
     margin-top: -40px; 
 }
-/* ... 其他样式不变 ... */
 
-/* 3. 下拉菜单容器样式 */
+/* Dropdown menu container styles */
 .profile-dropdown-menu {
     position: absolute;
-    top: 60px; /* 菜单出现在头像下方 */
+    top: 60px; 
     right: 0;
     min-width: 200px;
     background: #fff;
     border: 1px solid #eee;
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 2000; /* 确保在最上层 */
+    z-index: 2000; 
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
@@ -1901,14 +1886,14 @@ th a.sort-link:hover {
     padding: 10px 0;
 }
 
-/* 4. 菜单显示状态 (由 JS 控制) */
+/* Dropdown menu show state (controlled by JS) */
 .profile-dropdown-menu.show {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
 }
 
-/* 5. 用户名和分隔线 */
+/* 5. Username and separator */
 .dropdown-username {
     padding: 5px 15px; 
     font-weight: bold;
@@ -1918,10 +1903,8 @@ th a.sort-link:hover {
     overflow: hidden;
     text-overflow: ellipsis;
     
-    /* === 重点修改在这里：重置字母间距 === */
     letter-spacing: normal; 
     
-    /* 可选：如果仍然感觉松散，也可以添加 word-spacing */
     word-spacing: normal;
 }
 
@@ -1932,7 +1915,7 @@ th a.sort-link:hover {
     margin: 5px 0;
 }
 
-/* 6. 菜单项链接 */
+/* Dropdown menu item links */
 .dropdown-item {
     display: block;
     padding: 10px 15px;
@@ -1956,9 +1939,7 @@ th a.sort-link:hover {
     background: #fde8e8;
 }
 
-/* =========================================
-   ADMIN: EDIT PRODUCT (Gallery Management)
-   ========================================= */
+/* ADMIN: EDIT PRODUCT (Gallery Management) */
 
 .img-preview-wrapper {
     position: relative;
@@ -2000,9 +1981,7 @@ th a.sort-link:hover {
 }
 
 
-/* =========================================
-   ADMIN: SALES REPORT DASHBOARD
-   ========================================= */
+/* ADMIN: SALES REPORT DASHBOARD */
 
 .dashboard-container {
     max-width: 1100px;
@@ -2096,7 +2075,7 @@ th a.sort-link:hover {
     margin-bottom: 35px;
 }
 
-/* 进度条样式 */
+/* Stepper component styles */
 .stepper-wrapper {
     display: flex;
     justify-content: space-between;
@@ -2144,7 +2123,7 @@ th a.sort-link:hover {
     z-index: -1;
 }
 
-/* 表单控件样式 */
+/* Registration form input fields */
 .reg-input {
     width: 100%;
     padding: 17px;
@@ -2152,7 +2131,7 @@ th a.sort-link:hover {
     border: 1px solid #ccc;
     border-radius: 10px;
     font-size: 1.1rem;
-    box-sizing: border-box; /* 确保 padding 不撑大宽度 */
+    box-sizing: border-box; 
 }
 
 .password-group {
@@ -2199,6 +2178,9 @@ th a.sort-link:hover {
     line-height: 1.5;
 }
 /* --- Register Page Styles end --- */
+
+
+
 /* --- Login Page Styles start --- */
 .auth-container {
     max-width: 450px;
@@ -2284,7 +2266,7 @@ th a.sort-link:hover {
     font-weight: bold;
 }
 
-/* 消息提示框样式 */
+/* Alert message styles */
 .alert-info {
     padding: 12px;
     background: #d4edda;
@@ -2294,6 +2276,9 @@ th a.sort-link:hover {
     border-left: 4px solid #28a745;
 }
 /* --- Login Page Styles end --- */
+
+
+
 /* --- Shared Auth & Forgot Password Styles start --- */
 .auth-container {
     max-width: 450px;
@@ -2301,7 +2286,7 @@ th a.sort-link:hover {
     padding: 30px;
     background: #f9f9f9;
     border-radius: 10px;
-    box-sizing: border-box; /* 确保 padding 不影响宽度 */
+    box-sizing: border-box;
 }
 
 .auth-title {
@@ -2363,9 +2348,10 @@ th a.sort-link:hover {
     font-size: 14px;
 }
 /* --- Shared Auth & Forgot Password Styles end --- */
-/* =========================================
-   reset PASSWORD PAGE STYLES start
-   ========================================= */
+
+
+
+/* reset PASSWORD PAGE STYLES start */
 
 
 .auth-container {
@@ -2455,21 +2441,18 @@ th a.sort-link:hover {
     color: #999;
     font-size: 13px;
 }
-/* =========================================
-   reset PASSWORD PAGE STYLES end
-   ========================================= */
-   /* =========================================
-   ADMIN USER MANAGEMENT STYLES start
-   ========================================= */
+/* reset PASSWORD PAGE STYLES end */
 
-/* 1. 后台主容器 */
+
+/* ADMIN USER MANAGEMENT STYLES start */
+/* Backend main container */
 .admin-container {
     max-width: 1200px;
     margin: 30px auto;
     padding: 0 20px;
 }
 
-/* 2. 顶部搜索栏区域 */
+/* Top search bar area */
 .admin-toolbar {
     display: flex;
     justify-content: space-between;
@@ -2516,7 +2499,7 @@ th a.sort-link:hover {
     align-self: center;
 }
 
-/* 3. 用户头像样式 */
+/* User avatar styles */
 .admin-user-avatar {
     border-radius: 50%;
     width: 60px;
@@ -2525,7 +2508,7 @@ th a.sort-link:hover {
     border: 1px solid #eee;
 }
 
-/* 4. 状态标签与操作按钮 */
+/* Status labels and operation buttons */
 .admin-status-text {
     font-weight: bold;
     display: block;
@@ -2540,14 +2523,10 @@ th a.sort-link:hover {
     border: 0;
     border-top: 1px solid #eee;
 }
-
-/* 覆盖 product-table 在 user.php 的特殊布局 */
 .admin-table-actions {
     white-space: nowrap;
 }
-  /* =========================================
-   ADMIN USER MANAGEMENT STYLES end
-   ========================================= */
+  /* ADMIN USER MANAGEMENT STYLES end */
 
 
 

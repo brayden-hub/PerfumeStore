@@ -61,6 +61,11 @@ $shipping_fee = $order->ShippingFee ?? 0;
 $voucher_discount = $order->VoucherDiscount ?? 0;
 $grand_total = $total + $gift_wrap_cost + $shipping_fee - $voucher_discount;
 
+// Check if order is delivered or cancelled (cannot be modified)
+$is_delivered = ($order->Status === 'Delivered');
+$is_cancelled = ($order->Status === 'Cancelled');
+$cannot_modify = ($is_delivered || $is_cancelled);
+
 // Status configuration
 $status_config = [
     'Pending' => ['icon' => '⏳', 'color' => '#ff9800', 'bg' => '#fff3e0'],
@@ -158,6 +163,17 @@ include '../_head.php';
     font-size: 0.9rem;
 }
 
+.delivered-notice {
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 @media print {
     .shipping-visual {
         page-break-inside: avoid;
@@ -169,10 +185,18 @@ include '../_head.php';
     <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
         <a href="/page/order.php" style="color: #666; text-decoration: none;">← Back to Order List</a>
         <div style="display: flex; gap: 1rem;">
+            <?php if (!$cannot_modify): ?>
             <a href="/page/order_update_status.php?id=<?= $order->OrderID ?>" 
                style="padding: 0.5rem 1rem; background: #D4AF37; color: #000; border: none; cursor: pointer; border-radius: 4px; text-decoration: none; font-weight: 600;">
                 ✏️ Update Status
             </a>
+            <?php else: ?>
+            <button disabled 
+                    style="padding: 0.5rem 1rem; background: #e0e0e0; color: #999; border: none; cursor: not-allowed; border-radius: 4px; font-weight: 600;"
+                    title="<?= $is_delivered ? 'Delivered orders cannot be modified' : 'Cancelled orders cannot be modified' ?>">
+                🔒 Update Status
+            </button>
+            <?php endif; ?>
             <button onclick="window.print()" style="padding: 0.5rem 1rem; background: #000; color: #D4AF37; border: none; cursor: pointer; border-radius: 4px; font-weight: 600;">
                 🖨️ Print Order
             </button>
@@ -180,6 +204,29 @@ include '../_head.php';
     </div>
     
     <h2 style="margin-bottom: 1rem;">Order Details - <?= htmlspecialchars($order->OrderID) ?></h2>
+    
+    <!-- Delivered/Cancelled Notice -->
+    <?php if ($is_delivered): ?>
+    <div class="delivered-notice">
+        <span style="font-size: 1.5rem;">🔒</span>
+        <div>
+            <strong style="color: #2e7d32;">Order Completed</strong>
+            <p style="margin: 0.3rem 0 0 0; color: #666; font-size: 0.9rem;">
+                This order has been delivered and can no longer be modified.
+            </p>
+        </div>
+    </div>
+    <?php elseif ($is_cancelled): ?>
+    <div class="delivered-notice" style="background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%); border-color: #f44336;">
+        <span style="font-size: 1.5rem;">🔒</span>
+        <div>
+            <strong style="color: #c62828;">Order Cancelled</strong>
+            <p style="margin: 0.3rem 0 0 0; color: #666; font-size: 0.9rem;">
+                This order has been cancelled and can no longer be modified.
+            </p>
+        </div>
+    </div>
+    <?php endif; ?>
     
     <!-- Current Status Badge -->
     <div style="margin-bottom: 2rem;">

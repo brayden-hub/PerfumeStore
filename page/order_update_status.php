@@ -32,6 +32,19 @@ if (!$order) {
     redirect('/page/order.php');
 }
 
+// If order is already Delivered or Cancelled, prevent further changes
+if ($order->Status === 'Delivered') {
+    temp('error', 'Cannot modify a delivered order. This order has been completed.');
+    redirect('/page/order_detail_admin.php?id=' . $order_id);
+    exit();
+}
+
+if ($order->Status === 'Cancelled') {
+    temp('error', 'Cannot modify a cancelled order.');
+    redirect('/page/order_detail_admin.php?id=' . $order_id);
+    exit();
+}
+
 if (is_post()) {
     $new_status = post('status');
     $tracking_number = post('tracking_number', '');
@@ -43,6 +56,29 @@ if (is_post()) {
         temp('error', 'Invalid status');
     } else {
         try {
+            $_db->beginTransaction();
+            
+            // If cancelling, restore stock
+            if ($new_status === 'Cancelled' && $order->Status !== 'Cancelled') {
+                $stmt_items = $_db->prepare("
+                    SELECT po.ProductID, po.Quantity 
+                    FROM productorder po
+                    WHERE po.OrderID = ?
+                ");
+                $stmt_items->execute([$order_id]);
+                $order_items = $stmt_items->fetchAll();
+                
+                foreach ($order_items as $item) {
+                    $stmt_restore = $_db->prepare("
+                        UPDATE product 
+                        SET Stock = Stock + ? 
+                        WHERE ProductID = ?
+                    ");
+                    $stmt_restore->execute([$item->Quantity, $item->ProductID]);
+                }
+            }
+
+            // Update order status and timestamps
             $update_fields = ['Status = ?', 'StatusUpdatedAt = NOW()'];
             $params = [$new_status];
             
@@ -78,11 +114,15 @@ if (is_post()) {
             $stmt = $_db->prepare($sql);
             $stmt->execute($params);
             
-            temp('success', 'Order status updated successfully');
+            $_db->commit();
+            
+            temp('success', 'Order status updated successfully' . 
+                 ($new_status === 'Cancelled' ? ' and stock restored' : ''));
             redirect('/page/order_detail_admin.php?id=' . $order_id);
             
         } catch (Exception $e) {
-            temp('error', 'Failed to update order status');
+            $_db->rollBack();
+            temp('error', 'Failed to update order status: ' . $e->getMessage());
         }
     }
 }
@@ -124,6 +164,15 @@ include '../_head.php';
     margin-bottom: 0.5rem;
     transition: transform 0.3s;
 }
+
+.delivered-notice {
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+    border: 2px solid #4caf50;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
 </style>
 
 <div class="container" style="margin-top: 100px; min-height: 60vh;">
@@ -136,8 +185,8 @@ include '../_head.php';
     <h2 style="margin-bottom: 2rem;">Update Order Status</h2>
     
     <?php if ($err = temp('error')): ?>
-        <div style="padding: 1rem; background: #ffe6e6; color: #d00; border-radius: 4px; margin-bottom: 1rem;">
-            <?= $err ?>
+        <div style="padding: 1rem; background: #ffe6e6; color: #d00; border-radius: 4px; margin-bottom: 1rem; border-left: 4px solid #d00;">
+            ⚠️ <?= $err ?>
         </div>
     <?php endif; ?>
     
@@ -199,6 +248,9 @@ include '../_head.php';
                     <div class="status-icon">✅</div>
                     <div style="font-size: 1.1rem; font-weight: 600;">Delivered</div>
                     <div style="color: #666; font-size: 0.9rem;">Order successfully delivered</div>
+                    <div style="color: #ff9800; font-size: 0.85rem; margin-top: 0.5rem;">
+                        ⚠️ Warning: Once marked as delivered, the status cannot be changed
+                    </div>
                 </label>
             </div>
             
@@ -211,6 +263,12 @@ include '../_head.php';
                     <div class="status-icon">❌</div>
                     <div style="font-size: 1.1rem; font-weight: 600; color: #f44336;">Cancelled</div>
                     <div style="color: #666; font-size: 0.9rem;">Order has been cancelled</div>
+                    <div style="color: #4caf50; font-size: 0.85rem; margin-top: 0.5rem;">
+                        ✓ Product stock will be automatically restored
+                    </div>
+                    <div style="color: #ff9800; font-size: 0.85rem; margin-top: 0.3rem;">
+                        ⚠️ Warning: Once marked as cancelled, the status cannot be changed
+                    </div>
                 </label>
             </div>
             
@@ -252,6 +310,43 @@ $('input[name="status"]').on('change', function() {
 if ($('#status-shipped').is(':checked')) {
     $('#tracking-fields').show();
 }
+
+// Confirm status change on form submit
+$('form').on('submit', function(e) {
+    e.preventDefault();
+    
+    const selectedStatus = $('input[name="status"]:checked').val();
+    const currentStatus = '<?= htmlspecialchars($order->Status) ?>';
+    
+    // If status hasn't changed, just submit
+    if (selectedStatus === currentStatus) {
+        this.submit();
+        return;
+    }
+    
+    // Status display names
+    const statusNames = {
+        'Pending': '⏳ Pending',
+        'Processing': '📦 Processing',
+        'Shipped': '🚚 Shipped',
+        'Delivered': '✅ Delivered',
+        'Cancelled': '❌ Cancelled'
+    };
+    
+    // Warning messages for critical statuses
+    let warningMessage = '';
+    if (selectedStatus === 'Delivered') {
+        warningMessage = '\n\n⚠️ Warning: Once marked as Delivered, this status CANNOT be changed!';
+    } else if (selectedStatus === 'Cancelled') {
+        warningMessage = '\n\n⚠️ Warning: Once marked as Cancelled, this status CANNOT be changed!\n✓ Product stock will be automatically restored.';
+    }
+    
+    const confirmMessage = `Are you sure you want to change the order status?\n\nFrom: ${statusNames[currentStatus]}\nTo: ${statusNames[selectedStatus]}${warningMessage}`;
+    
+    if (confirm(confirmMessage)) {
+        this.submit();
+    }
+});
 </script>
 
 <?php include '../_foot.php'; ?>

@@ -2,7 +2,7 @@
 require '../_base.php';
 header('Content-Type: application/json');
 
-$month = req('month', date('m'));
+$month = req('month', date('n')); // Use 'n' for numeric month without leading zeros
 $year  = req('year', date('Y'));
 
 // Query: Top 10 products sold in that month
@@ -17,16 +17,34 @@ $sql = "
     WHERE os.Status != 'Cancelled'
     AND MONTH(o.PurchaseDate) = ? 
     AND YEAR(o.PurchaseDate) = ?
-    GROUP BY p.ProductID
+    GROUP BY p.ProductID, p.ProductName
     ORDER BY TotalQty DESC
     LIMIT 10
 ";
 
-$stm = $_db->prepare($sql);
-$stm->execute([$month, $year]);
-$results = $stm->fetchAll();
-
-echo json_encode([
-    'labels' => array_column($results, 'ProductName'),
-    'data'   => array_column($results, 'TotalQty')
-]);
+try {
+    $stm = $_db->prepare($sql);
+    $stm->execute([$month, $year]);
+    $results = $stm->fetchAll();
+    
+    $labels = [];
+    $data = [];
+    
+    foreach ($results as $row) {
+        $labels[] = $row->ProductName;
+        $data[] = (int)$row->TotalQty;
+    }
+    
+    // If no results, return empty arrays
+    echo json_encode([
+        'labels' => $labels,
+        'data'   => $data
+    ]);
+    
+} catch (Exception $e) {
+    error_log('Stats products error: ' . $e->getMessage());
+    echo json_encode([
+        'labels' => [],
+        'data'   => []
+    ]);
+}

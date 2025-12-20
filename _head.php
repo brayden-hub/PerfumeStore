@@ -26,9 +26,10 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="/public/js/app.js"></script> 
     <style>
-/* =========================
-   Profile Page Styling
-========================= */
+
+
+
+/* Profile Page Styling */
 
 .profile-card {
     background: #fff;
@@ -123,7 +124,7 @@ $user_role = $_SESSION['user_role'] ?? 'Guest';
                 <li><a href="/page/report.php" class="<?= basename($_SERVER['PHP_SELF']) === 'report.php' ? 'active' : '' ?>">Report</a></li>
                 
                 <?php if (isset($_SESSION['user_id'])): 
-                    // Admin 登录后也需要头像菜单
+                    // The admin user avatar menu after logging in
                     $avatar_path = $_SESSION['Profile_Photo'] ?? 'default1.jpg';
                 ?>
                     <li class="profile-dropdown-li">

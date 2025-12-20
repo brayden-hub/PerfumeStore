@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 處理移除收藏的 AJAX 請求
+// Handling AJAX requests to remove favorites
 if (is_post() && isset($_POST['remove_favorite'])) {
     $product_id = $_POST['product_id'];
     
@@ -32,7 +32,7 @@ $_title = 'My Favorites - Nº9 Perfume';
 include '../_head.php';
 ?>
 
-<!-- 立即執行的 inline script，在任何內容渲染前 -->
+<!-- An inline script that executes immediately, before any content is rendered. -->
 <script>
 if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
@@ -42,7 +42,7 @@ document.documentElement.scrollTop = 0;
 </script>
 
 <style>
-    /* 強制頁面從頂部開始 */
+    /* Force the page to start from the top. */
     html, body {
         scroll-behavior: auto !important;
     }
@@ -328,7 +328,6 @@ document.documentElement.scrollTop = 0;
     .product-card:nth-child(5) { animation-delay: 0.5s; }
     .product-card:nth-child(6) { animation-delay: 0.6s; }
 
-    /* 響應式設計 */
     @media (max-width: 768px) {
         .favorites-grid {
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -344,7 +343,7 @@ document.documentElement.scrollTop = 0;
         }
     }
 
-    /* 移除動畫 */
+    /* Remove animation */
     .product-card.removing {
         animation: fadeOutScale 0.5s ease forwards;
     }
@@ -360,7 +359,7 @@ document.documentElement.scrollTop = 0;
         }
     }
 
-    /* 成功提示 */
+    /* success toast */
     .toast {
         position: fixed;
         top: 20px;
@@ -389,14 +388,14 @@ document.documentElement.scrollTop = 0;
         }
     }
 
-    /* 隱藏頁面直到滾動位置設定好 */
+    /* Hide the page until the scroll position is set. */
     body.loading {
         opacity: 0;
     }
 </style>
 
 <script>
-// 在頁面渲染前添加 loading class
+// Add loading class before page rendering
 document.documentElement.className = 'loading';
 </script>
 
@@ -460,23 +459,23 @@ document.documentElement.className = 'loading';
 </div>
 
 <script>
-// 在頁面開始加載前就設置位置
+// Set the location before the page starts loading.
 if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
 }
 
-// 立即執行，不等待任何事件
+// Execute immediately, without waiting for any event.
 window.scrollTo(0, 0);
 document.documentElement.scrollTop = 0;
 document.body.scrollTop = 0;
 
-// 移除 loading class，顯示頁面
+// Remove the loading class and display the page.
 setTimeout(function() {
     document.documentElement.classList.remove('loading');
     document.body.style.opacity = '1';
 }, 10);
 
-// 頁面加載時再次確保在頂部
+// Make sure it's at the top again when the page loads.
 window.addEventListener('load', function() {
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
@@ -490,10 +489,10 @@ function removeFavorite(productId) {
 
     const card = document.querySelector(`[data-product-id="${productId}"]`);
     
-    // 添加移除動畫
+    // Add/Remove Animations
     card.classList.add('removing');
     
-    // 發送 AJAX 請求
+    // send AJAX request to remove favorite
     fetch('favorites.php', {
         method: 'POST',
         headers: {
@@ -504,20 +503,20 @@ function removeFavorite(productId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // 顯示成功提示
+            // show success toast
             showToast('✓ Removed from favorites');
             
-            // 等待動畫完成後移除元素
+            // wait for animation to finish before removing from DOM
             setTimeout(() => {
                 card.remove();
                 
-                // 檢查是否還有產品
+                // check if there are any cards left
                 const remainingCards = document.querySelectorAll('.product-card');
                 if (remainingCards.length === 0) {
-                    // 如果沒有產品了，刷新頁面顯示空狀態
+                    // If there are no more products, refresh the page to show an empty state
                     location.reload();
                 } else {
-                    // 更新統計數字
+                    // Update statistics
                     updateStats();
                 }
             }, 500);

@@ -1,5 +1,4 @@
-<!-- Progress Bar Component -->
-<!-- 在使用前設置 $current_step 變量 -->
+<!-- Set $current_step before use -->
 
 <div class="progress-bar" style="width: 100%; margin-bottom: 3rem;">
     <div style="display: flex; justify-content: space-between; align-items: center;">

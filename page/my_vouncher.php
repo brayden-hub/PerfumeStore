@@ -7,11 +7,11 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 檢查是否為 Admin
+// check is Admin?
 $is_admin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
 
 if (!$is_admin) {
-    // 計算當前購物車的 subtotal
+    // Calculate the current shopping cart subtotal
     $subtotal = 0;
     $stmt = $_db->prepare("
         SELECT c.Quantity, p.Price
@@ -26,7 +26,7 @@ if (!$is_admin) {
         $subtotal += $item->Price * $item->Quantity;
     }
 
-    // 獲取用戶的所有 voucher - 只顯示未使用的
+    // Retrieve all user vouchers - only show unused ones
     $stm = $_db->prepare("
         SELECT 
             uv.UserVoucherID,
@@ -48,7 +48,7 @@ if (!$is_admin) {
     $stm->execute([$user_id]);
     $vouchers = $stm->fetchAll(PDO::FETCH_ASSOC);
 
-    // 分類 vouchers (只包含未使用的)
+    // Category vouchers (containing only unused vouchers)
     $available_vouchers = array_filter($vouchers, function($v) use ($subtotal) {
         return ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
                $subtotal >= $v['MinSpend'];

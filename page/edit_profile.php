@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 獲取當前用戶資料
+// get user info
 $stm = $_db->prepare("SELECT * FROM user WHERE userID = ?");
 $stm->execute([$user_id]);
 $user = $stm->fetch();
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $errors = [];
     
-    // 驗證名字
+    // validate name
     if (empty($name)) {
         $errors[] = "Name is required";
     } elseif (strlen($name) < 2) {
@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Name must not exceed 50 characters";
     }
     
-    // 驗證電話（可選）
+    // validate phone
     if (!empty($phone)) {
-        // 移除空格和破折號
+        // remove spaces and dashes
         $phone_clean = preg_replace('/[\s\-]/', '', $phone);
         
         if (!preg_match('/^[0-9]{10,15}$/', $phone_clean)) {
@@ -40,11 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        // 更新資料庫
+        // update database for user info
         $update = $_db->prepare("UPDATE user SET name = ?, phone_number = ? WHERE userID = ?");
         $update->execute([$name, $phone, $user_id]);
         
-        // 更新 Session
+        // update Session
         $_SESSION['user_name'] = $name;
         $_SESSION['phone'] = $phone;
         
@@ -368,12 +368,12 @@ include '../_head.php';
     $(document).ready(function() {
         window.scrollTo(0, 0);
         
-        // 表單驗證動畫
+        // form submission loading state
         $('form').on('submit', function() {
             $('.btn-primary').html('⏳ Updating...').prop('disabled', true);
         });
         
-        // 輸入框動畫
+        // imput box focus icon color change
         $('input').on('focus', function() {
             $(this).parent().find('.input-icon').css('color', '#6366f1');
         }).on('blur', function() {

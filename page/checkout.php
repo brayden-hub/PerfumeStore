@@ -611,7 +611,7 @@ include '../_head.php';
     <?php
     // ===== VOUCHER SECTION =====
     $user_vouchers = [];
-    $subtotal_for_voucher = $subtotal; // 使用已经计算好的 subtotal
+    $subtotal_for_voucher = $subtotal; // use been calculated subtotal
     
     if ($user_id) {
         $stm = $_db->prepare("
@@ -634,7 +634,7 @@ include '../_head.php';
         $user_vouchers = $stm->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // 判断每个 voucher 是否可用
+    // Determine availability for vouchers
     foreach ($user_vouchers as &$voucher) {
         $voucher['is_available'] = ($subtotal_for_voucher >= $voucher['MinSpend']);
     }
@@ -985,12 +985,9 @@ include '../_head.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-
-/* ===========================
-       VOUCHER SYSTEM
-    ============================ */
     
-    // 价格数据
+    // Voucher system
+    // price data
     const PRICES = {
         subtotal: <?= $subtotal ?>,
         giftWrap: <?= $gift_wrap_cost ?>,
@@ -1002,7 +999,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('💰 Prices loaded:', PRICES);
     
-    // DOM 元素
+    // DOM elements
     const voucherCards = document.querySelectorAll('.voucher-card.available');
     const voucherCodeInput = document.getElementById('voucher_code');
     const voucherDiscountInput = document.getElementById('voucher_discount');
@@ -1017,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedVoucher = null;
     let currentDiscount = 0;
     
-    // 更新总价显示
+    // update price display
     function updatePriceDisplay(discount) {
         currentDiscount = discount;
         
@@ -1027,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const newTotal = Math.max(0, PRICES.originalTotal - discount);
             
-            // 更新支付方式的金額顯示
+            // update payment method amounts
             if (ewalletAmount) ewalletAmount.textContent = 'RM ' + newTotal.toFixed(2);
             if (codAmount) codAmount.textContent = 'RM ' + newTotal.toFixed(2);
             finalTotalDisplay.textContent = 'RM ' + newTotal.toFixed(2);
@@ -1040,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
             discountRow.style.display = 'none';
             finalTotalDisplay.textContent = 'RM ' + PRICES.originalTotal.toFixed(2);
             
-            // 重置支付方式的金額顯示
+            // reset payment method amounts
             if (ewalletAmount) ewalletAmount.textContent = 'RM ' + PRICES.originalTotal.toFixed(2);
             if (codAmount) codAmount.textContent = 'RM ' + PRICES.originalTotal.toFixed(2);
             voucherDiscountInput.value = '0';
@@ -1049,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Voucher 卡片点击
+    // Voucher card click handler
     voucherCards.forEach((card, index) => {
         card.addEventListener('click', function(e) {
             e.preventDefault();
@@ -1064,7 +1061,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log(`🎫 Clicked voucher ${index + 1}:`, voucherCode);
             
-            // 如果点击已选中的，取消选择
+            // cancel current selection voucher
             if (selectedVoucher === voucherCode) {
                 voucherCards.forEach(c => c.classList.remove('selected'));
                 radio.checked = false;
@@ -1077,13 +1074,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // 选择新 voucher
+            // select new voucher
             voucherCards.forEach(c => c.classList.remove('selected'));
             this.classList.add('selected');
             radio.checked = true;
             selectedVoucher = voucherCode;
             
-            // 计算折扣
+            // calculate discount
             let discount = 0;
             if (voucherType === 'percent') {
                 discount = PRICES.subtotal * (voucherValue / 100);
@@ -1098,7 +1095,7 @@ document.addEventListener('DOMContentLoaded', () => {
             voucherCodeInput.value = voucherCode;
             updatePriceDisplay(discount);
             
-            // DEBUG: 驗證hidden inputs的值
+            // DEBUG: Validate the values ​​of hidden inputs
             console.log('🔍 DEBUG: Hidden inputs after voucher applied:');
             console.log('  voucher_code:', voucherCodeInput.value);
             console.log('  voucher_discount:', voucherDiscountInput.value);
@@ -1107,7 +1104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Toast 提示
+    // Toast notification
     function showToast(message, type = 'success') {
         const oldToast = document.getElementById('voucher-toast');
         if (oldToast) oldToast.remove();
@@ -1139,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
     
-    // 动画
+    // Insert toast animations
     if (!document.getElementById('toast-animation')) {
         const style = document.createElement('style');
         style.id = 'toast-animation';

@@ -12,7 +12,7 @@ if (is_post()) {
     $email = req('email');
     $password = req('password');
 
-    // 验证输入
+    // Validation
     if ($email == '') {
         $_err['email'] = 'Email required';
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

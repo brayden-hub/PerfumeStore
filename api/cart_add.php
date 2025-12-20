@@ -70,7 +70,7 @@ try {
     $stmt->execute([$user_id]);
     $total_count = $stmt->fetchColumn() ?: 0;
 
-    // 新增：計算新總價（給前端更新）
+    // Get new total price
     $stmt = $_db->prepare("SELECT SUM(c.Quantity * p.Price) FROM cart c JOIN product p ON c.ProductID = p.ProductID WHERE c.UserID = ?");
     $stmt->execute([$user_id]);
     $new_total = $stmt->fetchColumn() ?: 0;

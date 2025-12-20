@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id  = $_SESSION['user_id'];
 $username = $_SESSION['user_name'] ?? 'Guest';
 
-// 强制抓最新头像
+// Forced capture of latest profile pictures
 $stm = $_db->prepare("SELECT Profile_Photo FROM user WHERE userID = ?");
 $stm->execute([$user_id]);
 $avatar = $stm->fetchColumn() ?: 'default1.jpg';
@@ -346,7 +346,6 @@ include '../_head.php';
         border-color: transparent;
     }
 
-    /* 響應式設計 */
     @media (max-width: 1024px) {
         .profile-content-wrapper {
             grid-template-columns: 1fr;
@@ -376,7 +375,6 @@ include '../_head.php';
         }
     }
 
-    /* 新增：美化滾動效果 */
     .profile-card {
         animation: fadeInUp 0.6s ease;
     }

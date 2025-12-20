@@ -1,24 +1,24 @@
 <?php
 
-require '_base.php'; // 如果你的 _base.php 在上一层，请改为 ../_base.php
+require '_base.php'; 
 
-// 如果用户已登录并且有 remember_token → 从数据库清空
+// If the user is logged in and has a remember_token → clear from the database
 if (isset($_SESSION['user_id'])) {
 
-    // 清空数据库 token
+    // Clear database token
     $stm = $_db->prepare("UPDATE user SET remember_token = NULL WHERE UserID = ?");
     $stm->execute([$_SESSION['user_id']]);
 }
 
-// 1. 清除 session
+// 1. Clear session
 $_SESSION = [];
 session_destroy();
 
-// 2. 删除 cookie remember_token
+// 2. Delete cookie remember_token
 if (isset($_COOKIE['remember_token'])) {
     setcookie('remember_token', '', time() - 3600, '/');
 }
 
-// 3. 返回首页
+// 3. Return to homepage
 temp('info', 'Logout successful!');
 redirect('/');

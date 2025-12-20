@@ -122,7 +122,7 @@ $free_shipping_threshold = 300;
                     <?php endforeach; ?>
                 </div>
 
-                <!-- 交叉销售 -->
+                <!-- Cross-selling -->
                 <div class="cross-sell" style="margin-top: 4rem;">
                     <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Complete Your Collection</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">

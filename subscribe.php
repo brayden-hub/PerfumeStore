@@ -2,14 +2,13 @@
 require '_base.php';
 
 
-
 $_err = [];
 $email = ''; // Initialize
 
 if (is_post()) {
     $email = req('email');
 
-    // --- 1. Validation ---
+    // 1. Validation
     if ($email == '') {
         $_err['email'] = 'Email is required.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -28,28 +27,26 @@ if (is_post()) {
         }
     }
 
-    // --- 2. Generate and Send Token (If valid) ---
+    // Generate and Send Token (If valid)
     if (!$_err) {
         
         // Generate token id (same method as forgot_password.php)
         $id = sha1(uniqid() . rand());
         
-        // --- 3. Store or Update Subscriber Record ---
-        // Prepare data for insertion/update
+        // Store or Update Subscriber Record
         $status = 'unconfirmed';
         
         // Use REPLACE INTO to insert a new record or replace an unconfirmed existing one
-        // Note: REPLACE is often implemented as DELETE + INSERT
         $stm = $_db->prepare('
             REPLACE INTO subscriber (email, token_id, status, created_at)
             VALUES (?, ?, ?, NOW());
         ');
         $stm->execute([$email, $id, $status]);
 
-        // --- 4. Generate Confirmation URL ---
+        // Generate Confirmation URL
         $url = "http://" . $_SERVER['HTTP_HOST'] . "/confirm_subscription.php?token=$id";
 
-        // --- 5. Send Email ---
+        // Send Email
         try {
             $m = get_mail();
             $m->addAddress($email); // No user name available here

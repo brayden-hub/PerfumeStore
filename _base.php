@@ -208,7 +208,7 @@ function auto_assign_vouchers($user_id) {
     global $_db;
 
     try {
-        // === STEP 1: 自动 seed voucher（如果系统还没有） ===
+        // === STEP 1: seed voucher  ===
         $voucherCount = $_db->query("SELECT COUNT(*) FROM voucher")->fetchColumn();
 
         if ($voucherCount == 0) {
@@ -222,7 +222,7 @@ function auto_assign_vouchers($user_id) {
             ");
         }
 
-        // === STEP 2: 派发「用户还没有的 voucher」===
+        // === STEP 2: Distribute vouchers that users don't yet have===
         $stm = $_db->prepare("
             INSERT INTO user_voucher (UserID, VoucherID, IsUsed)
             SELECT ?, v.VoucherID, 0
@@ -242,39 +242,33 @@ function auto_assign_vouchers($user_id) {
     }
 }
 
-// --- ADD THIS BLOCK TO THE TOP OF _base.php ---
-
-// _base.php (Around Line 32 - After Auto-login and Database Setup)
-// --- 关键安全检查：检查已登录用户的状态，实现强制登出 ---
+// --- Critical security check: Check the status of logged-in users and force logout ---
 
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
     
-    // 1. 从数据库获取用户当前的 status
+    // 1. Retrieve the user's current status from the database
     $stm = $_db->prepare("SELECT status FROM user WHERE userID = ?");
     $stm->execute([$user_id]);
     $current_status = $stm->fetchColumn();
 
-    // 2. 检查状态：如果用户被禁用 (status !== 'Activated')
+    // 2. Check status: if the user is disabled (status !== 'Activated')
     if ($current_status !== 'Activated') {
         
-        // 强制注销操作
+        // Forced cancellation operation
         temp('info', 'Your account has been disabled by the administrator. You have been logged out.');
         
-        // 清理 session
+        // Clean up session
         $_SESSION = [];
         session_destroy();
         
-        // 清理 'Remember Me' cookie (如果存在)
+        // Clear the 'Remember Me' cookie (if it exists).
         if (isset($_COOKIE['remember_token'])) {
             setcookie('remember_token', '', time() - 3600, '/');
         }
         
-        // 重定向到登录页面
+        // Redirected to the login page
         redirect('/page/login.php');
         exit(); 
     }
 }
-
-// -----------------------------------------------------
-

@@ -8,11 +8,11 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 檢查是否為 Admin
+// check if user is admin
 $is_admin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
 
 if (!$is_admin) {
-    // 取用户地址
+    // get user addresses
     $stm = $_db->prepare("
         SELECT * FROM user_address 
         WHERE UserID = ? 

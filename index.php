@@ -95,9 +95,7 @@ $spot = $stm_spot->fetch();
     </div>
 </section>
 
-<!-- ========================================
-     CINEMATIC VIDEO SHOWCASE
-     ======================================== -->
+<!-- CINEMATIC VIDEO SHOWCASE -->
 <section class="cinematic-showcase">
     <!-- Parallax Background -->
     <div class="parallax-bg" data-parallax="true"></div>

@@ -45,7 +45,7 @@ if (is_post()) {
     $postcode = trim(req('postcode'));
     $is_default = isset($_POST['is_default']) ? 1 : 0;
 
-    // 验证
+    // validation
     if (!$label) {
         $errors['label'] = 'Label is required';
     }
@@ -82,14 +82,14 @@ if (is_post()) {
         try {
             $_db->beginTransaction();
             
-            // 如果设为 default，先把其他地址的 default 取消
+            // If set as default, first disable the default for other addresses
             if ($is_default) {
                 $stm = $_db->prepare("UPDATE user_address SET IsDefault = 0 WHERE UserID = ?");
                 $stm->execute([$user_id]);
             }
 
             if ($action === 'add') {
-                // 检查地址数量限制
+                // Check address quantity limit
                 $stm = $_db->prepare("SELECT COUNT(*) FROM user_address WHERE UserID = ?");
                 $stm->execute([$user_id]);
                 $count = $stm->fetchColumn();
@@ -139,7 +139,7 @@ if (is_post()) {
     }
 }
 
-// 马来西亚州属列表
+// malaysia states
 $states = [
     'Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan', 'Pahang',
     'Penang', 'Perak', 'Perlis', 'Sabah', 'Sarawak', 'Selangor', 

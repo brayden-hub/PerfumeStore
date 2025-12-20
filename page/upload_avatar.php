@@ -9,11 +9,11 @@ $user_id = $_SESSION['user_id'];
 $info = '';
 $error = '';
 
-// === 1. 處理裁剪後的上傳 ===
+// 1. Upload after cropping
 if (is_post() && isset($_POST['cropped_image'])) {
     $imageData = $_POST['cropped_image'];
     
-    // 移除 data:image 前綴
+    // Remove the prefix "data:image"
     $imageData = str_replace('data:image/png;base64,', '', $imageData);
     $imageData = str_replace(' ', '+', $imageData);
     $imageData = base64_decode($imageData);
@@ -23,7 +23,7 @@ if (is_post() && isset($_POST['cropped_image'])) {
         $path = "../images/avatars/" . $new_name;
         
         if (file_put_contents($path, $imageData)) {
-            // 刪除舊頭像（保留 default）
+            // Delete old avatar (keeping default)
             $current = $_SESSION['Profile_Photo'] ?? '';
             if ($current && !preg_match('/^default\d\.jpg$/', $current)) {
                 @unlink("../images/avatars/" . $current);
@@ -40,7 +40,7 @@ if (is_post() && isset($_POST['cropped_image'])) {
     }
 }
 
-// === 2. 選擇默認頭像 ===
+// 2. Select Default Avatar
 if (is_post() && isset($_POST['default_avatar'])) {
     $chosen = $_POST['default_avatar'];
     
@@ -186,7 +186,7 @@ include '../_head.php';
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    /* 圖片編輯器 */
+    /* Image Editor */
     .crop-modal {
         display: none;
         position: fixed;
@@ -318,7 +318,7 @@ include '../_head.php';
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
-    /* 默認頭像選擇 */
+    /* Default Avatar Selection */
     .default-avatars {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -607,7 +607,7 @@ include '../_head.php';
     </div>
 </div>
 
-<!-- 圖片裁剪 Modal -->
+<!-- Image cropping Modal -->
 <div class="crop-modal" id="cropModal">
     <div class="crop-container">
         <div class="crop-header">
@@ -680,7 +680,7 @@ include '../_head.php';
 let cropper = null;
 let webcamStream = null;
 
-// 文件上傳處理
+// File upload processing
 const fileInput = document.getElementById('fileInput');
 const uploadArea = document.getElementById('uploadArea');
 const cropModal = document.getElementById('cropModal');
@@ -688,7 +688,7 @@ const cropImage = document.getElementById('cropImage');
 
 fileInput.addEventListener('change', handleFileSelect);
 
-// 拖放功能
+// drag and drop function
 uploadArea.addEventListener('dragover', (e) => {
     e.preventDefault();
     uploadArea.classList.add('dragover');
@@ -777,7 +777,7 @@ function saveCroppedImage() {
     document.getElementById('uploadForm').submit();
 }
 
-// ========== WEBCAM 功能 ==========
+// WEBCAM
 
 function openWebcam() {
     const webcamModal = document.getElementById('webcamModal');
@@ -793,7 +793,7 @@ function openWebcam() {
     webcamVideoContainer.style.display = 'none';
     captureBtn.style.display = 'none';
     
-    // 請求攝像頭權限
+    // Request camera permissions
     navigator.mediaDevices.getUserMedia({ 
         video: { 
             width: { ideal: 1280 },
@@ -824,20 +824,20 @@ function capturePhoto() {
     const retakeBtn = document.getElementById('retakeBtn');
     const usePhotoBtn = document.getElementById('usePhotoBtn');
     
-    // 設置 canvas 尺寸
+    // Set canvas size
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
-    // 繪製當前幀
+    // Drawing the current frame
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0);
     
-    // 顯示預覽
+    // Show Preview
     preview.src = canvas.toDataURL('image/png');
     preview.style.display = 'block';
     video.style.display = 'none';
     
-    // 更新按鈕
+    // Update button
     captureBtn.style.display = 'none';
     retakeBtn.style.display = 'block';
     usePhotoBtn.style.display = 'block';
@@ -862,10 +862,10 @@ function useWebcamPhoto() {
     const canvas = document.getElementById('webcamCanvas');
     const imageData = canvas.toDataURL('image/png');
     
-    // 關閉 webcam
+    // close webcam
     closeWebcam();
     
-    // 打開裁剪器
+    // open cropper
     cropImage.src = imageData;
     openCropModal();
 }
@@ -878,13 +878,13 @@ function closeWebcam() {
     const retakeBtn = document.getElementById('retakeBtn');
     const usePhotoBtn = document.getElementById('usePhotoBtn');
     
-    // 停止攝像頭
+    // Stop the camera
     if (webcamStream) {
         webcamStream.getTracks().forEach(track => track.stop());
         webcamStream = null;
     }
     
-    // 重置 UI
+    // reset UI
     webcamModal.classList.remove('active');
     preview.style.display = 'none';
     video.style.display = 'block';

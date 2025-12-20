@@ -7,58 +7,68 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 計算當前購物車的 subtotal
-$subtotal = 0;
-$stmt = $_db->prepare("
-    SELECT c.Quantity, p.Price
-    FROM cart c
-    JOIN product p ON c.ProductID = p.ProductID
-    WHERE c.UserID = ?
-");
-$stmt->execute([$user_id]);
-$cart_items = $stmt->fetchAll();
+// 檢查是否為 Admin
+$is_admin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
 
-foreach ($cart_items as $item) {
-    $subtotal += $item->Price * $item->Quantity;
+if (!$is_admin) {
+    // 計算當前購物車的 subtotal
+    $subtotal = 0;
+    $stmt = $_db->prepare("
+        SELECT c.Quantity, p.Price
+        FROM cart c
+        JOIN product p ON c.ProductID = p.ProductID
+        WHERE c.UserID = ?
+    ");
+    $stmt->execute([$user_id]);
+    $cart_items = $stmt->fetchAll();
+
+    foreach ($cart_items as $item) {
+        $subtotal += $item->Price * $item->Quantity;
+    }
+
+    // 獲取用戶的所有 voucher - 只顯示未使用的
+    $stm = $_db->prepare("
+        SELECT 
+            uv.UserVoucherID,
+            v.Code,
+            v.DiscountType,
+            v.DiscountValue,
+            v.MinSpend,
+            v.ExpiryDate,
+            uv.IsUsed,
+            uv.AssignedAt
+        FROM user_voucher uv
+        JOIN voucher v ON uv.VoucherID = v.VoucherID
+        WHERE uv.UserID = ?
+          AND uv.IsUsed = 0
+        ORDER BY 
+            v.MinSpend ASC,
+            uv.AssignedAt DESC
+    ");
+    $stm->execute([$user_id]);
+    $vouchers = $stm->fetchAll(PDO::FETCH_ASSOC);
+
+    // 分類 vouchers (只包含未使用的)
+    $available_vouchers = array_filter($vouchers, function($v) use ($subtotal) {
+        return ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
+               $subtotal >= $v['MinSpend'];
+    });
+
+    $locked_vouchers = array_filter($vouchers, function($v) use ($subtotal) {
+        return ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
+               $subtotal < $v['MinSpend'];
+    });
+
+    $expired_vouchers = array_filter($vouchers, function($v) {
+        return $v['ExpiryDate'] !== null && 
+               strtotime($v['ExpiryDate']) < strtotime('today');
+    });
+} else {
+    $vouchers = [];
+    $available_vouchers = [];
+    $locked_vouchers = [];
+    $expired_vouchers = [];
 }
-
-// 獲取用戶的所有 voucher - 只顯示未使用的
-$stm = $_db->prepare("
-    SELECT 
-        uv.UserVoucherID,
-        v.Code,
-        v.DiscountType,
-        v.DiscountValue,
-        v.MinSpend,
-        v.ExpiryDate,
-        uv.IsUsed,
-        uv.AssignedAt
-    FROM user_voucher uv
-    JOIN voucher v ON uv.VoucherID = v.VoucherID
-    WHERE uv.UserID = ?
-      AND uv.IsUsed = 0
-    ORDER BY 
-        v.MinSpend ASC,
-        uv.AssignedAt DESC
-");
-$stm->execute([$user_id]);
-$vouchers = $stm->fetchAll(PDO::FETCH_ASSOC);
-
-// 分類 vouchers (只包含未使用的)
-$available_vouchers = array_filter($vouchers, function($v) use ($subtotal) {
-    return ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
-           $subtotal >= $v['MinSpend'];
-});
-
-$locked_vouchers = array_filter($vouchers, function($v) use ($subtotal) {
-    return ($v['ExpiryDate'] === null || strtotime($v['ExpiryDate']) >= strtotime('today')) &&
-           $subtotal < $v['MinSpend'];
-});
-
-$expired_vouchers = array_filter($vouchers, function($v) {
-    return $v['ExpiryDate'] !== null && 
-           strtotime($v['ExpiryDate']) < strtotime('today');
-});
 
 $_title = 'My Vouchers - N°9 Perfume';
 include '../_head.php';
@@ -449,6 +459,30 @@ include '../_head.php';
     font-weight: 600;
     animation: pulse 2s ease-in-out infinite;
 }
+
+.admin-notice {
+    text-align: center;
+    padding: 80px 20px;
+    animation: fadeInUp 0.6s ease;
+}
+
+.admin-notice-icon {
+    font-size: 6rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+    animation: float 3s ease-in-out infinite;
+}
+
+.admin-notice h3 {
+    font-size: 1.5rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.admin-notice p {
+    color: #999;
+    font-size: 1.1rem;
+}
 </style>
 
 <script>
@@ -468,6 +502,14 @@ include '../_head.php';
                     My Vouchers
                 </h1>
             </div>
+
+            <?php if ($is_admin): ?>
+                <div class="admin-notice">
+                    <div class="admin-notice-icon">🔒</div>
+                    <h3>Not Available for Admin</h3>
+                    <p>Voucher management is only available for regular users.</p>
+                </div>
+            <?php else: ?>
 
             <?php if ($subtotal > 0): ?>
                 <div class="cart-info">
@@ -642,6 +684,8 @@ include '../_head.php';
                     <p>Complete a purchase to receive vouchers for your next order!</p>
                     <a href="/page/product.php" class="btn-checkout">Start Shopping</a>
                 </div>
+            <?php endif; ?>
+            
             <?php endif; ?>
         </div>
     </div>

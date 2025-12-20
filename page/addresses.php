@@ -8,14 +8,21 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 取用户地址
-$stm = $_db->prepare("
-    SELECT * FROM user_address 
-    WHERE UserID = ? 
-    ORDER BY IsDefault DESC, CreatedDate DESC
-");
-$stm->execute([$user_id]);
-$addresses = $stm->fetchAll();
+// 檢查是否為 Admin
+$is_admin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
+
+if (!$is_admin) {
+    // 取用户地址
+    $stm = $_db->prepare("
+        SELECT * FROM user_address 
+        WHERE UserID = ? 
+        ORDER BY IsDefault DESC, CreatedDate DESC
+    ");
+    $stm->execute([$user_id]);
+    $addresses = $stm->fetchAll();
+} else {
+    $addresses = [];
+}
 
 // Flash message
 $info_message = temp('info');
@@ -350,6 +357,29 @@ include '../_head.php';
         height: 18px;
         vertical-align: middle;
     }
+
+    .admin-notice {
+        text-align: center;
+        padding: 80px 20px;
+        animation: fadeInUp 0.6s ease;
+    }
+
+    .admin-notice-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .admin-notice h3 {
+        font-size: 2rem;
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .admin-notice p {
+        color: #999;
+        font-size: 1.1rem;
+    }
 </style>
 
 <script>
@@ -363,6 +393,15 @@ include '../_head.php';
 
     <div class="account-content">
         <div class="addresses-container">
+            
+            <?php if ($is_admin): ?>
+                <div class="admin-notice">
+                    <div class="admin-notice-icon">🔒</div>
+                    <h3>Not Available for Admin</h3>
+                    <p>Address management is only available for regular users.</p>
+                </div>
+            <?php else: ?>
+            
             <div class="addresses-header">
                 <h2>My Addresses</h2>
                 <a href="manage_address.php?action=add" class="btn-add-address">
@@ -450,6 +489,9 @@ include '../_head.php';
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+            
+            <?php endif; ?>
+            
         </div>
     </div>
 </div>

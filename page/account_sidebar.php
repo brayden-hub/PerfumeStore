@@ -1,4 +1,7 @@
-<?php $page = basename($_SERVER['PHP_SELF']); ?>
+<?php 
+$page = basename($_SERVER['PHP_SELF']); 
+$is_admin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
+?>
 
 <style>
 @keyframes slideInLeft {
@@ -211,6 +214,18 @@
         width: 100%;
         position: static;
     }
+
+    .account-sidebar a.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .account-sidebar a.disabled:hover {
+        background: transparent !important;
+        transform: translateX(0) !important;
+        color: #999 !important;
+        box-shadow: none !important;
+    }
 }
 </style>
 
@@ -221,37 +236,52 @@
     </div>
     
     <ul>
-        <li>
-            <a href="profile.php" class="<?= $page=='profile.php'?'active':'' ?>">
-                <span class="menu-icon">📝</span>
-                <span class="menu-text">Profile</span>
-            </a>
-        </li>
-        <li>
-            <a href="addresses.php" class="<?= $page=='addresses.php'?'active':'' ?>">
-                <span class="menu-icon">📍</span>
-                <span class="menu-text">Addresses</span>
-            </a>
-        </li>
-        <li>
-            <a href="favorites.php" class="<?= $page=='favorites.php'?'active':'' ?>">
-                <span class="menu-icon">❤️</span>
-                <span class="menu-text">My Favorites</span>
-            </a>
-        </li>
-        <li>
-            <a href="my_vouncher.php" class="<?= $page=='my_vouncher.php'?'active':'' ?>">
-                <span class="menu-icon">🎟️</span>
-                <span class="menu-text">My Voucher</span>
-            </a>
-        </li>
-        <li>
-            <a href="change_password.php" class="<?= $page=='change_password.php'?'active':'' ?>">
-                <span class="menu-icon">🔒</span>
-                <span class="menu-text">Change Password</span>
-            </a>
-        </li>
-    </ul>
+    <li>
+        <a href="profile.php" class="<?= $page=='profile.php'?'active':'' ?>">
+            <span class="menu-icon">📝</span>
+            <span class="menu-text">Profile</span>
+        </a>
+    </li>
+    <li>
+        <a href="<?= $is_admin ? '#' : 'addresses.php' ?>" 
+           class="<?= $page=='addresses.php'?'active':'' ?><?= $is_admin ? ' disabled' : '' ?>"
+           <?= $is_admin ? 'onclick="alert(\'Not available for Admin\'); return false;"' : '' ?>>
+            <span class="menu-icon">📍</span>
+            <span class="menu-text">Addresses</span>
+            <?php if ($is_admin): ?>
+                <span style="font-size:0.7rem; opacity:0.5;">🔒</span>
+            <?php endif; ?>
+        </a>
+    </li>
+    <li>
+        <a href="<?= $is_admin ? '#' : 'favorites.php' ?>" 
+           class="<?= $page=='favorites.php'?'active':'' ?><?= $is_admin ? ' disabled' : '' ?>"
+           <?= $is_admin ? 'onclick="alert(\'Not available for Admin\'); return false;"' : '' ?>>
+            <span class="menu-icon">❤️</span>
+            <span class="menu-text">My Favorites</span>
+            <?php if ($is_admin): ?>
+                <span style="font-size:0.7rem; opacity:0.5;">🔒</span>
+            <?php endif; ?>
+        </a>
+    </li>
+    <li>
+        <a href="<?= $is_admin ? '#' : 'my_vouncher.php' ?>" 
+           class="<?= $page=='my_vouncher.php'?'active':'' ?><?= $is_admin ? ' disabled' : '' ?>"
+           <?= $is_admin ? 'onclick="alert(\'Not available for Admin\'); return false;"' : '' ?>>
+            <span class="menu-icon">🎟️</span>
+            <span class="menu-text">My Voucher</span>
+            <?php if ($is_admin): ?>
+                <span style="font-size:0.7rem; opacity:0.5;">🔒</span>
+            <?php endif; ?>
+        </a>
+    </li>
+    <li>
+        <a href="change_password.php" class="<?= $page=='change_password.php'?'active':'' ?>">
+            <span class="menu-icon">🔒</span>
+            <span class="menu-text">Change Password</span>
+        </a>
+    </li>
+</ul>
 
     <div class="sidebar-footer">
         <div class="sidebar-tip">

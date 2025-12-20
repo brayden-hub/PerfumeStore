@@ -20,7 +20,10 @@ if (!$order_id) {
 
 // Fetch order details with shipping address
 $stmt = $_db->prepare("
-    SELECT o.*, u.name as CustomerName, u.email, u.phone_number, u.userID,
+    SELECT o.*, 
+           os.Status, os.TrackingNumber, os.EstimatedDelivery, 
+           os.ProcessedAt, os.ShippedAt, os.DeliveredAt, os.StatusUpdatedAt,
+           u.name as CustomerName, u.email, u.phone_number, u.userID,
            ua.AddressLabel, ua.RecipientName, ua.PhoneNumber as ShippingPhone,
            ua.AddressLine1, ua.AddressLine2, ua.City, ua.State, ua.PostalCode, ua.Country
     FROM `order` o

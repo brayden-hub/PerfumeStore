@@ -190,27 +190,26 @@ $(document).ready(function() {
             console.log('Failed to fetch cart count');
         });
     }
-// === 电话号码自动格式化 (register.php - Step 4) ===
-    // app.js - 修复：60(12-13位)，01(10-11位且只有一个破折号)
+
 $("#reg_phone_number").on("input", function() {
-    let input = $(this).val().replace(/[^0-9]/g, ''); // 提取纯数字
+    let input = $(this).val().replace(/[^0-9]/g, ''); 
 
     if (input.startsWith('60')) {
-        // Case 1: 60 开头，限制 13 位纯数字
+      
         if (input.length > 13) {
             input = input.substring(0, 13);
         }
         $(this).val(input);
 
     } else if (input.startsWith('01')) {
-        // Case 2: 01 开头，限制 11 位纯数字
+        
         if (input.length > 11) {
             input = input.substring(0, 11);
         }
 
         let formatted = '';
         if (input.length > 3) {
-            // 只在第3位后面加一个破折号
+           
             formatted = input.substring(0, 3) + '-' + input.substring(3);
         } else {
             formatted = input;
@@ -218,7 +217,7 @@ $("#reg_phone_number").on("input", function() {
         $(this).val(formatted);
 
     } else {
-        // 其他情况默认限制 11 位
+       
         if (input.length > 11) {
              input = input.substring(0, 11);
         }
@@ -227,26 +226,25 @@ $("#reg_phone_number").on("input", function() {
 }).on("blur", function() {
     $(this).val($(this).val()); 
 });
-    // === 格式化结束 ===
-    // === Profile Dropdown Toggle ===
+    
     const $toggle = $('#profile-menu-toggle');
     const $menu = $('#profile-dropdown-menu');
 
-    // 1. 点击头像时切换菜单显示
+    
     $toggle.on('click', function(e) {
-        e.stopPropagation(); // 防止点击头像后立即触发 document click
+        e.stopPropagation(); 
         $menu.toggleClass('show');
     });
 
-    // 2. 点击菜单外部时隐藏菜单
+    
     $(document).on('click', function(e) {
-        // 如果点击的不是菜单或头像，则隐藏菜单
+        
         if (!$menu.is(e.target) && $menu.has(e.target).length === 0 && !$toggle.is(e.target)) {
             $menu.removeClass('show');
         }
     });
     
-    // 3. 确保点击菜单内的链接不会触发 document click 导致菜单立即关闭
+    
     $menu.on('click', function(e) {
         e.stopPropagation();
     });

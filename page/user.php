@@ -1,12 +1,12 @@
 <?php
 require '../_base.php';
 
-// 分页与排序链接生成函数
+
 function admin_sort_link($field, $current_sort, $current_dir, $search_term, $filter_term, $page) {
     $new_dir = $current_sort === $field && $current_dir === 'ASC' ? 'DESC' : 'ASC';
     $indicator = $current_sort === $field ? ($current_dir === 'ASC' ? '▲' : '▼') : '';
     
-    // 核心修复：确保分页和排序链接中包含 filter 参数
+    
     $query_parts = [
         "sort=$field",
         "dir=$new_dir",
@@ -19,22 +19,22 @@ function admin_sort_link($field, $current_sort, $current_dir, $search_term, $fil
     return "<a href='$link' style='color:#fff; text-decoration:none;'>$field $indicator</a>";
 }
 
-// 权限检查
+
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'Admin') {
     redirect('/');
 }
 
-// 1. 获取请求参数
+
 $search = req('search'); 
-$filter = req('filter'); // 新增：获取过滤状态
+$filter = req('filter'); 
 $page   = req('page', 1);
 
-// 2. 构建基础查询条件
+
 $where = ["role = 'Member'"];
 $params = [];
 $href_params = '';
 
-// 处理搜索逻辑
+
 if ($search) {
     $where[] = "(name LIKE ? OR email LIKE ? OR phone_number LIKE ?)";
     $search_term = "%$search%";
@@ -44,7 +44,7 @@ if ($search) {
     $href_params .= 'search=' . urlencode($search) . '&';
 }
 
-// === 新增：处理状态过滤逻辑 ===
+
 if ($filter && in_array($filter, ['Activated', 'Deactivated', 'Pending'])) {
     $where[] = "status = ?";
     $params[] = $filter;
@@ -53,7 +53,7 @@ if ($filter && in_array($filter, ['Activated', 'Deactivated', 'Pending'])) {
 
 $where_sql = count($where) > 0 ? 'WHERE ' . implode(' AND ', $where) : '';
 
-// 3. 排序逻辑
+
 $fields = [
     'userID'         => 'ID',
     'name'           => 'Name',
@@ -67,7 +67,7 @@ key_exists($sort, $fields) || $sort = 'userID';
 $dir = req('dir');
 in_array($dir, ['ASC', 'DESC']) || $dir = 'ASC'; 
 
-// 4. 分页处理
+
 $page_size = 10;
 require_once '../lib/SimplePager.php'; 
 
@@ -79,7 +79,7 @@ $sql = "SELECT userID, name, email, phone_number, role, Profile_Photo, status
 $p = new SimplePager($sql, $params, $page_size, $page);
 $arr = $p->result; 
 
-// 构建用于分页 HTML 的参数字符串
+
 $pager_href = $href_params . 'sort=' . $sort . '&dir=' . $dir;
 
 $_title = 'User Management - N°9 Perfume';
@@ -172,7 +172,7 @@ include '../_head.php';
     </table>
 
     <div class="admin-pager">
-        <?php $p->html($pager_href); // 调用 SimplePager 生成分页链接 ?>
+        <?php $p->html($pager_href);  ?>
     </div>
     
 </div>

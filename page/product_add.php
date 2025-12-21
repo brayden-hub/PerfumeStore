@@ -46,8 +46,8 @@ if (is_post()) {
         $_err['productImage'] = 'Required';
     } else if (!str_starts_with($productImage->type, 'image/')) {
         $_err['productImage'] = 'Must be an image';
-    } else if ($productImage->size > 1 * 1024 * 1024) {
-        $_err['productImage'] = 'Maximum 1MB';
+    } else if ($productImage->size > 10 * 1024 * 1024) {
+        $_err['productImage'] = 'Maximum 10MB';
     }
 
     // 3. DATABASE OPERATION

@@ -48,9 +48,11 @@ $stmt = $_db->prepare($sql);
 $stmt->execute($params);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Check if user is logged in and get favorites
+// Check if user is logged in and NOT admin, then get favorites
 $user_favorites = [];
-if (isset($_SESSION['user_id'])) {
+$is_admin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
+
+if (isset($_SESSION['user_id']) && !$is_admin) {
     $fav_stmt = $_db->prepare("SELECT ProductID FROM favorites WHERE UserID = ?");
     $fav_stmt->execute([$_SESSION['user_id']]);
     $user_favorites = $fav_stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -86,13 +88,15 @@ else:
                 <div class="view-details-badge">VIEW DETAILS</div>
                 <div class="series-badge"><?= htmlspecialchars($p['Series']) ?></div>
 
-                <!-- Favorite Button -->
+                <!-- Favorite Button - Only show for non-admin users -->
+                <?php if (!$is_admin): ?>
                 <button 
                     class="fav-btn <?= $isFavorited ? 'active' : '' ?>" 
                     data-product-id="<?= $productId ?>"
->
+                >
                     <?= $isFavorited ? '♥' : '♡' ?>
                 </button>
+                <?php endif; ?>
             </div>
             
             <div class="product-info">

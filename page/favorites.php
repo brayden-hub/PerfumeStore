@@ -5,6 +5,14 @@ if (!isset($_SESSION['user_id'])) {
     redirect('login.php');
 }
 
+
+// Check if user is admin - redirect to home with message
+if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin') {
+    temp('info', 'Admin accounts cannot access favorites feature.');
+    redirect('/');
+
+}
+
 $user_id = $_SESSION['user_id'];
 
 // Handling AJAX requests to remove favorites
@@ -38,7 +46,6 @@ if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
 }
 window.scrollTo(0, 0);
-document.documentElement.scrollTop = 0;
 </script>
 
 <style>

@@ -5,6 +5,10 @@ $_title = 'Products - N°9 Perfume';
 // Process series filter
 $selected_series = get('series', '');
 
+
+// Check if user is admin
+$is_admin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
+
 include '../_head.php';  
 ?>
 
@@ -79,6 +83,7 @@ include '../_head.php';
 <script>
 let currentPage = 1;
 let searchTimeout;
+const isAdmin = <?= $is_admin ? 'true' : 'false' ?>;
 
 $(document).ready(function() {
     window.scrollTo(0, 0);
@@ -200,7 +205,7 @@ $(document).ready(function() {
             alert('Please login first to add items to cart');
             window.location.href = '/page/login.php';
             return;
-        <?php elseif (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin'): ?>
+        <?php elseif ($is_admin): ?>
             alert('Admin accounts cannot purchase products. Please use a member account.');
             return;
         <?php endif; ?>
@@ -236,13 +241,16 @@ $(document).ready(function() {
         });
     });
 
-    // Handle add to favourites
+    // Handle add to favourites - Block for admin
     $(document).on('click', '.fav-btn', function(e) {
         e.stopPropagation();
 
         <?php if (!isset($_SESSION['user_id'])): ?>
             alert('Please login to use favourites');
             window.location.href = '/page/login.php';
+            return;
+        <?php elseif ($is_admin): ?>
+            alert('Admin accounts cannot use the favorites feature.');
             return;
         <?php endif; ?>
 

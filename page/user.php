@@ -152,6 +152,12 @@ include '../_head.php';
             <?php endforeach ?>
         </tbody>
     </table>
+    <div class="admin-pager">
+    <?php
+    
+    $p->html($pager_href); 
+    ?>
+</div>
     
     </div>
     

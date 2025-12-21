@@ -36,7 +36,8 @@ $sql = "
            (SELECT COALESCE(SUM(TotalPrice), 0) FROM productorder WHERE OrderID = o.OrderID) as ProductTotal,
            (SELECT COUNT(*) FROM productorder WHERE OrderID = o.OrderID) as ItemCount,
            (SELECT p.ProductName FROM productorder po2 JOIN product p ON po2.ProductID = p.ProductID WHERE po2.OrderID = o.OrderID ORDER BY po2.ProductOrderID ASC LIMIT 1) as FirstProductName,
-           (SELECT ProductID FROM productorder WHERE OrderID = o.OrderID ORDER BY ProductOrderID ASC LIMIT 1) as FirstProductID
+           (SELECT ProductID FROM productorder WHERE OrderID = o.OrderID ORDER BY ProductOrderID ASC LIMIT 1) as FirstProductID,
+           (SELECT p.Image FROM productorder po2 JOIN product p ON po2.ProductID = p.ProductID WHERE po2.OrderID = o.OrderID ORDER BY po2.ProductOrderID ASC LIMIT 1) as FirstProductImage
     FROM `order` o
     JOIN order_status os ON o.OrderID = os.OrderID
     WHERE o.UserID = ?
@@ -119,10 +120,10 @@ include '../_head.php';
             <?php foreach ($orders as $o): 
                 $grand_total = $o->ProductTotal + ($o->GiftWrapCost ?? 0) + ($o->ShippingFee ?? 0) - ($o->VoucherDiscount ?? 0);
                 
-                $imgSrc = '/public/images/photo.jpg'; 
-                if ($o->FirstProductID) {
-                    if (file_exists("../public/images/{$o->FirstProductID}.jpg")) $imgSrc = "/public/images/{$o->FirstProductID}.jpg";
-                    elseif (file_exists("../public/images/{$o->FirstProductID}.png")) $imgSrc = "/public/images/{$o->FirstProductID}.png";
+                // Use the Image field from database directly (already includes extension)
+                $imgSrc = '/public/images/photo.jpg'; // Default fallback
+                if ($o->FirstProductImage && file_exists("../public/images/{$o->FirstProductImage}")) {
+                    $imgSrc = "/public/images/{$o->FirstProductImage}";
                 }
             ?>
             <tr>

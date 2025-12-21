@@ -31,15 +31,36 @@ if (!$order) {
 // Check if order can be cancelled (only Pending and Processing orders)
 $can_cancel = in_array($order->Status, ['Pending', 'Processing']);
 
-// Fetch order items
+// Fetch order items with Image field
 $stmt = $_db->prepare("
-    SELECT po.*, p.ProductName, p.Series, p.ProductID
+    SELECT po.*, p.ProductName, p.Series, p.ProductID, p.Image
     FROM productorder po
     JOIN product p ON po.ProductID = p.ProductID
     WHERE po.OrderID = ?
 ");
 $stmt->execute([$order_id]);
 $items = $stmt->fetchAll();
+
+// Helper function to get product image path
+function getProductImagePath($productId, $imageFilename = null) {
+    // First, try to use the Image field from database if available
+    if ($imageFilename && file_exists("../public/images/{$imageFilename}")) {
+        return "/public/images/{$imageFilename}";
+    }
+    
+    // Fallback: search for image with any extension
+    $extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+    
+    foreach ($extensions as $ext) {
+        $path = "../public/images/{$productId}.{$ext}";
+        if (file_exists($path)) {
+            return "/public/images/{$productId}.{$ext}";
+        }
+    }
+    
+    // Default fallback image
+    return '/public/images/photo.jpg';
+}
 
 // Calculate subtotal from items
 $subtotal = 0;
@@ -620,10 +641,12 @@ window.onclick = function(event) {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($items as $item): ?>
+                <?php foreach ($items as $item): 
+                    $imagePath = getProductImagePath($item->ProductID, $item->Image ?? null);
+                ?>
                 <tr>
                     <td>
-                        <img src="/public/images/<?= htmlspecialchars($item->ProductID) ?>.png" 
+                        <img src="<?= $imagePath ?>" 
                              style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
                              alt="<?= htmlspecialchars($item->ProductName) ?>">
                     </td>

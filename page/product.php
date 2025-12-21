@@ -5,7 +5,6 @@ $_title = 'Products - N°9 Perfume';
 // Process series filter
 $selected_series = get('series', '');
 
-
 // Check if user is admin
 $is_admin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
 
@@ -84,6 +83,39 @@ include '../_head.php';
 let currentPage = 1;
 let searchTimeout;
 const isAdmin = <?= $is_admin ? 'true' : 'false' ?>;
+
+// Helper function to find product image with any extension
+function getProductImageUrl(productId) {
+    const extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+    
+    // Return a promise that checks each extension
+    return new Promise((resolve) => {
+        let index = 0;
+        
+        function checkNext() {
+            if (index >= extensions.length) {
+                resolve('/public/images/photo.jpg'); // Default fallback
+                return;
+            }
+            
+            const img = new Image();
+            const url = `/public/images/${productId}.${extensions[index]}`;
+            
+            img.onload = function() {
+                resolve(url);
+            };
+            
+            img.onerror = function() {
+                index++;
+                checkNext();
+            };
+            
+            img.src = url;
+        }
+        
+        checkNext();
+    });
+}
 
 $(document).ready(function() {
     window.scrollTo(0, 0);

@@ -58,6 +58,21 @@ if (isset($_SESSION['user_id']) && !$is_admin) {
     $user_favorites = $fav_stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
+// Helper function to get product image path
+function getProductImagePath($productId) {
+    $extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+    
+    foreach ($extensions as $ext) {
+        $path = "../public/images/{$productId}.{$ext}";
+        if (file_exists($path)) {
+            return "/public/images/{$productId}.{$ext}";
+        }
+    }
+    
+    // Fallback to default image
+    return '/public/images/photo.jpg';
+}
+
 if (empty($products)):
 ?>
     <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: #999;">
@@ -77,10 +92,13 @@ else:
         $stockDotClass = $p['Stock'] > 10 ? '' : ($p['Stock'] > 0 ? 'low' : 'out');
         $productId = htmlspecialchars($p['ProductID']);
         $isFavorited = in_array($p['ProductID'], $user_favorites);
+        
+        // Get the correct image path (supports all formats)
+        $imagePath = getProductImagePath($p['ProductID']);
 ?>
         <div class="product-card" data-product-id="<?= $productId ?>">
             <div class="product-image-wrapper">
-                <img src="/public/images/<?= $productId ?>.png" 
+                <img src="<?= $imagePath ?>" 
                      alt="<?= htmlspecialchars($p['ProductName']) ?>" 
                      class="product-image"
                      data-product-id="<?= $productId ?>">

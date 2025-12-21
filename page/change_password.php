@@ -39,6 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         elseif (strlen($new) < 6) {
             $errors['new_password'] = 'New password must be at least 6 characters';
         }
+        elseif ($current === $new) {
+            // 新增：檢查新密碼是否和舊密碼相同
+            $errors['new_password'] = 'New password must be different from current password';
+        }
         elseif ($new !== $confirm) {
             $errors['confirm_password'] = 'Passwords do not match';
         }
@@ -631,7 +635,7 @@ main {
                         <strong>Password Requirements:</strong>
                         <ul>
                             <li>At least 6 characters long</li>
-                            <li>Different from your current password</li>
+                            <li>Must be different from your current password</li>
                         </ul>
                     </div>
                 </div>

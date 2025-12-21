@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors['new_password'] = 'New password must be at least 6 characters';
         }
         elseif ($current === $new) {
-            // 新增：檢查新密碼是否和舊密碼相同
+            
             $errors['new_password'] = 'New password must be different from current password';
         }
         elseif ($new !== $confirm) {

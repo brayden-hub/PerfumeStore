@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $action = $_GET['action'] ?? 'list';
 $address_id = $_GET['id'] ?? null;
-$redirect_page = $_GET['redirect'] ?? 'profile'; // 支持重定向参数
+$redirect_page = $_GET['redirect'] ?? 'profile'; 
 
 $errors = [];
 $address = null;

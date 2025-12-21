@@ -59,7 +59,7 @@ if (is_post()) {
 
     // Validate Main Image (if uploaded)
     if ($f && !str_starts_with($f->type, 'image/')) $_err['Image'] = 'Must be an image';
-    if ($f && $f->size > 1 * 1024 * 1024) $_err['Image'] = 'Maximum 1MB';
+    if ($f && $f->size > 10 * 1024 * 1024) $_err['Image'] = 'Maximum 10MB';
 
     // 2. DB OPERATION
     if (!$_err) {

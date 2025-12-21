@@ -24,9 +24,12 @@ array_unshift($gallery_images, $p->Image);
 $_title = $p->ProductName . " - N°9 Perfume";
 include '../_head.php';
 
-// Check if product is favorited
+// Check if user is admin
+$isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
+
+// Check if product is favorited (only for non-admin users)
 $isFavorited = false;
-if (isset($_SESSION['user_id'])) {
+if (isset($_SESSION['user_id']) && !$isAdmin) {
     $fav_stmt = $_db->prepare("SELECT COUNT(*) FROM favorites WHERE UserID = ? AND ProductID = ?");
     $fav_stmt->execute([$_SESSION['user_id'], $id]);
     $isFavorited = $fav_stmt->fetchColumn() > 0;
@@ -85,12 +88,14 @@ if (isset($_SESSION['user_id'])) {
             RM <?= number_format($p->Price, 2) ?>
         </p>
 
+        <?php if (!$isAdmin): ?>
         <button 
             class="fav-btn-detail fav-heart <?= $isFavorited ? 'active' : '' ?>" 
             data-product-id="<?= $p->ProductID ?>"
         >
             <?= $isFavorited ? '♥' : '♡' ?> <?= $isFavorited ? 'Remove from favourites' : 'Add to favourites' ?>
         </button>
+        <?php endif; ?>
 
         <p style="color:<?= $p->Stock > 10 ? '#28a745' : ($p->Stock > 0 ? '#ff9800' : '#dc3545') ?>; font-weight: 600; margin-bottom: 1rem;">
             <?php if ($p->Stock > 10): ?>
@@ -103,13 +108,9 @@ if (isset($_SESSION['user_id'])) {
         </p>
 
         
-        <?php 
-        // Check if user is admin cannot purchase
-        $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin';
-        
-        if ($isAdmin): ?>
+        <?php if ($isAdmin): ?>
             <div style="padding:1rem;background:#fff3cd;color:#856404;border:1px solid #ffeaa7;border-radius:4px;margin:2rem 0;">
-                <strong>⚠️ Admin Notice:</strong> Admin accounts cannot purchase products. Please use a member account for shopping.
+                <strong>⚠️ Admin Notice:</strong> Admin accounts cannot purchase products or add to favorites. Please use a member account for shopping.
             </div>
         <?php elseif ($p->Stock > 0): ?>
         <div style="display:flex;gap:1rem;margin:2rem 0;align-items:center;">
@@ -284,21 +285,8 @@ $(document).on('click', '.quick-add-btn', function(e) {
         btn.prop('disabled', false).text('Quick Add');
     });
 });
-<?php endif; ?>
 
-// Related product card click (navigate to detail)
-$(document).on('click', '.related-card', function(e) {
-    if ($(e.target).hasClass('quick-add-btn') || $(e.target).closest('.quick-add-btn').length) {
-        return;
-    }
-    
-    const productId = $(this).data('product-id');
-    if (productId) {
-        window.location.href = `/page/product_detail.php?id=${productId}`;
-    }
-});
-
-// Favourite toggle (detail page)
+// Favourite toggle (detail page) - Only for non-admin
 $(document).on('click', '.fav-btn-detail', function() {
     <?php if (!isset($_SESSION['user_id'])): ?>
         alert('Please login to use favourites');
@@ -317,9 +305,22 @@ $(document).on('click', '.fav-btn-detail', function() {
                 btn.removeClass('active').html('♡ Add to favourites');
             }
         } else {
-            alert('Please login to use favourites');
+            alert('Failed to update favourites');
         }
     }, 'json');
+});
+<?php endif; ?>
+
+// Related product card click (navigate to detail)
+$(document).on('click', '.related-card', function(e) {
+    if ($(e.target).hasClass('quick-add-btn') || $(e.target).closest('.quick-add-btn').length) {
+        return;
+    }
+    
+    const productId = $(this).data('product-id');
+    if (productId) {
+        window.location.href = `/page/product_detail.php?id=${productId}`;
+    }
 });
 
 // Toast notification
@@ -382,78 +383,47 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// =========================================
 // Dynamic Product Slider Script
-// =========================================
-
-// 1. Setup Globals
-let slideshowInterval; // Variable to hold the timer
-let currentIndex = 0;  // Track current image index
-// Get all thumbnails (returns an HTMLCollection like an array)
+let slideshowInterval;
+let currentIndex = 0;
 const thumbs = document.getElementsByClassName('thumb-img');
 const totalImages = thumbs.length;
 const mainImg = document.getElementById('main-display-img');
 
-
-// 2. Main function to switch images (used by manual click AND auto-slide)
 function changeImage(element) {
-    // --- Crucial: Reset the auto-timer on manual interaction ---
-    // This prevents the image from jumping right after a user clicks one.
     startSlideshow();
-
-    // Synchronize index: Find out which thumbnail index was clicked
-    // (We convert the HTMLCollection 'thumbs' to a real Array to use .indexOf)
     currentIndex = Array.from(thumbs).indexOf(element);
-
-    // --- Visual Swap Logic (Fade effect) ---
-    mainImg.style.opacity = 0.8; // Start fade out
-
+    
+    mainImg.style.opacity = 0.8;
+    
     setTimeout(function(){
-        // Change source
         mainImg.src = element.src;
-        // Fade back in
         mainImg.style.opacity = 1;
-    }, 150); // Wait 150ms for the fade-out before swapping
+    }, 150);
 
-    // --- Update Active Thumbnail Border Styles ---
     for (var i = 0; i < totalImages; i++) {
         thumbs[i].style.border = '2px solid transparent';
         thumbs[i].style.opacity = '0.7';
     }
-    // Highlight the active one
-    element.style.border = '2px solid #D4AF37'; // Gold border
+    element.style.border = '2px solid #D4AF37';
     element.style.opacity = '1';
 }
 
-
-// 3. Function to handle the 5-second timer
 function startSlideshow() {
-    // Always clear existing timer first to avoid duplicates
     clearInterval(slideshowInterval);
 
-    // Only run auto-slide if there is more than 1 image
     if (totalImages > 1) {
         slideshowInterval = setInterval(function() {
-            // Calculate next index. The modulo (%) operator makes it loop back to 0 at the end.
-            // e.g., if total is 3: index goes 0 -> 1 -> 2 -> 0 -> 1...
             let nextIndex = (currentIndex + 1) % totalImages;
-
-            // Trigger the change function on the next thumbnail element
             changeImage(thumbs[nextIndex]);
-
-        }, 4500); // 5000 milliseconds = 5 seconds
+        }, 4500);
     }
 }
 
-
-// 4. Initialize on Page Load
 document.addEventListener("DOMContentLoaded", function() {
     if (totalImages > 0) {
-        // Ensure the first image is highlighted initially
         thumbs[0].style.border = '2px solid #D4AF37';
         thumbs[0].style.opacity = '1';
-
-        // Kick off the auto-rotation
         startSlideshow();
     }
 });

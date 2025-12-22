@@ -48,6 +48,12 @@ if (history.scrollRestoration) {
 window.scrollTo(0, 0);
 </script>
 
+<script>
+    $(document).ready(function() {
+        window.scrollTo(0, 0);
+    });
+</script>
+
 <style>
     /* Force the page to start from the top. */
     html, body {
